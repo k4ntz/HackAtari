@@ -11,15 +11,14 @@ class ConstantBackgroundRiverraid(OCAtari):
         super().__init__(env_name, mode, hud, obs_mode, *args, **kwargs)
     
     def alter_ram(self):
-        bgs = self.get_ram()[38:44]
         ram = self.get_ram()
-        self.set_ram(55, 255) # fuel
+        self.set_ram(55, 255) # avoid spending fuel
         for i in range(6):
             obj_type = ram[32 + i]
             anchor = ram[20 + i]
             if obj_type == 9 and (2 < anchor < 8): # house
                 self.set_ram(20+i, random.choice([0, 1, 8, 9]))  # setting the grass
-            elif obj_type not in [0, 1, 2, 3 , 9, 4] and not (2 < anchor < 8): # other than house
+            elif obj_type not in [0, 1, 2, 3, 9, 4] and not (2 < anchor < 8): # other than house
                 self.set_ram(20+i, random.randint(3, 6))  # setting the grass
             self.set_ram(14+i, 69)  # setting the grass
             self.set_ram(44+i, 0)
@@ -30,10 +29,6 @@ class ConstantBackgroundRiverraid(OCAtari):
     def _step_ram(self, *args, **kwargs):
         self.alter_ram()
         toret = super()._step_ram(*args, **kwargs)
-        # for i, bg in enumerate(bgs):
-        #     if bg not in [65, 129]:
-        #         env.set_ram(38+i, 35)
-        #     env.set_ram(44+i, 0)
         return toret
 
     def _fill_buffer_dqn(self):
