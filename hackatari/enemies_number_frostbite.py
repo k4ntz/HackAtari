@@ -1,10 +1,10 @@
 '''
 enemies_number_frostbite.py implements a changed version of Frostbite in which
 the number of enemies can be changed.
-- 0 = default mode. No change to the original game
-- 1 = easy mode with 0 enemies
-- 2 = medium mode with 8 enemies
-- 3 = hard mode with 12 enemies
+- 0 = default mode. No change to the original game.
+- 1 = easy mode with 0 enemies.
+- 2 = medium mode with 8 enemies.
+- 3 = hard mode with 12 enemies.
 '''
 
 from time import sleep
