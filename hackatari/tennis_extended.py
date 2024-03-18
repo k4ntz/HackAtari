@@ -1,12 +1,10 @@
 """
-This module provides an enhanced gaming experience for the Atari game "Seaquest".
-The following additions have been added:
-- Change oxygen mode to no oxygen usage or hard mode with faster oxygen usage.
-- Enable or disable enmemies.
-- Enable gravity for the player.
+This module provides an enhanced gaming experience for the Atari game "Tennis" by the addition
+of wind or drift in the direction of up and right.
 """
-import argparse
+
 from time import sleep
+import argparse
 import torch
 import cv2
 import pygame
@@ -15,31 +13,19 @@ from ocatari.core import OCAtari, DEVICE
 from ocatari.utils import load_agent
 import gymnasium as gym
 
-# Set up the argument parser for the Seaquest game modifications.
+# Set up the argument parser for the Tennis game modifications.
 # This allows players to customize their gameplay experience through command-line options.
-parser = argparse.ArgumentParser(description='Seaquest Game Argument Setter')
-
-# Argument to set the oxygen mode
-# Options:
-# - 0: easy mode: no oxygen usage
-# - 1: Default - standard game mode: with standard oxygen usage
-# - 2: hard mode: oxygen decreases twice as fast
-parser.add_argument('-o', '--oxygen', action='store_true',
-                    help='Set the oxygen to unlimited.')
-
-# Argument to enable gravity for the player.
-parser.add_argument('-gr', '--enable-gravity', action='store_true',
-                    help='Enables gravity for the player')
-
-# Argument to disable enemies in the game.
-# Useful for reducing game difficulty or for specific testing scenarios.
-parser.add_argument('-de', '--disable-enemies', action='store_true',
-                    help='Disable enemies in the game')
+parser = argparse.ArgumentParser(description='Tennis Game Argument Setter')
 
 # Argument to enable human mode.
 # When set, the game will be playable by a human player instead of an AI agent.
 parser.add_argument('-hu', '--human', action='store_true',
                     help='Enable human mode')
+
+# Argument to enable wind.
+# When set, the ball will drift as if infuenced by wind.
+parser.add_argument('-w', '--wind', action='store_true',
+                    help='Enable wind mode')
 
 args = parser.parse_args()
 
@@ -52,70 +38,48 @@ The value 'True' indicates that the human mode is active, while the value
 'False' indicates that the agent mode is active.
 """
 
-OXYGEN_UNLIMITED = args.oxygen
+WIND = args.wind
 """
-OXYGEN_UNLIMITED toggles the oxygen mode between unlimited and normal
-oxygen usage. When true, the oxygen bar always stays full.
-"""
-
-DISABLE_ENEMIES = args.disable_enemies
-"""
-DISABLE_ENEMIES controls the presence of enemies in the game.
-When set to True via the '--disable-enemies' argument, enemies are removed from the game.
+A constant that toggles the state of the wind.
 """
 
-ENABLE_GRAVITY = args.enable_gravity
-"""
-ENABLE_GRAVITY controls the gravity for the player.
-When set to True via the '--enable-gravity' argument, gravity is enabled for the player.
-"""
-
-
-def gravity(self,):
-    """
-    Enables gravity for the player.
-    """
-    ram = self.get_ram()
-    self.set_ram(97, ram[97] + 1)
-
-def disable_enemies(self):
-    """
-    Disables all the enemies.
-    """
-    for x in range(4):
-        self.set_ram(36 + x, 0)
-
-def is_gamestart(self):
-    """
-    Determines if it is the start of the game
-    via the position of the player and the points
-    """
-    ram = self.get_ram()
-    if ram[97] == 13 and ram[70] == 76 and ram[26] == 80:
-        return True
-    return False
-
-def oxygen(self):
-    """
-    Changes the behavior of the oxygen bar
-    by changing the corresponding ram positions
-    """
-    ram = self.get_ram()
-    if OXYGEN_UNLIMITED:
-        self.set_ram(102,64)
-        if is_gamestart:
-            self.set_ram(59, 3) # replace life if lost because of bug
-
-
-class SeaquestExtended(OCAtari):
+def wind(self):
     '''
-    SeaquestExtended: Modifies the Atari game "Seaquest" to include diverse extra settings, adding additional options
-    to the gameplay making it easier or harder.
+    wind: Sets the ball in the up and right direction by 3 pixles every single ram step
+    to simulate the effect of wind
+    '''
+    ram = self.get_ram()
+    ball_x = ram[16] - 2
+    #ball_y isn't always stable, as the ball bounces in some situations
+    ball_y = 189 - ram[54]
+    #shadow x is always the same as ball_x
+    #this ankers the ball when bouncing
+    shadow_anker = ram[15]
+    shadow_y = 189 - ram[55]
+    
+        
+    #movement up and right - noth-east wind direction stays the same so no indication is needed
+    new_ball_x = ball_x + 3 # moves the ball to the right one position every ram step
+    new_ball_y = ball_y + 3 # moves the ball up one position every ram step
+    new_shadow_y  = shadow_y + 3
+    #first part makes sure ball only moves in the air, not if bouncing on the line
+    #as ram manipualtion fails when bouncing
+    #second part makes sure the ball stops moving when it exits the visible field
+    #in the x position to not loop the ram around
+    if (ball_y < 140 and ball_y > 10) and (shadow_anker < 140 and shadow_anker > 10) and (ball_x > 2 and ball_x < 155):
+        self.set_ram(16, new_ball_x)
+        self.set_ram(54, new_ball_y)
+        self.set_ram(55, new_shadow_y)
+
+class WindTennis(OCAtari):
+    '''
+    WindTennis: Modifies the Atari game "Tennis" to simulate windforce on the tennisball, adding an additional difficulty 
+    to the game.
     '''
 
-    def __init__(self, env_name="Seaquest", mode="raw", hud=False, obs_mode="dqn", *args, **kwargs):
+    def __init__(self, env_name="Tennis", mode="raw", hud=False, obs_mode="dqn", *args, **kwargs):
         '''
-        Initializes an OCAtari game environment with preset values for game name, mode, and
+        Initializes an OCAtari game environment with preset values for game name, mode, and 
         observation mode. The Heads-Up Display (HUD) is disabled by default.
         '''
         self.render_mode = kwargs.get("render_mode", None)
@@ -125,13 +89,11 @@ class SeaquestExtended(OCAtari):
 
     def alter_ram(self):
         '''
-        alter_ram: alters the game depending on parser arguments
+        alter_ram: Manipulates the RAM cell at position 34 to simulate gravity.
+        The value in the cell is continually increased until the threshold is reached.
         '''
-        oxygen(self)
-        if DISABLE_ENEMIES:
-            disable_enemies(self)
-        if ENABLE_GRAVITY and not is_gamestart(self) and self.get_ram()[97] < 108:
-            gravity(self)
+        if WIND:
+            wind(self)
 
 
 
@@ -153,18 +115,18 @@ class SeaquestExtended(OCAtari):
         )
         self._state_buffer.append(torch.tensor(state, dtype=torch.uint8, device=DEVICE))
 
-class SeaquestExtendedHuman(OCAtari):
+class WindTennisHuman(OCAtari): 
     '''
-    SeaquestExtendedHuman: Enables human play mode for the SeaquestExtended game.
+    WindTennisHuman: Enables human play mode for the WindTennis game.
     '''
 
     env: gym.Env
 
     def __init__(self, env_name: str):
         '''
-        Initializes the SeaquestExtendedHuman environment with the specified environment name.
+        Initializes the WindTennisHuman environment with the specified environment name.
         '''
-        self.env = OCAtari(env_name, mode="revised", hud=True, render_mode="human",
+        self.env = OCAtari(env_name, mode="ram", hud=True, render_mode="human",
                         render_oc_overlay=True, frameskip=1)
         self.env.reset()
         self.env.render()  # Initialize the pygame video system
@@ -175,7 +137,7 @@ class SeaquestExtendedHuman(OCAtari):
 
     def run(self):
         '''
-        run: Runs the SeaquestExtended environment, allowing human interaction with the game.
+        run: Runs the WindTennis environment, allowing human interaction with the game.
         '''
         self.running = True
         while self.running:
@@ -183,14 +145,8 @@ class SeaquestExtendedHuman(OCAtari):
             if not self.paused:
                 action = self._get_action()
                 # Change RAM value for human mode
-
-                oxygen(self.env)
-
-                if DISABLE_ENEMIES:
-                    disable_enemies(self.env)
-
-                if ENABLE_GRAVITY and not is_gamestart(self.env) and self.env.get_ram()[97] < 108 and not (pygame.K_w in list(self.current_keys_down)):
-                    gravity(self.env)
+                if WIND:
+                    wind(self.env)
 
             self.env.step(action)
             self.env.render()
@@ -210,7 +166,7 @@ class SeaquestExtendedHuman(OCAtari):
 
     def _handle_user_input(self):
         '''
-        _handle_user_input: Handles user input for the SeaquestExtendedHuman environment.
+        _handle_user_input: Handles user input for the WindTennisHuman environment.
         '''
         self.current_mouse_pos = np.asarray(pygame.mouse.get_pos())
 
@@ -235,13 +191,13 @@ class SeaquestExtendedHuman(OCAtari):
 
 # If statement for switching between human play mode and RL agent play mode
 if TOGGLE_HUMAN_MODE:
-    renderer = SeaquestExtendedHuman('Seaquest')
+    renderer = WindTennisHuman('Tennis')
     renderer.run()
 else:
-    env = SeaquestExtended(render_mode="human")
+    env = WindTennis(render_mode="human")
     # The following path to the agent has to be modified according to individual user setup
     # and folder names
-    dqn_agent = load_agent(r"C:\Workspaces\OC_Atari\models\Seaquest\dqn.gz", env.action_space.n)
+    dqn_agent = load_agent("../OC_Atari/models/Tennis/dqn.gz", env.action_space.n)
     env.reset()
     # Let the agent play the game for 10000 steps
     for i in range(10000):

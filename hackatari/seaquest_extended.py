@@ -1,6 +1,8 @@
 """
 This module provides an enhanced gaming experience for the Atari game "Seaquest".
 The following additions have been added:
+- Change oxygen mode to no oxygen usage or hard mode with faster oxygen usage.
+- Enable or disable enmemies.
 - Enable gravity for the player.
 """
 import argparse
@@ -17,10 +19,22 @@ import gymnasium as gym
 # This allows players to customize their gameplay experience through command-line options.
 parser = argparse.ArgumentParser(description='Seaquest Game Argument Setter')
 
+# Argument to set the oxygen mode
+# Options:
+# - 0: easy mode: no oxygen usage
+# - 1: Default - standard game mode: with standard oxygen usage
+# - 2: hard mode: oxygen decreases twice as fast
+parser.add_argument('-o', '--oxygen', action='store_true',
+                    help='Set the oxygen to unlimited.')
 
 # Argument to enable gravity for the player.
 parser.add_argument('-gr', '--enable-gravity', action='store_true',
                     help='Enables gravity for the player')
+
+# Argument to disable enemies in the game.
+# Useful for reducing game difficulty or for specific testing scenarios.
+parser.add_argument('-de', '--disable-enemies', action='store_true',
+                    help='Disable enemies in the game')
 
 # Argument to enable human mode.
 # When set, the game will be playable by a human player instead of an AI agent.
@@ -37,6 +51,19 @@ This constant is used to toggle between the human mode and the agent mode.
 The value 'True' indicates that the human mode is active, while the value
 'False' indicates that the agent mode is active.
 """
+
+OXYGEN_UNLIMITED = args.oxygen
+"""
+OXYGEN_UNLIMITED toggles the oxygen mode between unlimited and normal
+oxygen usage. When true, the oxygen bar always stays full.
+"""
+
+DISABLE_ENEMIES = args.disable_enemies
+"""
+DISABLE_ENEMIES controls the presence of enemies in the game.
+When set to True via the '--disable-enemies' argument, enemies are removed from the game.
+"""
+
 ENABLE_GRAVITY = args.enable_gravity
 """
 ENABLE_GRAVITY controls the gravity for the player.
@@ -44,15 +71,19 @@ When set to True via the '--enable-gravity' argument, gravity is enabled for the
 """
 
 
-def gravity(self):
+def gravity(self,):
     """
     Enables gravity for the player.
     """
     ram = self.get_ram()
     self.set_ram(97, ram[97] + 1)
 
-
-
+def disable_enemies(self):
+    """
+    Disables all the enemies.
+    """
+    for x in range(4):
+        self.set_ram(36 + x, 0)
 
 def is_gamestart(self):
     """
@@ -64,12 +95,22 @@ def is_gamestart(self):
         return True
     return False
 
+def oxygen(self):
+    """
+    Changes the behavior of the oxygen bar
+    by changing the corresponding ram positions
+    """
+    ram = self.get_ram()
+    if OXYGEN_UNLIMITED:
+        self.set_ram(102,64)
+        if is_gamestart:
+            self.set_ram(59, 3) # replace life if lost because of bug
 
 
-class SeaquestGravity(OCAtari):
+class SeaquestExtended(OCAtari):
     '''
-    SeaquestGravity: Modifies the Atari game "Seaquest" to include diverse extra settings,
-    adding additional options to the gameplay making it easier or harder.
+    SeaquestExtended: Modifies the Atari game "Seaquest" to include diverse extra settings, adding additional options
+    to the gameplay making it easier or harder.
     '''
 
     def __init__(self, env_name="Seaquest", mode="raw", hud=False, obs_mode="dqn", *args, **kwargs):
@@ -81,12 +122,18 @@ class SeaquestGravity(OCAtari):
         # Call __init__ to create the OCAtari environment
         super().__init__(env_name, mode, hud, obs_mode, *args, **kwargs)
 
+
     def alter_ram(self):
         '''
         alter_ram: alters the game depending on parser arguments
         '''
+        oxygen(self)
+        if DISABLE_ENEMIES:
+            disable_enemies(self)
         if ENABLE_GRAVITY and not is_gamestart(self) and self.get_ram()[97] < 108:
             gravity(self)
+
+
 
     def _step_ram(self, *args, **kwargs):
         '''
@@ -106,20 +153,19 @@ class SeaquestGravity(OCAtari):
         )
         self._state_buffer.append(torch.tensor(state, dtype=torch.uint8, device=DEVICE))
 
-
-class SeaquestGravityHuman(OCAtari):
+class SeaquestExtendedHuman(OCAtari):
     '''
-    SeaquestGravityHuman: Enables human play mode for the SeaquestGravity game.
+    SeaquestExtendedHuman: Enables human play mode for the SeaquestExtended game.
     '''
 
     env: gym.Env
 
     def __init__(self, env_name: str):
         '''
-        Initializes the SeaquestGravityHuman environment with the specified environment name.
+        Initializes the SeaquestExtendedHuman environment with the specified environment name.
         '''
-        self.env = OCAtari(env_name, mode="revised", hud=True, render_mode="human",
-                           render_oc_overlay=True, frameskip=1)
+        self.env = OCAtari(env_name, mode="ram", hud=True, render_mode="human",
+                        render_oc_overlay=True, frameskip=1)
         self.env.reset()
         self.env.render()  # Initialize the pygame video system
 
@@ -129,7 +175,7 @@ class SeaquestGravityHuman(OCAtari):
 
     def run(self):
         '''
-        run: Runs the SeaquestGravity environment, allowing human interaction with the game.
+        run: Runs the SeaquestExtended environment, allowing human interaction with the game.
         '''
         self.running = True
         while self.running:
@@ -138,8 +184,12 @@ class SeaquestGravityHuman(OCAtari):
                 action = self._get_action()
                 # Change RAM value for human mode
 
-                if (ENABLE_GRAVITY and not is_gamestart(self.env) and self.env.get_ram()[97] < 108
-                        and not pygame.K_w in list(self.current_keys_down)):
+                oxygen(self.env)
+
+                if DISABLE_ENEMIES:
+                    disable_enemies(self.env)
+
+                if ENABLE_GRAVITY and not is_gamestart(self.env) and self.env.get_ram()[97] < 108 and not (pygame.K_w in list(self.current_keys_down)):
                     gravity(self.env)
 
             self.env.step(action)
@@ -155,11 +205,12 @@ class SeaquestGravityHuman(OCAtari):
         pressed_keys = tuple(pressed_keys)
         if pressed_keys in self.keys2actions.keys():
             return self.keys2actions[pressed_keys]
-        return 0  # NOOP
+        else:
+            return 0  # NOOP
 
     def _handle_user_input(self):
         '''
-        _handle_user_input: Handles user input for the SeaquestGravityHuman environment.
+        _handle_user_input: Handles user input for the SeaquestExtendedHuman environment.
         '''
         self.current_mouse_pos = np.asarray(pygame.mouse.get_pos())
 
@@ -182,13 +233,12 @@ class SeaquestGravityHuman(OCAtari):
                 if (event.key,) in self.keys2actions.keys():
                     self.current_keys_down.remove(event.key)
 
-
 # If statement for switching between human play mode and RL agent play mode
 if TOGGLE_HUMAN_MODE:
-    renderer = SeaquestGravityHuman('Seaquest')
+    renderer = SeaquestExtendedHuman('Seaquest')
     renderer.run()
 else:
-    env = SeaquestGravity(render_mode="human")
+    env = SeaquestExtended(render_mode="human")
     # The following path to the agent has to be modified according to individual user setup
     # and folder names
     dqn_agent = load_agent(r"C:\Workspaces\OC_Atari\models\Seaquest\dqn.gz", env.action_space.n)

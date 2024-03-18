@@ -135,7 +135,7 @@ class SharkModesFishingDerby(OCAtari):
     SharkModesFishingDerby: Modifies the Atari game "FishingDerby" such that the shark can be
     manipulated.
     '''
-    def __init__(self, env_name="FishingDerby", mode="revised",
+    def __init__(self, env_name="FishingDerby", mode="ram",
                  hud=True, obs_mode="dqn", *args, **kwargs):
         '''
         Initializes an OCAtari game environment with preset values for game name, mode, and 
@@ -183,7 +183,7 @@ class SharkModesFishingDerbyHuman(OCAtari):
         Initializes the SharkModesFishingDerbyHuman environment with the specified environment 
         name.
         '''
-        self.env = OCAtari(env_name, mode="revised", hud=True, render_mode="human",
+        self.env = OCAtari(env_name, mode="ram", hud=True, render_mode="human",
                         render_oc_overlay=True, frameskip=1)
         self.env.reset()
         self.env.render()  # Initialize the pygame video system

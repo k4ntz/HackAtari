@@ -1,8 +1,12 @@
 """
-This module provides an enhanced gaming experience for the Atari game "Seaquest".
-The following additions have been added:
-- Unlimited oxygen mode
+This module provides an enhanced gaming experience for the Atari game "Breakout" by introducing
+customizable difficulty levels trough the addition of drift in two directions
+with three diffrent strength options.
+
+Key Features:
+-The ability to select which things to disable/enable through the argument parser.
 """
+
 import argparse
 from time import sleep
 import torch
@@ -12,15 +16,30 @@ import numpy as np
 from ocatari.core import OCAtari, DEVICE
 from ocatari.utils import load_agent
 import gymnasium as gym
+import warnings
 
-# Set up the argument parser for the Seaquest game modifications.
+warnings.warn("Warning: This modfification only works in agent mode.")
+
+# Set up the argument parser for the Breakuout game modifications.
 # This allows players to customize their gameplay experience through command-line options.
-parser = argparse.ArgumentParser(description='Seaquest Game Argument Setter')
+parser = argparse.ArgumentParser(description='Breakout Game Argument Setter')
 
-# Argument to set the oxygen mode
-parser.add_argument('-o', '--oxygen',  action='store_true',
-                    help='Set the oxygen to unlimited.')
+# Argument to set the drift direction
+# Options:
+# - right: Default - Drift to the right
+# - left: Drift to the left
 
+parser.add_argument('-d', '--drift', type=str, choices=['right', 'left'], default='right',
+                    help='Set the drift direction "right" or "left"')
+
+# Argument to set the drift strength
+# Options:
+# - 0: no Drift of 0 pixles/points per step
+# - 1: Default - medium drift: 2 pixel per step
+# - 2: high drift: 3 pixles per step
+
+parser.add_argument('-s', '--stength', type=int, choices=[0, 1, 2], default=0,
+                    help='Set the drift direction (0, 1, or 2) - 0 is no, 1 is low, 2 is high')
 
 # Argument to enable human mode.
 # When set, the game will be playable by a human player instead of an AI agent.
@@ -28,6 +47,23 @@ parser.add_argument('-hu', '--human', action='store_true',
                     help='Enable human mode')
 
 args = parser.parse_args()
+
+DRIFT = args.drift
+"""
+DRIFT toggles the drift direction, set by the '--drift' argument, 
+- DRIFT = right makes the ball drift to the right,
+- DRIFT = left makes the ball drift to the left,
+ making the game harder.
+"""
+
+STRENGTH = args.stength
+"""
+SRENGTH toggles the drift strength, set by the '--strength' argument.
+- STRENGTH = 0 is no drift,
+- STRENGTH = 1 is a drift of 2 pixles per ram step,
+- STRENGTH = 2 is a high drift of 3 pixles per ram step,
+ making the game harder.
+"""
 
 TOGGLE_HUMAN_MODE = args.human
 """
@@ -38,40 +74,57 @@ The value 'True' indicates that the human mode is active, while the value
 'False' indicates that the agent mode is active.
 """
 
-OXYGEN_UNLIMITED = args.oxygen
-"""
-A constant that toggles the unlimited oxygen mode.
-If set to true, the oxygen is set to unlimited and never decreases.
-"""
 
-def is_gamestart(self):
+def define_drift_strength():
     """
-    Determines if it is the start of the game
-    via the position of the player and the points
+    Defines the drift strength of the ball
+    according to the parsed arguement
     """
-    ram = self.get_ram()
-    if ram[97] == 13 and ram[70] == 76 and ram[26] == 80:
-        return True
-    return False
+    drift_strength = 0
 
-def oxygen(self):
+    if STRENGTH == 1:
+        drift_strength = 2
+    if STRENGTH == 2:
+        drift_strength = 3
+
+    return drift_strength
+
+
+
+def right_drift(self):
     """
-    Changes the behavior of the oxygen bar
+    Makes the ball drift to the rigth
     by changing the corresponding ram positions
     """
-    ram = self.get_ram()
-    if OXYGEN_UNLIMITED:
-        self.set_ram(102,64)
-        if is_gamestart:
-            self.set_ram(59, 3) # replace life if lost because of bug
+    drift = define_drift_strength()
+    ball_x = self.get_ram()[99]
+    ball_y = self.get_ram()[101]
+    new_ball_pos = ball_x + drift
+    #else the ball isnt there at all or outside of the walls
+    if (ball_y + 9 <= 196 and new_ball_pos != 0) and 57 <= new_ball_pos <= 199:
+        self.set_ram(99, new_ball_pos)
 
-class SeaquestExtended(OCAtari):
+def left_drift(self):
+    """
+    Makes the ball drift to the left
+    by changing the corresponding ram positions
+    """
+    drift = define_drift_strength()
+    ball_x = self.get_ram()[99]
+    ball_y = self.get_ram()[101]
+    new_ball_pos = ball_x - drift
+    #else the ball isnt there at all or outside of the walls
+    if (ball_y + 9 <= 196 and new_ball_pos != 0) and 57 <= new_ball_pos <= 199:
+        self.set_ram(99, new_ball_pos)
+
+
+class DriftBreakout(OCAtari):
     '''
-    SeaquestExtended: Modifies the Atari game "Seaquest" to include diverse extra settings, adding an additional options 
-    to the gameplay making it easier or harder.
+    DriftBreakout: Modifies the Atari game "Breakout" to simulate some force like wind
+    influencing the ball, adding an additional difficulty to the game.
     '''
 
-    def __init__(self, env_name="Seaquest", mode="raw", hud=False, obs_mode="dqn", *args, **kwargs):
+    def __init__(self, env_name="Breakout", mode="raw", hud=False, obs_mode="dqn", *args, **kwargs):
         '''
         Initializes an OCAtari game environment with preset values for game name, mode, and 
         observation mode. The Heads-Up Display (HUD) is disabled by default.
@@ -80,13 +133,18 @@ class SeaquestExtended(OCAtari):
         # Call __init__ to create the OCAtari environment
         super().__init__(env_name, mode, hud, obs_mode, *args, **kwargs)
 
-
     def alter_ram(self):
         '''
-        alter_ram: Manipulates the RAM cell at position 34 to simulate gravity.
-        The value in the cell is continually increased until the threshold is reached.
+        alter_ram: Manipulates the RAM cell at positions 99 and 101 to simulate wind.
+        The value in the cell is altered according to the current position of the ball
+        and the given direction and strength.
         '''
-        oxygen(self)
+
+        if DRIFT == "right":
+            right_drift(self)
+        if DRIFT == "left":
+            left_drift(self)
+
 
     def _step_ram(self, *args, **kwargs):
         '''
@@ -106,18 +164,18 @@ class SeaquestExtended(OCAtari):
         )
         self._state_buffer.append(torch.tensor(state, dtype=torch.uint8, device=DEVICE))
 
-class SeaquestExtendedHuman(OCAtari): 
+class DriftBreakoutHuman(OCAtari): 
     '''
-    SeaquestExtendedHuman: Enables human play mode for the SeaquestExtended game.
+    DriftBreakoutHuman: Enables human play mode for the DriftBreakout game.
     '''
 
     env: gym.Env
 
     def __init__(self, env_name: str):
         '''
-        Initializes the SeaquestExtendedHuman environment with the specified environment name.
+        Initializes the DriftBreakoutHuman environment with the specified environment name.
         '''
-        self.env = OCAtari(env_name, mode="revised", hud=True, render_mode="human",
+        self.env = OCAtari(env_name, mode="ram", hud=True, render_mode="human",
                         render_oc_overlay=True, frameskip=1)
         self.env.reset()
         self.env.render()  # Initialize the pygame video system
@@ -128,19 +186,22 @@ class SeaquestExtendedHuman(OCAtari):
 
     def run(self):
         '''
-        run: Runs the SeaquestExtended environment, allowing human interaction with the game.
+        run: Runs the DriftBreakoutHuman environment, allowing human interaction with the game.
         '''
         self.running = True
         while self.running:
             self._handle_user_input()
             if not self.paused:
                 action = self._get_action()
-                # Change RAM value for human mode
-                
-                oxygen(self.env)
+                # Change RAM value
 
-            self.env.step(action)
-            self.env.render()
+                if DRIFT == "right":
+                    right_drift(self.env)
+                if DRIFT == "left":
+                    left_drift(self.env)
+
+                self.env.step(action)
+                self.env.render()
         pygame.quit()
 
     def _get_action(self):
@@ -157,7 +218,7 @@ class SeaquestExtendedHuman(OCAtari):
 
     def _handle_user_input(self):
         '''
-        _handle_user_input: Handles user input for the SeaquestExtendedHuman environment.
+        _handle_user_input: Handles user input for the DriftBreakoutHuman environment.
         '''
         self.current_mouse_pos = np.asarray(pygame.mouse.get_pos())
 
@@ -182,13 +243,13 @@ class SeaquestExtendedHuman(OCAtari):
 
 # If statement for switching between human play mode and RL agent play mode
 if TOGGLE_HUMAN_MODE:
-    renderer = SeaquestExtendedHuman('Seaquest')
+    renderer = DriftBreakoutHuman('Breakout')
     renderer.run()
 else:
-    env = SeaquestExtended(render_mode="human")
+    env = DriftBreakout(render_mode="human")
     # The following path to the agent has to be modified according to individual user setup
     # and folder names
-    dqn_agent = load_agent("../OC_Atari/models/Seaquest/dqn.gz", env.action_space.n)
+    dqn_agent = load_agent("../OC_Atari/models/Breakout/dqn.gz", env.action_space.n)
     env.reset()
     # Let the agent play the game for 10000 steps
     for i in range(10000):

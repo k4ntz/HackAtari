@@ -197,6 +197,7 @@ class BoxingExtended(OCAtari):
         )
         self._state_buffer.append(torch.tensor(state, dtype=torch.uint8, device=DEVICE))
 
+
 class BoxingExtendedHuman(OCAtari): 
     '''
     BoxingExtendedHuman: Enables human play mode for the BoxingExtended game.
@@ -208,8 +209,8 @@ class BoxingExtendedHuman(OCAtari):
         '''
         Initializes the BoxingExtendedHuman environment with the specified environment name.
         '''
-        self.env = OCAtari(env_name, mode="revised", hud=True, render_mode="human",
-                        render_oc_overlay=True, frameskip=1)
+        self.env = OCAtari(env_name, mode="ram", hud=True, render_mode="human",
+                            render_oc_overlay=True, frameskip=1)
         self.env.reset()
         self.env.render()  # Initialize the pygame video system
 

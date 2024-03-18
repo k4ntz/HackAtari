@@ -182,7 +182,7 @@ class ColorChangedFrostbite(OCAtari):
     ColorChangedFrostbite: Modifies the Atari game "Frostbite" such that a line of ice floes
     can be recolored based on user input.
     '''
-    def __init__(self, env_name="Frostbite", mode="revised",
+    def __init__(self, env_name="Frostbite", mode="ram",
                  hud=True, obs_mode="dqn", *args, **kwargs):
         '''
         Initializes an OCAtari game environment with preset values for game name, mode, and 
@@ -232,7 +232,7 @@ class ColorChangedFrostbiteHuman(OCAtari):
         '''
         Initializes the ColorChangedFrostbiteHuman environment with the specified environment name.
         '''
-        self.env = OCAtari(env_name, mode="revised", hud=True, render_mode="human",
+        self.env = OCAtari(env_name, mode="ram", hud=True, render_mode="human",
                         render_oc_overlay=True, frameskip=1)
         self.env.reset()
         self.env.render()  # Initialize the pygame video system

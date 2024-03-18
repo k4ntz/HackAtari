@@ -9,6 +9,7 @@ Key Features:
 """
 
 import argparse
+import random
 from time import sleep
 import gymnasium as gym
 import pygame
@@ -18,18 +19,19 @@ import numpy as np
 from ocatari.core import OCAtari, DEVICE
 from ocatari.utils import load_agent
 
-
 # Set up the argument parser for the Kangaroo game modifications.
 # This allows players to customize their gameplay experience through command-line options.
 parser = argparse.ArgumentParser(description='Kangaroo Game Argument Setter')
+
+group = parser.add_mutually_exclusive_group(required=False)
 
 # Argument to set the starting floor level.
 # Options:
 # - 0: Default starting floor (most challenging)
 # - 1: Start one floor up (moderate difficulty)
 # - 2: Start two floors up (easiest, closest to the goal)
-parser.add_argument('-f', '--floor', type=int, choices=[0, 1, 2], default=0,
-                    help='Set the starting floor (0, 1, or 2)')
+group.add_argument('-f', '--floor', type=int, choices=[0, 1, 2], default=0,
+                   help='Set the starting floor (0, 1, or 2)')
 
 # Argument to enable human mode.
 # When set, the game will be playable by a human player instead of an AI agent.
@@ -46,6 +48,16 @@ parser.add_argument('-dm', '--disable-monkeys', action='store_true',
 parser.add_argument('-dc', '--disable-falling-coconut', action='store_true',
                     help='Disable the falling coconut in the game')
 
+# Argument to enable easy mode.
+# When set, the game will let the player start one level higher with each life lost.
+group.add_argument('-e', '--easy-mode', action='store_true',
+                   help='Enable easy mode')
+
+# Argument to enable random difficulty mode.
+# When set, the game will let the player start at a random floor potentially making the game easier.
+group.add_argument('-ra', '--random-difficulty', action='store_true',
+                   help='Enable random difficulty mode')
+
 args = parser.parse_args()
 
 TOGGLE_HUMAN_MODE = args.human
@@ -54,6 +66,23 @@ TOGGLE_HUMAN_MODE reflects the choice to play in human mode,
 as determined by the '--human' argument.
 If True, the game will be set to human mode, allowing for manual play.
 If False, the game operates in agent mode, suitable for AI interactions.
+"""
+
+EASY_MODE = args.easy_mode
+"""
+EASY_MODE reflects the choice to play in easy mode,
+as determined by the '--easy-mode' argument.
+If True, the game will be set to easy mode, where for each lost live
+the player starts one floor higher. The highest floor the player can start
+is the second one
+"""
+
+RANDOM_DIFFICULTY = args.random_difficulty
+"""
+RANDOM_DIFFICULTY reflects the choice to play in random difficulty mode,
+as determined by the '--random-difficulty' argument.
+If True, the game will be set to random difficulty mode, choosing a 
+random floor for each round.
 """
 
 FLOOR = args.floor
@@ -77,7 +106,6 @@ DISABLE_COCONUTS toggles the falling coconut hazard.
 If True, set by the '--disable-falling-coconut' argument, the falling coconut is removed,
 simplifying the gameplay.
 """
-
 
 # Constants for clarity and maintainability
 KANGAROO_POS_X_INDEX = 17  # RAM index for kangaroo's X position
@@ -166,6 +194,55 @@ def set_kangaroo_position(self, current_level, kangaroo_pos, human_mode):
         self.position_set = True
 
 
+def easy_mode(self, current_level, current_lives, kangaroo_pos, human_mode):
+    """
+    Checks the current amount of lives and lets the player on a higher floor
+    if the amount of lives is low enough.
+    """
+    if is_at_start(kangaroo_pos) and not self.position_set:
+        if current_lives == 1:
+            # For floor 1, position depends on whether the current level is 2
+            new_pos = FLOOR_1_LEVEL2_POS if current_level == LEVEL_2 else FLOOR_1_START_POS
+            if not human_mode:
+                set_ram_kang_pos(self, *new_pos)
+            else:
+                set_ram_kang_pos(self.env, *new_pos)
+        elif current_lives == 0:
+            # For floor 2, position is set to a different location
+            # but also depends on the current level
+            new_pos = FLOOR_2_LEVEL2_POS if current_level == LEVEL_2 else FLOOR_2_START_POS
+            if not human_mode:
+                set_ram_kang_pos(self, *new_pos)
+            else:
+                set_ram_kang_pos(self.env, *new_pos)
+        self.position_set = True
+
+
+
+def random_difficulty(self, current_level, kangaroo_pos, human_mode):
+    """
+    Generates a random number and the lets the player start on that floor.
+    """
+    random_number = random.randint(0, 2)
+    if is_at_start(kangaroo_pos) and not self.position_set:
+        if random_number == 1:
+            # For floor 1, position depends on whether the current level is 2
+            new_pos = FLOOR_1_LEVEL2_POS if current_level == LEVEL_2 else FLOOR_1_START_POS
+            if not human_mode:
+                set_ram_kang_pos(self, *new_pos)
+            else:
+                set_ram_kang_pos(self.env, *new_pos)
+        elif random_number == 2:
+            # For floor 2, position is set to a different location
+            # but also depends on the current level
+            new_pos = FLOOR_2_LEVEL2_POS if current_level == LEVEL_2 else FLOOR_2_START_POS
+            if not human_mode:
+                set_ram_kang_pos(self, *new_pos)
+            else:
+                set_ram_kang_pos(self.env, *new_pos)
+        self.position_set = True
+
+
 class KangarooExtended(OCAtari):
     """
     KangarooExtended: Modifies the Atari game "Kangaroo" to enable the player
@@ -176,7 +253,7 @@ class KangarooExtended(OCAtari):
     """
 
     # initializing the game from the original game of Kangaroo
-    def __init__(self, env_name="Kangaroo", mode="revised", hud=False,
+    def __init__(self, env_name="Kangaroo", mode="ram", hud=False,
                  obs_mode="dqn", *args, **kwargs):
         """
         __init__: Initializes a OCAtari game environment. The game environment name, the mode
@@ -211,7 +288,13 @@ class KangarooExtended(OCAtari):
         # checks whether the player has finished a level or has lost a live
         # to re-enable the teleportation to the new starting position
         check_new_level_life(self, current_lives, current_level)
-        set_kangaroo_position(self, current_level, kangaroo_pos, False)
+        if is_at_start(kangaroo_pos):
+            if EASY_MODE:
+                easy_mode(self, current_level, current_lives, kangaroo_pos, False)
+            elif RANDOM_DIFFICULTY:
+                random_difficulty(self, current_level, kangaroo_pos, False)
+            else:
+                set_kangaroo_position(self, current_level, kangaroo_pos, False)
 
     def _step_ram(self, *args, **kwargs):
         """
@@ -244,7 +327,7 @@ class KangarooExtendedHuman(OCAtari):
         """
         Initializes the KangarooExtendedHuman environment with the specified environment name.
         """
-        self.env = OCAtari(env_name, mode="revised", hud=True, render_mode="human",
+        self.env = OCAtari(env_name, mode="ram", hud=True, render_mode="human",
                            render_oc_overlay=True, frameskip=1)
         self.env.reset()
         self.env.render()  # Initialize the pygame video system
@@ -282,7 +365,13 @@ class KangarooExtendedHuman(OCAtari):
                 # checks whether the player has finished a level or has lost a live
                 # to re-enable the teleportation to the new starting position
                 check_new_level_life(self, current_lives, current_level)
-                set_kangaroo_position(self, current_level, kangaroo_pos, True)
+                if is_at_start(kangaroo_pos):
+                    if EASY_MODE:
+                        easy_mode(self, current_level, current_lives, kangaroo_pos, True)
+                    elif RANDOM_DIFFICULTY:
+                        random_difficulty(self, current_level, kangaroo_pos, True)
+                    else:
+                        set_kangaroo_position(self, current_level, kangaroo_pos, True)
 
                 self.env.step(action)
                 self.env.render()
@@ -335,7 +424,7 @@ else:
     env = KangarooExtended(render_mode="human")
     # The following path to the agent has to be modified according to individual user setup
     # and folder names
-    dqn_agent = load_agent(r"D:\Workspaces\HackAtari\pythonProject5\OC_Atari\models\Kangaroo\dqn.gz", env.action_space.n)
+    dqn_agent = load_agent(r"C:\Workspaces\HackAtari\models\Kangaroo\dqn.gz", env.action_space.n)
     env.reset()
     # Let the agent play the game for 10000 steps
     for i in range(10000):
