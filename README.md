@@ -19,10 +19,18 @@ pip install -e .
 
 ## Usage
 To use the HackAtari environment, simply import it as you would any other OpenAI Gym environment:
+You can run the `run.py` file to start the original game or any of the modified versions.
+E.g.:
 ```python
-...
+python run.py -g Freeway # Starts normal Freeway (random agent)
+python run.py -g Freeway -hu # Starts Freeway with the cars being invisible (interactive/human playing mode)
+python run.py -g Freeway -m color8 # Starts Freeway with the cars of color #8 being (i.e. invisible) (random agent)
+python run.py -g Freeway -m stop3 # Starts Freeway with stopping mode #3 (i.e. static cars) (random agent)
+python run.py -g Seaquest -m oxygen disable_enemies gravity # Starts Seaquest with infinite oxygen, no enemy, gravity (random agent)
+python run.py -g Kangaroo -m random_init disable_monkeys # Starts Kangaroo with random initial floor and no monkeys (random agent)
 ```
 
+See bellow for a complete list of all modifications and their corresponding arguments.
 
 This is the list of games we have created new Versions and options for during the "HackAtari" project. Each file, when started without additional parameters, starts the original game played by the DQN agent.
 All modes/hacks/changes can be activated individually or in any combination via the command line.
