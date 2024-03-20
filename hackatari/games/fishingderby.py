@@ -1,5 +1,5 @@
-FISH_MODE = 0
-SHARK_MODE = 0
+FISH_MODE = 0 # Give the fishes an area to swim in (Int: 0-3)
+SHARK_MODE = 0 # Give the shark an area to swim in (Int: 0-4)
 
 def alter_shark(self):
     '''
