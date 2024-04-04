@@ -5,7 +5,7 @@ import numpy as np
 
 
 GameList = ["Boxing", "Breakout", "FishingDerby", "Freeway", "Frostbite", "Kangaroo", 
-            "MsPacman", "Seaquest", "SpaceInvaders", "Tennis"]
+            "MsPacman", "Pong", "Seaquest", "SpaceInvaders", "Tennis"]
 
 
 class HackAtari(OCAtari):
@@ -36,10 +36,13 @@ class HackAtari(OCAtari):
         """
         for func in self.alter_ram_steps:
             func(self)
-        return self._oc_step(action)
+        ret = self._oc_step(action)
+        for func in self.alter_ram_steps:
+            func(self)
+        return ret
 
-    def _alter_reset(self):
-        ret = self._oc_reset()
+    def _alter_reset(self, *args, **kwargs):
+        ret = self._oc_reset(*args, **kwargs)
         for func in self.alter_ram_reset:
             func(self)
         return ret
