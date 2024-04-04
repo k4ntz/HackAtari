@@ -25,7 +25,7 @@ def disable_monkeys(self):
         self.set_ram(11 - x, 127)
 
 
-def disable_falling_coconut(self):
+def disable_coconut(self):
     """
     Disables the falling coconut in the game,
     by changing the corresponding ram positions
@@ -117,8 +117,8 @@ def modif_funcs(modifs):
     for mod in modifs:
         if mod == "disable_monkeys":
             step_modifs.append(disable_monkeys)
-        elif mod == "disable_falling_coconut":
-            step_modifs.append(disable_falling_coconut)
+        elif mod == "disable_coconut":
+            step_modifs.append(disable_coconut)
         elif mod == "random_init":
             reset_modifs.append(random_init)
         # elif mod == "easy_mode":
