@@ -1,3 +1,6 @@
+from random import randint
+
+# Global Variables
 TOGGLE_ORANGE = 0
 TOGGLE_CYAN = 0
 TOGGLE_PINK = 0
@@ -5,6 +8,7 @@ TOGGLE_RED = 0
 NUMBER_POWER_PILLS = 4
 LAST_PP_STATUS = 4
 IS_INVERTED = False
+LVL_NUM = None
 
 def make_edible(env, ghost_number,  x_pos, ram_x, y_pos, ram_y):
     ''' A helper function to make a certain ghost edible.
@@ -18,6 +22,7 @@ def make_edible(env, ghost_number,  x_pos, ram_x, y_pos, ram_y):
     env.set_ram(ghost_number, 130)
     env.set_ram(ram_x, x_pos)
     env.set_ram(ram_y, y_pos)
+
 
 def set_start_condition(self):
     ''' A helper function to set the start condition at the beginning of 
@@ -34,6 +39,7 @@ def set_start_condition(self):
     # set the timer to max number
     self.set_ram(116, 255)
 
+
 def inverted_power_pill(self):
     ''' A helper function to make the ghost "normal" again.
     They will be able to eat Ms. Pacman for a certain amount of time.'''
@@ -45,6 +51,7 @@ def inverted_power_pill(self):
     # set timer    
     self.set_ram(116, 62)
 
+
 def power_pill_is_done(self):
     ''' A helper function to make all ghosts edible again.'''
     i = 1
@@ -54,6 +61,7 @@ def power_pill_is_done(self):
         i += 1
     # set timer   
     self.set_ram(116, 190)
+
 
 def static_ghosts(self):
     '''
@@ -72,6 +80,7 @@ def static_ghosts(self):
     if TOGGLE_RED:
         self.set_ram(9, 83)
         self.set_ram(15, 67)
+
 
 def number_power_pills(self):
     '''
@@ -139,11 +148,13 @@ def edible_ghosts(self):
     if current_red == 112:
         make_edible(self, 4, 60 ,9, 50, 15)
 
+
 def inverted_ms_pacman_reset(self):
     set_start_condition(self)
     global LAST_PP_STATUS, IS_INVERTED
     LAST_PP_STATUS = 63
     IS_INVERTED = False
+
 
 def inverted_ms_pacman(self):
     '''
@@ -199,6 +210,14 @@ def inverted_ms_pacman(self):
     if current_red == 112 and not IS_INVERTED:
         make_edible(self, 4, 60 ,9, 50, 15)
 
+def change_level(self):
+    global LVL_NUM
+    if LVL_NUM is None:
+        LVL_NUM = randint(0, 3)
+        print(f"Selcting Random Level {LVL_NUM}")
+    self.set_ram(0, LVL_NUM)
+
+
 def modif_funcs(modifs):
     global TOGGLE_CYAN, TOGGLE_PINK, TOGGLE_ORANGE, TOGGLE_RED
     step_modifs, reset_modifs = [], []
@@ -233,4 +252,10 @@ def modif_funcs(modifs):
         elif mod == "inverted":
             step_modifs.append(inverted_ms_pacman)
             reset_modifs.append(inverted_ms_pacman_reset)
+        elif "change_level" in mod:
+            if mod[-1].isdigit():
+                global LVL_NUM
+                LVL_NUM =  int(mod[-1])
+                assert LVL_NUM < 4, "Invalid Level Number (0, 1, 2 or 3)"
+            reset_modifs.append(change_level)
     return step_modifs, reset_modifs

@@ -1,4 +1,4 @@
-
+from random import random
 
 def modify_ram_adding_wind(self):
     '''
@@ -6,19 +6,23 @@ def modify_ram_adding_wind(self):
     to simulate the effect of wind
     '''
     ram = self.get_ram()
-    ball_x = ram[16] - 2
-    #ball_y isn't always stable, as the ball bounces in some situations
+    ball_x = ram[16]
+    # ball_y isn't always stable, as the ball bounces in some situations
     ball_y = 189 - ram[54]
-    #shadow x is always the same as ball_x
-    #this ankers the ball when bouncing
+    # shadow x is always the same as ball_x
+    # this ankers the ball when bouncing
     shadow_anker = ram[15]
     shadow_y = 189 - ram[55]
 
 
     #movement up and right - noth-east wind direction stays the same so no indication is needed
-    new_ball_x = ball_x + 1 # moves the ball to the right one position every ram step
-    new_ball_y = ball_y + 1 # moves the ball up one position every ram step
-    new_shadow_y  = shadow_y + 1
+    new_ball_x = ball_x # moves the ball to the right one position every ram step
+    new_ball_y = ball_y # moves the ball up one position every ram step
+    new_shadow_y  = shadow_y
+    if random() < 0.5:
+        new_ball_x += 1 # moves the ball to the right one position every ram step
+        new_ball_y += 1 # moves the ball up one position every ram step
+        new_shadow_y += 1 
     #first part makes sure ball only moves in the air, not if bouncing on the line
     #as ram manipualtion fails when bouncing
     #second part makes sure the ball stops moving when it exits the visible field

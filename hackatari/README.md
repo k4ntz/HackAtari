@@ -66,6 +66,8 @@ Below you will find a list of modified games with their respective command line 
 | -npp 0-4 | number of available power pills |
 | -eg | ghosts can always be eaten, power pills do nothing |
 | -i | inverted mode, eating a power pill maked the ghos dangerous again |
+| change_leveln | Change the level (layout) between 4. If n is not specified, does it randomly at each reset|
+
 
 ## Seaquest
 | Command      | Effect   |

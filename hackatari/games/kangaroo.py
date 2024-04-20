@@ -15,6 +15,7 @@ FLOOR_1_START_POS = (65, 12)
 FLOOR_2_START_POS = (65, 6)
 ANY_FLOOR_INSTANT_WIN = (110, 0)
 
+LVL_NUM = None
 
 def disable_monkeys(self):
     """
@@ -110,6 +111,14 @@ def random_init(self):
             set_ram_kang_pos(self, *new_pos)
 
 
+def change_level(self):
+    global LVL_NUM
+    if LVL_NUM is None:
+        LVL_NUM = random.randint(0, 3)
+        print(f"Selcting Random Level {LVL_NUM}")
+    self.set_ram(36, LVL_NUM)
+
+
 def modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     if "random_init" in modifs and "easy_mode" in modifs:
@@ -123,4 +132,10 @@ def modif_funcs(modifs):
             reset_modifs.append(random_init)
         # elif mod == "easy_mode":
         #     reset_modifs.append(easy_mode)
+        elif "change_level" in mod:
+            if mod[-1].isdigit():
+                global LVL_NUM
+                LVL_NUM =  int(mod[-1])
+                assert LVL_NUM < 3, "Invalid Level Number (0, 1 or 2)"
+            reset_modifs.append(change_level)
     return step_modifs, reset_modifs
