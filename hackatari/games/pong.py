@@ -14,34 +14,6 @@ def lazy_enemy(self):
         self.set_ram(21, LAST_ENEMY_Y_POS)
     BALL_PREVIOUS_X_POS = ram[49]
     LAST_ENEMY_Y_POS = ram[21]
-    print(ram[21])
-
-# def disable_enemies(self):
-#     """
-#     Disables all the enemies.
-#     """
-#     for x in range(4):
-#         self.set_ram(36 + x, 0)
-
-# def is_gamestart(self):
-#     """
-#     Determines if it is the start of the game
-#     via the position of the player and the points
-#     """
-#     ram = self.get_ram()
-#     if ram[97] == 13 and ram[70] == 76 and ram[26] == 80:
-#         return True
-#     return False
-
-# def oxygen(self):
-#     """
-#     Changes the behavior of the oxygen bar
-#     by changing the corresponding ram positions
-#     """
-#     ram = self.get_ram()
-#     self.set_ram(102,64)
-#     if is_gamestart(self):
-#         self.set_ram(59, 3) # replace life if lost because of bug
 
 
 def modif_funcs(modifs):

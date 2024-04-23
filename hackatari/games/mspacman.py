@@ -214,7 +214,7 @@ def change_level(self):
     global LVL_NUM
     if LVL_NUM is None:
         LVL_NUM = randint(0, 3)
-        print(f"Selcting Random Level {LVL_NUM}")
+        print(f"Selecting Random Level {LVL_NUM}")
     self.set_ram(0, LVL_NUM)
 
 
