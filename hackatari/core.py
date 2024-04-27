@@ -5,7 +5,7 @@ import numpy as np
 
 
 GameList = ["BankHeist", "BattleZone", "Boxing", "Breakout", "ChopperCommand", "FishingDerby", 
-            "Freeway", "Frostbite", "Kangaroo", 
+            "Freeway", "Frostbite", "Kangaroo", "MontezumaRevenge",
             "MsPacman", "Pong", "Riverraid", "Seaquest", "SpaceInvaders", "Tennis"]
 
 
