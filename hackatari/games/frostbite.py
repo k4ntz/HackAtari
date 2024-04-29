@@ -57,37 +57,53 @@ def modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
         if mod.startswith('color'):
-            mod_n = int(mod[-3:])
+            for i in range(3):
+                try:
+                    mod_n = int(mod[-3+i:])
+                    break
+                except:
+                    continue
             if mod_n < 0 or mod_n > 255:
-                raise ValueError("Invalid color for ice")
+                raise ValueError("Invalid color for ice, max. value is 255")
             global ICE_COLOR
             ICE_COLOR = mod_n
-            #step_modifs.append(modify_ram_for_color)
+            step_modifs.append(modify_ram_for_color)
         elif mod.startswith('line'):
             mod_n = int(mod[-1])
             if mod_n < 1 or mod_n > 5:
-                raise ValueError("Invalid color for ice")
+                raise ValueError("Invalid color for ice, choose number 1-5")
             global LINE
             LINE[mod_n] = True
             step_modifs.append(modify_ram_for_color)
-        elif mod.startswith('color_ui'):
-            mod_n = int(mod[-3:])
-            if mod_n < 0 or mod_n > 255:
-                raise ValueError("Invalid color for UI")
+        elif mod.startswith('ui_color'):
+            for i in range(3):
+                try:
+                    mod_n = int(mod[-3+i:])
+                    break
+                except:
+                    continue
+            print(mod_n)
+            if mod_n < 0 or mod_n > 254:
+                raise ValueError("Invalid color for UI, max. value is 254")
             global UI_COLOR
             UI_COLOR = mod_n
             step_modifs.append(modify_ram_for_uicolor)
         elif mod.startswith('e'):
             mod_n = int(mod[-1])
             if mod_n < 0 or mod_n > 3:
-                raise ValueError("Invalid number of enenmies")
+                raise ValueError("Invalid number of enenmies, choose number 0-3")
             global ENEMIES_NUMBER
             ENEMIES_NUMBER = mod_n
             step_modifs.append(modify_ram_for_enemy_amount)
         elif mod.startswith('f'):
-            mod_n = int(mod[-3:])
-            if mod_n < 0 or mod_n > 255:
-                raise ValueError("Invalid position for floes")
+            for i in range(3):
+                try:
+                    mod_n = int(mod[-3+i:])
+                    break
+                except:
+                    continue
+            if mod_n < 0 or mod_n > 160:
+                raise ValueError("Invalid position for floes, max. value is 160")
             global NEW_X_POS
             NEW_X_POS = mod_n
             reset_modifs.append(modify_ram_for_floes_position)

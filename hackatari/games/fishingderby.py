@@ -49,10 +49,11 @@ def alter_fish(self):
         # fish mode 3: fish are always in the middle between player and enemy
         if FISH_MODE == 3:
             for i in range(6):
-                if self.get_ram()[69+i] < 70:
-                    self.set_ram(69+i, 86)
-                if self.get_ram()[69+i] > 86:
-                    self.set_ram(69+i, 70)
+                if self.get_ram()[112] != i+1 or self.get_ram()[113] != i+1:
+                    if self.get_ram()[69+i] < 70:
+                        self.set_ram(69+i, 86)
+                    if self.get_ram()[69+i] > 86:
+                        self.set_ram(69+i, 70)
 
 def modif_funcs(modifs):
     step_modifs, reset_modifs = [], []

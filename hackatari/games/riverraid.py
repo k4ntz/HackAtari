@@ -4,7 +4,7 @@ BALL_PREVIOUS_X_POS = 130
 
 def no_fuel(self):
     """
-    Enemy does not move after returning the shot.
+    Removes the fuel deposits from the game.
     """
     ram = self.get_ram()
     self.set_ram(55, 255)
