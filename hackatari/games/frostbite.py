@@ -58,11 +58,9 @@ def modif_funcs(modifs):
     for mod in modifs:
         if mod.startswith('color'):
             for i in range(3):
-                try:
+                if mod[-3+i:].isdigit():
                     mod_n = int(mod[-3+i:])
                     break
-                except:
-                    continue
             if mod_n < 0 or mod_n > 255:
                 raise ValueError("Invalid color for ice, max. value is 255")
             global ICE_COLOR
@@ -77,11 +75,9 @@ def modif_funcs(modifs):
             step_modifs.append(modify_ram_for_color)
         elif mod.startswith('ui_color'):
             for i in range(3):
-                try:
+                if mod[-3+i:].isdigit():
                     mod_n = int(mod[-3+i:])
                     break
-                except:
-                    continue
             print(mod_n)
             if mod_n < 0 or mod_n > 254:
                 raise ValueError("Invalid color for UI, max. value is 254")
@@ -97,11 +93,9 @@ def modif_funcs(modifs):
             step_modifs.append(modify_ram_for_enemy_amount)
         elif mod.startswith('f'):
             for i in range(3):
-                try:
+                if mod[-3+i:].isdigit():
                     mod_n = int(mod[-3+i:])
                     break
-                except:
-                    continue
             if mod_n < 0 or mod_n > 160:
                 raise ValueError("Invalid position for floes, max. value is 160")
             global NEW_X_POS
