@@ -5,7 +5,7 @@ import numpy as np
 
 
 GameList = ["Boxing", "Breakout", "FishingDerby", "Freeway", "Frostbite", "Kangaroo", 
-            "MsPacman", "Pong", "Seaquest", "SpaceInvaders", "Tennis"]
+            "MsPacman", "Pong", "Seaquest", "Skiing", "SpaceInvaders", "Tennis"]
 
 
 class HackAtari(OCAtari):
