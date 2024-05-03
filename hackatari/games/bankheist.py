@@ -7,16 +7,16 @@ CURRENT_TOWN = 0
 PLAYER_X = 0
 
 
-def unlimited_gaz(self):
+def unlimited_gas(self):
     """
-    Unlimited gaz all the enemies.
+    Unlimited gas all the enemies.
     """
     self.set_ram(86, 0)
 
 
 def no_police(self):
     """
-    Unlimited gaz all the enemies.
+    Removes police from the game.
     """
     ram = self.get_ram()
     for i in range(3):
@@ -26,7 +26,7 @@ def no_police(self):
 
 def only_police(self):
     """
-    Unlimited gaz all the enemies.
+    No banks only police.
     """
     ram = self.get_ram()
     for i in range(3):
@@ -36,7 +36,7 @@ def only_police(self):
 
 def random_city(self):
     """
-    Unlimited gaz all the enemies.
+    Randomizes which city is entered next.
     """
     global TOWNS_VISITED, REMAINING_TOWNS, CURRENT_TOWN
     ram = self.get_ram()
@@ -53,7 +53,7 @@ def random_city(self):
     
 def random_city_res(self):
     """
-    Unlimited gaz all the enemies.
+    Resets the city randomizer.
     """
     global TOWNS_VISITED, REMAINING_TOWNS, CURRENT_TOWN
     ram = self.get_ram()
@@ -67,7 +67,7 @@ def random_city_res(self):
 
 def revisit_city(self):
     """
-    Unlimited gaz all the enemies.
+    Allows player to go back one city.
     """
     global PLAYER_X, CURRENT_TOWN
     ram = self.get_ram()
@@ -86,8 +86,8 @@ def revisit_city(self):
 def modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
-        if mod == "unlimited_gaz":
-            step_modifs.append(unlimited_gaz)
+        if mod == "unlimited_gas":
+            step_modifs.append(unlimited_gas)
         elif mod == "no_police":
             step_modifs.append(no_police)
         elif mod == "only_police":

@@ -1,5 +1,7 @@
 import random
 TIMER = 0
+global GRAVITY
+GRAVITY = 3
 
 def one_armed(self):
     '''
@@ -13,11 +15,12 @@ def gravity(self):
     '''
     curr_player_pos = self.get_ram()[34]
     global TIMER
-    TIMER += 1
     if curr_player_pos < 87:
-        if TIMER % 2:
+        global GRAVITY
+        if not TIMER % GRAVITY:
             curr_player_pos += 1
             self.set_ram(34, curr_player_pos)
+    TIMER += 1
 
     # if TOGGLE_HUMAN_MODE:
     #     if curr_player_pos < 87 and not (pygame.K_w in list(self.current_keys_down)):
@@ -91,7 +94,11 @@ def drunken_boxing(self):
 def modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
-        if mod == "gravity":
+        if mod.startswith("gravity"):
+            if mod[-1].isdigit():
+                global GRAVITY
+                GRAVITY = 7-int(mod[-1])
+                assert 1 < GRAVITY < 7, "Invalid Gravity lelvel, choose number 1-5"
             step_modifs.append(gravity)
         elif mod == "one_armed":
             step_modifs.append(one_armed)
