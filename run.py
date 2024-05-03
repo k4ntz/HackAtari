@@ -34,6 +34,5 @@ if __name__ == "__main__":
             action = env.action_space.sample()
             _, _, terminated, truncated, _ = env.step(action)
             if terminated or truncated:
-                import ipdb; ipdb.set_trace()
                 env.reset()
         env.close()
