@@ -1,10 +1,16 @@
+global TIMER
+TIMER = 0
+
 def gravity(self):
     """
     Enables gravity for the player.
     """
+    # makes game kinda unplayable
     ram = self.get_ram()
-    if ram[97] < 105:
+    global TIMER
+    if ram[97] < 105 and not TIMER%5:
         self.set_ram(97, ram[97] + 1)
+    TIMER +=1
 
 def disable_enemies(self):
     """

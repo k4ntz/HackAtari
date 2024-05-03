@@ -4,8 +4,9 @@ import pygame
 import numpy as np
 
 
-GameList = ["Boxing", "Breakout", "FishingDerby", "Freeway", "Frostbite", "Kangaroo", 
-            "MsPacman", "Pong", "Seaquest", "Skiing", "SpaceInvaders", "Tennis"]
+GameList = ["BankHeist", "BattleZone", "Boxing", "Breakout", "ChopperCommand", "FishingDerby", 
+            "Freeway", "Frostbite", "Kangaroo", "MontezumaRevenge",
+            "MsPacman", "Pong", "Riverraid", "Seaquest", "Skiing", "SpaceInvaders", "Tennis"]
 
 
 class HackAtari(OCAtari):

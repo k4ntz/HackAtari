@@ -1,5 +1,7 @@
 import random
 TIMER = 0
+global GRAVITY
+GRAVITY = 3
 
 def one_armed(self):
     '''
@@ -13,18 +15,19 @@ def gravity(self):
     '''
     curr_player_pos = self.get_ram()[34]
     global TIMER
-    TIMER += 1
     if curr_player_pos < 87:
-        if TIMER % 2:
+        global GRAVITY
+        if not TIMER % GRAVITY:
             curr_player_pos += 1
             self.set_ram(34, curr_player_pos)
+    TIMER += 1
 
     # if TOGGLE_HUMAN_MODE:
     #     if curr_player_pos < 87 and not (pygame.K_w in list(self.current_keys_down)):
     #         curr_player_pos += 1
     #         self.set_ram(34, curr_player_pos)
 
-def forward(self):
+def offensive(self):
     '''
     Moves the player character forward in the game environment.
     '''
@@ -35,7 +38,7 @@ def forward(self):
         curr_player_pos_x += 1
         self.set_ram(32, curr_player_pos_x)
 
-def move_up(self):
+def antigravity(self):
     '''
     Moves the player character up in the game environment.
     '''
@@ -45,7 +48,7 @@ def move_up(self):
         curr_player_pos_y -= 1
         self.set_ram(34, curr_player_pos_y)
 
-def backward(self):
+def defensive(self):
     '''
     Moves the player character backward in the game environment.
     '''
@@ -80,18 +83,22 @@ def drunken_boxing(self):
     
     # Call functions in sequence based on the counter value
     if do == 0:
-        forward(self)
+        offensive(self)
     elif do == 1:
-        move_up(self)
+        antigravity(self)
     elif do == 2:
-        backward(self)
+        defensive(self)
     elif do == 3:
         down(self)
 
 def modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
-        if mod == "gravity":
+        if mod.startswith("gravity"):
+            if mod[-1].isdigit():
+                global GRAVITY
+                GRAVITY = 7-int(mod[-1])
+                assert 1 < GRAVITY < 7, "Invalid Gravity lelvel, choose number 1-5"
             step_modifs.append(gravity)
         elif mod == "one_armed":
             step_modifs.append(one_armed)

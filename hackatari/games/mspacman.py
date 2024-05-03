@@ -29,7 +29,7 @@ def set_start_condition(self):
     each level/ after a reset'''
     # set the ghost to "edible" and change start location to avoid glitches
     # orange ghost
-    make_edible(self, 1, 120, 6, 50, 12) 
+    make_edible(self, 1, 120, 6, 50, 12)
     # cyan ghost
     make_edible(self, 2, 100, 7, 50, 13)
     # pink ghost
@@ -145,7 +145,7 @@ def edible_ghosts(self):
         make_edible(self, 2, 100, 7, 50, 13)
     if current_pink == 112:
         make_edible(self, 3, 80, 8, 50, 14)
-    if current_red == 112:
+    if current_red == 112 or current_red == 0:
         make_edible(self, 4, 60 ,9, 50, 15)
 
 
@@ -214,13 +214,15 @@ def change_level(self):
     global LVL_NUM
     if LVL_NUM is None:
         LVL_NUM = randint(0, 3)
-        print(f"Selcting Random Level {LVL_NUM}")
+        print(f"Selecting Random Level {LVL_NUM}")
     self.set_ram(0, LVL_NUM)
 
 
 def modif_funcs(modifs):
     global TOGGLE_CYAN, TOGGLE_PINK, TOGGLE_ORANGE, TOGGLE_RED
     step_modifs, reset_modifs = [], []
+    if "edible_ghosts" in modifs and "inverted" in modifs:
+        raise ValueError("The modification \"ghosts_edible\" is unnecessary when playing in inverted mode")
     for mod in modifs:
         if mod == "caged_ghosts":
             TOGGLE_CYAN = True
@@ -243,11 +245,11 @@ def modif_funcs(modifs):
         elif mod.startswith("power"):
             mod_n = int(mod[-1])
             if mod_n < 0 or mod_n > 4:
-                raise ValueError("Invalid Number of Power Pills")
+                raise ValueError("Invalid Number of Power Pills, choose number 0-4")
             global NUMBER_POWER_PILLS
             NUMBER_POWER_PILLS = mod_n
             reset_modifs.append(number_power_pills)
-        elif mod == edible_ghosts:
+        elif mod == "edible_ghosts":
             step_modifs.append(edible_ghosts)
         elif mod == "inverted":
             step_modifs.append(inverted_ms_pacman)

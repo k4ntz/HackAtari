@@ -2,6 +2,7 @@ import numpy as np
 
 NEW_POSITION = 0
 
+
 def disable_shield_left(self):
     '''
     disable_shield_left: Disables the left shield.
@@ -10,6 +11,7 @@ def disable_shield_left(self):
     for i in range(len(shield_status_left)):
         shield_status_left[i] = 0
         self.set_ram(i+43,shield_status_left[i])
+
 
 def disable_shield_middle(self):
     '''
@@ -20,6 +22,7 @@ def disable_shield_middle(self):
         shield_status_middle[i] = 0
         self.set_ram(i+52, shield_status_middle[i])
 
+
 def disable_shield_right(self):
     '''
     disable_shield_right: Disables the right shield.
@@ -29,6 +32,7 @@ def disable_shield_right(self):
         shield_status_right[i] = 0
         self.set_ram(i+61, shield_status_right[i])
 
+
 def relocate_shields(self):
     '''
     relocate_shields: Allows for the relocation of the shields via an offset.
@@ -36,6 +40,7 @@ def relocate_shields(self):
     shield_pos_new = NEW_POSITION
     if shield_pos_new < 53 and shield_pos_new >= 35:
         self.set_ram(27, shield_pos_new)
+
 
 def curved_shots(self):
     '''
@@ -47,6 +52,7 @@ def curved_shots(self):
     if 40 < curr_laser_pos < 122:
         laser_displacement = calculate_x_displacement(curr_laser_pos)
         self.set_ram(87, laser_displacement)
+
 
 # calculates the x coordinate displacement based on a parabolic function
 def calculate_x_displacement(current_x):
@@ -60,6 +66,7 @@ def calculate_x_displacement(current_x):
         x_out = 0.01 * current_x + current_x
     x_out = int(np.round(x_out))
     return int(x_out)
+
 
 def modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
@@ -79,7 +86,7 @@ def modif_funcs(modifs):
         elif mod.startswith('relocate'):
             mod_n = int(mod[-2:])
             if mod_n < 35 or mod_n > 53:
-                raise ValueError("Invalid position for shields")
+                raise ValueError("Invalid position for shields, choose value 35-53")
             global NEW_POSITION
             NEW_POSITION = mod_n
             reset_modifs.append(relocate_shields)        
