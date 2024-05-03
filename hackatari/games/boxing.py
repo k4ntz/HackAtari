@@ -27,7 +27,7 @@ def gravity(self):
     #         curr_player_pos += 1
     #         self.set_ram(34, curr_player_pos)
 
-def forward(self):
+def offensive(self):
     '''
     Moves the player character forward in the game environment.
     '''
@@ -38,7 +38,7 @@ def forward(self):
         curr_player_pos_x += 1
         self.set_ram(32, curr_player_pos_x)
 
-def move_up(self):
+def antigravity(self):
     '''
     Moves the player character up in the game environment.
     '''
@@ -48,7 +48,7 @@ def move_up(self):
         curr_player_pos_y -= 1
         self.set_ram(34, curr_player_pos_y)
 
-def backward(self):
+def defensive(self):
     '''
     Moves the player character backward in the game environment.
     '''
@@ -83,11 +83,11 @@ def drunken_boxing(self):
     
     # Call functions in sequence based on the counter value
     if do == 0:
-        forward(self)
+        offensive(self)
     elif do == 1:
-        move_up(self)
+        antigravity(self)
     elif do == 2:
-        backward(self)
+        defensive(self)
     elif do == 3:
         down(self)
 

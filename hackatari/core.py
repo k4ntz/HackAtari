@@ -2,11 +2,12 @@ from ocatari.core import OCAtari
 import importlib
 import pygame
 import numpy as np
+import random
 
 
 GameList = ["BankHeist", "BattleZone", "Boxing", "Breakout", "ChopperCommand", "FishingDerby", 
-            "Freeway", "Frostbite", "Kangaroo", 
-            "MsPacman", "Pong", "Riverraid", "Seaquest", "SpaceInvaders", "Tennis"]
+            "Freeway", "Frostbite", "Kangaroo", "MontezumaRevenge",
+            "MsPacman", "Pong", "Riverraid", "Seaquest", "Skiing", "SpaceInvaders", "Tennis"]
 
 
 class HackAtari(OCAtari):
@@ -17,6 +18,15 @@ class HackAtari(OCAtari):
         """
         Initialize the game environment.
         """
+        if "frameskip" in kwargs:
+            self._frameskip = kwargs["frameskip"]
+        elif "NoFrameskip" or "v5" in game:
+            self._frameskip = 1
+        elif "Determinisitc" or "v5" in game:
+            self._frameskip = 4
+        else:
+            self._frameskip = "0"  # correspond to random frameskip
+        kwargs["frameskip"] = 1
         super().__init__(game, *args, **kwargs)
         covered = False
         for cgame in GameList:
@@ -35,11 +45,15 @@ class HackAtari(OCAtari):
         """
         Take a step in the game environment after altering the ram.
         """
-        for func in self.alter_ram_steps:
-            func(self)
-        ret = self._oc_step(action)
-        for func in self.alter_ram_steps:
-            func(self)
+        frameskip = self._frameskip
+        if not frameskip:
+            frameskip = random.choice((2, 5))
+        for _ in range(frameskip):
+            for func in self.alter_ram_steps:
+                func(self)
+            ret = self._oc_step(action)
+            for func in self.alter_ram_steps:
+                func(self)
         return ret
 
     def _alter_reset(self, *args, **kwargs):
@@ -61,7 +75,7 @@ class HumanPlayable(HackAtari):
         """
         kwargs["render_mode"] = "human"
         kwargs["render_oc_overlay"] = True
-        kwargs["frameskip"] = 1
+        # kwargs["frameskip"] = 1
         super(HumanPlayable, self).__init__(game, modifs, *args, **kwargs)
         self.reset()
         self.render()  # Initialize the pygame video system

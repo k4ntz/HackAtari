@@ -41,11 +41,11 @@ def alter_fish(self):
             for i in range(6):
                 if self.get_ram()[69+i] > 86:
                     self.set_ram(69+i, 44)
-        # fish mode 2: fish are all on enemy's side
-        if FISH_MODE == 2:
-            for i in range(6):
-                if self.get_ram()[69+i] < 70:
-                    self.set_ram(69+i, 116)
+        # # fish mode 2: fish are all on enemy's side
+        # if FISH_MODE == 2:
+        #     for i in range(6):
+        #         if self.get_ram()[69+i] < 70:
+        #             self.set_ram(69+i, 116)
         # fish mode 3: fish are always in the middle between player and enemy
         if FISH_MODE == 3:
             for i in range(6):
