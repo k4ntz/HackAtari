@@ -25,4 +25,6 @@ def modif_funcs(modifs):
         #     step_modifs.append(gravity)
         # elif mod == "disable_enemies":
         #     step_modifs.append(disable_enemies)
+        else:
+            print('Invalid modification')
     return step_modifs, reset_modifs
