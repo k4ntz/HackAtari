@@ -2,6 +2,7 @@ from hackatari import HackAtari, HumanPlayable
 import random
 import numpy as np
 import cv2
+import json
 
 
 def save_upsampled(rgb_array, k=4, l=4):
@@ -30,14 +31,22 @@ if __name__ == "__main__":
     
     parser.add_argument('-p', '--picture', type=int, default=0,
                         help='Takes a picture after the number of steps provided.')
+    parser.add_argument('-cs', '--color_swaps', default='',
+                        help='Colorswaps to be applied to the images.')
 
     args = parser.parse_args()
-
+    color_swaps = None
+    if args.color_swaps:
+        color_swaps = {}
+        color_swaps_str = json.load(open(args.color_swaps))
+        for key, val in color_swaps_str.items():
+            color_swaps[eval(key)] = eval(val)
+    
     if args.human:
-        env = HumanPlayable(args.game, args.modifs)
+        env = HumanPlayable(args.game, args.modifs, color_swaps)
         env.run()
     else:
-        env = HackAtari(args.game, args.modifs, render_mode="human")
+        env = HackAtari(args.game, args.modifs, color_swaps, render_mode="human")
         env.reset()
         done = False
         env.render()
