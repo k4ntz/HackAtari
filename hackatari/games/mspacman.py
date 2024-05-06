@@ -211,6 +211,9 @@ def inverted_ms_pacman(self):
         make_edible(self, 4, 60 ,9, 50, 15)
 
 def change_level(self):
+    """
+    Changes the level according to the argument number 0-3. If not specified, selcts random level.
+    """
     global LVL_NUM
     if LVL_NUM is None:
         LVL_NUM = randint(0, 3)
