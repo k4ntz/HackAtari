@@ -16,6 +16,8 @@
 4. Start the game by running
 `python run_study.py -g [gamename] -n [yourname]`
 
+When finishing a game, you have to manually close the game window, not the console, to restart the game!
+
 5. Start the same game, now in its new variation
 * `python run_study.py -g Boxing -n [yourname] -m one_armed`
 * `python run_study.py -g Freeway -n [yourname] -m s2`
