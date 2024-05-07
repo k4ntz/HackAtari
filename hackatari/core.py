@@ -123,6 +123,7 @@ class HumanPlayable(HackAtari):
         """
         kwargs["render_mode"] = "human"
         kwargs["render_oc_overlay"] = True
+        kwargs["obs_mode"] = "ori"
         super(HumanPlayable, self).__init__(game, modifs, colorswaps, *args, **kwargs)
         self.reset()
         self.render()  # Initialize the pygame video system
@@ -138,14 +139,17 @@ class HumanPlayable(HackAtari):
         run: Runs the ExtendedHuman environment, allowing human interaction with the game.
         '''
         pygame.init()
+        crew = 0
         self.running = True
         while self.running:
             self._handle_user_input()
             if not self.paused:
                 action = self._get_action()
-                self.step(action)
+                obs, reward , _ , _ , _ = self.step(action)
                 self.render()
+                crew += reward
         pygame.quit()
+        return crew
 
     def _get_action(self):
         '''
