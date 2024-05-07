@@ -1,6 +1,6 @@
 # git clone
 
-git clone git@github.com:k4ntz/HackAtari.git
+git clone https://github.com/k4ntz/HackAtari.git
 
 cd HackAtari/
 git checkout study
