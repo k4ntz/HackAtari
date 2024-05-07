@@ -38,7 +38,10 @@ if __name__ == "__main__":
     start_time = time.time()
     print(start_time)
 
-    data = [["name", args.name]]
+    modstring = ""
+    for mod in args.modifs:
+        modstring += mod+"+"
+    data = [[args.game, modstring]]
 
     color_swaps = None
     if args.color_swaps:
@@ -48,15 +51,20 @@ if __name__ == "__main__":
             color_swaps[eval(key)] = eval(val)
     
     if args.human:
-        while time.time() < start_time + 10:
+        while time.time() < start_time + 5*60:
             print (time.time())
             env = HumanPlayable(args.game, args.modifs, color_swaps)
             crew = env.run()
             data.append([gamecnt,  crew])
             env.reset()
             gamecnt += 1
-
-    with open(f"results_{args.game}.csv", 'w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerows(data)
+    import os
+    if not os.path.isfile(f"results_{args.name}.csv"):
+        with open(f"results_{args.name}.csv", 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerows(data)
+    else:
+        with open(f"results_{args.name}.csv", 'a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerows(data)
     env.close()
