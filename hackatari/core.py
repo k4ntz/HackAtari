@@ -145,11 +145,13 @@ class HumanPlayable(HackAtari):
             self._handle_user_input()
             if not self.paused:
                 action = self._get_action()
-                obs, reward , _ , _ , _ = self.step(action)
+                obs, reward , terminated, truncated, info = self.step(action)
                 self.render()
                 crew += reward
-        pygame.quit()
-        return crew
+            if terminated or truncated:
+                self.reset()
+                pygame.quit()
+                return crew
 
     def _get_action(self):
         '''

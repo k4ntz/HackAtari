@@ -17,9 +17,6 @@ if __name__ == "__main__":
     # Argument to enable gravity for the player.
     parser.add_argument('-m', '--modifs', nargs='+', default=[],
                         help='List of the modifications to be brought to the game')
-    
-    parser.add_argument('-hu', '--human', default=True,
-                        help='Let user play the game.')
     parser.add_argument('-cs', '--color_swaps', default='',
                         help='Colorswaps to be applied to the images.')
     parser.add_argument('-t', '--track', default=False, action="store_true",
@@ -36,7 +33,7 @@ if __name__ == "__main__":
     gamecnt = 0
     crew = 0
     start_time = time.time()
-    print(start_time)
+    print("start_time:", start_time)
 
     modstring = ""
     for mod in args.modifs:
@@ -50,14 +47,15 @@ if __name__ == "__main__":
         for key, val in color_swaps_str.items():
             color_swaps[eval(key)] = eval(val)
     
-    if args.human:
-        while time.time() < start_time + 5*60:
-            print (time.time())
-            env = HumanPlayable(args.game, args.modifs, color_swaps)
-            crew = env.run()
-            data.append([gamecnt,  crew])
-            env.reset()
-            gamecnt += 1
+    duration = 0
+    while duration < 5*60:
+        print("Elapsed time", duration)
+        env = HumanPlayable(args.game, args.modifs, color_swaps)
+        crew = env.run()
+        duration = time.time() - start_time
+        data.append([gamecnt,  crew, duration])
+        env.reset()
+        gamecnt += 1
     import os
     if not os.path.isfile(f"results_{args.name}.csv"):
         with open(f"results_{args.name}.csv", 'w', newline='') as file:
