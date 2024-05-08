@@ -53,7 +53,7 @@ if __name__ == "__main__":
         env = HumanPlayable(args.game, args.modifs, color_swaps)
         crew = env.run()
         duration = time.time() - start_time
-        data.append([gamecnt,  crew, duration])
+        data.append([gamecnt,  crew, int(duration)])
         env.reset()
         gamecnt += 1
     import os
