@@ -1,9 +1,10 @@
-ICE_COLOR = 0 # New color for ice (Int: 000-255)
+ICE_COLOR = 0 # Black, Red, Blue, Green
 UI_COLOR = 0 # New color for the UI (Int: 000-255)
 LINE = [False,False,False,False] # Which lines are recolored, multiple line commands are possible (Int: 0-3)
 ENEMIES_NUMBER = 0 # Define the numbers of enemies to occur per line (Int: 0-3)
 NEW_X_POS = 0 # New startposition of ice shelves (Int: 0-255)
 
+colors = [0, 48, 113, 200]
 """
 A constant used to change the mode for the number of enemies.
 """
@@ -12,13 +13,13 @@ def modify_ram_for_color(self):
     Adjusts the colors of the ice floes bases on the specified values.
     '''
     if LINE[3]:
-        self.set_ram(43, ICE_COLOR)
+        self.set_ram(43, colors[ICE_COLOR])
     if LINE[2]:
-        self.set_ram(44, ICE_COLOR)
+        self.set_ram(44, colors[ICE_COLOR])
     if LINE[1]:
-        self.set_ram(45, ICE_COLOR)
+        self.set_ram(45, colors[ICE_COLOR])
     if LINE[0]:
-        self.set_ram(46, ICE_COLOR)
+        self.set_ram(46, colors[ICE_COLOR])
 
 def modify_ram_for_uicolor(self):
     '''
@@ -66,30 +67,29 @@ def modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
         if mod.startswith('color'):
-            for i in range(3):
-                if mod[-3+i:].isdigit():
-                    mod_n = int(mod[-3+i:])
-                    break
-            if mod_n < 0 or mod_n > 255:
-                raise ValueError("Invalid color for ice, max. value is 255")
+            if mod[-1].isdigit():
+                mod_n = int(mod[-1])
+                if mod_n < 0 or mod_n > 3:
+                    raise ValueError("Invalid color for ice, choose value 0-3 [black, red, blue, green]")
+            else:
+                raise ValueError("Append value 0-3 [black, red, blue, green] to your color mod-argument")
             global ICE_COLOR
             ICE_COLOR = mod_n
             step_modifs.append(modify_ram_for_color)
         elif mod.startswith('line'):
             mod_n = int(mod[-1])
-            if mod_n < 1 or mod_n > 5:
+            if mod_n < 1 or mod_n > 4:
                 raise ValueError("Invalid color for ice, choose number 1-5")
             global LINE
             LINE[mod_n] = True
             step_modifs.append(modify_ram_for_color)
         elif mod.startswith('ui_color'):
-            for i in range(3):
-                if mod[-3+i:].isdigit():
-                    mod_n = int(mod[-3+i:])
-                    break
-            print(mod_n)
-            if mod_n < 0 or mod_n > 254:
-                raise ValueError("Invalid color for UI, max. value is 254")
+            if mod[-1].isdigit():
+                mod_n = int(mod[-1])
+                if mod_n < 0 or mod_n > 3:
+                    raise ValueError("Invalid color for ui, choose value 0-3 [black, red, blue, green]")
+            else:
+                raise ValueError("Append value 0-3 [black, red, blue, green] to your ui_color mod-argument")
             global UI_COLOR
             UI_COLOR = mod_n
             step_modifs.append(modify_ram_for_uicolor)
