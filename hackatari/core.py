@@ -5,7 +5,7 @@ import numpy as np
 import random
 
 
-GameList = ["BankHeist", "BattleZone", "Boxing", "Breakout", "ChopperCommand", "FishingDerby", 
+GameList = ["BankHeist", "BattleZone", "Boxing", "Breakout", "Carnival", "ChopperCommand", "FishingDerby", 
             "Freeway", "Frostbite", "Kangaroo", "MontezumaRevenge",
             "MsPacman", "Pong", "Riverraid", "Seaquest", "Skiing", "SpaceInvaders", "Tennis"]
 
