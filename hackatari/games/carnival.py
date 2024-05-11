@@ -1,4 +1,4 @@
-def no_flying_ducs(self):
+def no_flying_duck(self):
     """
     Ducks in the last row disappear instead of turning into flying ducks.
     """
@@ -7,7 +7,7 @@ def no_flying_ducs(self):
 
 def unlimited_ammo(self):
     """
-    Ammunition dosn't decrease.
+    Ammunition doesn't decrease.
     """
     ram = self.get_ram()
     self.set_ram(3, 40)
@@ -16,8 +16,8 @@ def unlimited_ammo(self):
 def modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
-        if mod == "no_flying_ducks":
-            step_modifs.append(no_flying_ducs)
+        if mod == "no_flying_duck":
+            step_modifs.append(no_flying_duck)
         elif mod == "unlimited_ammo":
             step_modifs.append(unlimited_ammo)
         else:
