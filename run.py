@@ -3,10 +3,16 @@ import random
 import numpy as np
 import cv2
 import json
+import matplotlib.pyplot as plt
 
-
-def save_upsampled(rgb_array, k=4, l=4):
-    aug = np.repeat(np.repeat(rgb_array, k, axis=0), l, axis=1)[:,:,[2,1,0]]
+def save_upsampled(rgb_arrays, k=4, l=4):
+    augs = []
+    for rgb_array in rgb_arrays:
+        aug = np.repeat(np.repeat(rgb_array, k, axis=0), l, axis=1)[:,:,[2,1,0]]
+        augs.append(aug)
+    aug = np.average(augs, 0).astype(int)
+    # plt.imshow(aug)
+    # plt.show()
     cv2.imwrite("screenshot.png", aug, [cv2.IMWRITE_PNG_COMPRESSION, 0])
     print("Screenshot saved as screenshot.png")
 
@@ -36,6 +42,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     color_swaps = None
+    obss = []
     if args.color_swaps:
         color_swaps = {}
         color_swaps_str = json.load(open(args.color_swaps))
@@ -57,7 +64,12 @@ if __name__ == "__main__":
             if terminated or truncated:
                 env.reset()
             if nstep == args.picture:
-                save_upsampled(obs)
+                obss.append(obs)
+                save_upsampled(obss)
                 exit()
+            elif args.picture - nstep < 4:
+                obss.append(obs)
+            if nstep % 100 == 0:
+                print(".", end="", flush=True)
             nstep += 1
         env.close()
