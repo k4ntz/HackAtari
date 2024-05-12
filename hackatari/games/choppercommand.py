@@ -1,6 +1,8 @@
 global count
 count = 100
+COLOR = 0
 
+colors = [38, 40, 23, 86, 48]
 def delay_shots(self):
     """
     Puts time delay between shots
@@ -35,6 +37,15 @@ def invisible_player(self):
     """
     self.set_ram(118, 38)
 
+def color(self):
+    """
+    Changes the color of background to [Black, White, Red, Blue, Green] by choosing a value 0-4. This also affects the enemies colors
+    """
+    # for i in range(115, 118):
+    # self.set_ram(116, 0)
+    global COLOR
+    self.set_ram(117, colors[COLOR])
+
 
 def modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
@@ -47,4 +58,14 @@ def modif_funcs(modifs):
             step_modifs.append(no_radar)
         elif mod == "invis_player":
             step_modifs.append(invisible_player)
+        elif mod.startswith("color"):
+            if mod[-1].isdigit():
+                mod_n = int(mod[-1])
+                if mod_n < 0 or mod_n > 4:
+                    raise ValueError("Invalid color value, choose value 0-4 [black, white, red, blue, green]")
+            else:
+                raise ValueError("Append value 0-4 [black, white, red, blue, green] to your color mod-argument")
+            global COLOR
+            COLOR = mod_n
+            step_modifs.append(color)
     return step_modifs, reset_modifs
