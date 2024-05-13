@@ -92,7 +92,7 @@ def handle_car_stop_mode_3(self):
         set_ram_value(self, new_pos_down, 150)
 
 
-def modif_funcs(modifs):
+def _modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
         mod_n = int(mod[-1])

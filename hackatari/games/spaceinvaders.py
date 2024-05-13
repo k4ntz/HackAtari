@@ -88,7 +88,7 @@ def controlable_missile(self):
     self.set_ram(87, self.get_ram()[28])
 
 
-def modif_funcs(modifs):
+def _modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
         if mod == "disable_shield_left":

@@ -27,7 +27,7 @@ def fast_missiles(self):
         self.set_ram(55, missile_y - MISSILE_SPEED_INCREASE)
 
 
-def modif_funcs(modifs):
+def _modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
         if mod == "no_flying_ducks":

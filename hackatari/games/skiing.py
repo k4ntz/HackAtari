@@ -1,4 +1,4 @@
-from random import random
+# from random import random
 
 
 def modify_ram_invert_flag(self):
@@ -14,7 +14,7 @@ def modify_ram_invert_flag(self):
             self.set_ram(78+i, 4)
 
 
-def modif_funcs(modifs):
+def _modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
         if mod == "invert_flags":

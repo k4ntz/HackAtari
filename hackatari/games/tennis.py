@@ -32,7 +32,7 @@ def modify_ram_adding_wind(self):
         self.set_ram(54, new_ball_y)
         self.set_ram(55, new_shadow_y)
 
-def modif_funcs(modifs):
+def _modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
         if mod == "wind":

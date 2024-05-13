@@ -1,5 +1,5 @@
-riverraid module
-================
+riverraid
+=========
 
 .. automodule:: riverraid
    :members:

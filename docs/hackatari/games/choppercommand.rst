@@ -1,5 +1,5 @@
-choppercommand module
-=====================
+choppercommand
+==============
 
 .. automodule:: choppercommand
    :members:

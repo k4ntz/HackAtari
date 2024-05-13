@@ -1,5 +1,5 @@
-battlezone module
-=================
+battlezone
+==========
 
 .. automodule:: battlezone
    :members:

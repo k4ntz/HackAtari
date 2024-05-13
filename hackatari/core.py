@@ -30,7 +30,8 @@ class ALEColorSwapProxy:
 
 class HackAtari(OCAtari):
     """
-    Modified environments from OCAtari
+    HackAtari provides variation of Atari Learning Environments. 
+    It is built on top of OCAtari, which provides object-centric observations.
     """
     def __init__(self, game: str, modifs=[], colorswaps=None, *args, **kwargs):
         """
@@ -55,8 +56,8 @@ class HackAtari(OCAtari):
                 break
         if not covered:
             raise ValueError(f"Game {game} is not covered in the HackAtari")
-        modif_funcs = importlib.import_module(f"hackatari.games.{game.lower()}").modif_funcs
-        self.alter_ram_steps, self.alter_ram_reset = modif_funcs(modifs)
+        _modif_funcs = importlib.import_module(f"hackatari.games.{game.lower()}")._modif_funcs
+        self.alter_ram_steps, self.alter_ram_reset = _modif_funcs(modifs)
         self._oc_step = self.step
         self._oc_reset = self.reset
         if colorswaps is not None:

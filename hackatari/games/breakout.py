@@ -86,7 +86,7 @@ def color_rows(self):
         if ROW_COLORS[i] is not None:
             self.set_ram(64+i, ROW_COLORS[i])
 
-def modif_funcs(modifs):
+def _modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
         if mod.startswith('s'):

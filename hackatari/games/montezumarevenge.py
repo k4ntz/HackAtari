@@ -35,7 +35,7 @@ def random_position_start(self):
                 DEAD = False
 
 
-def modif_funcs(modifs):
+def _modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
         if mod == "random_position_start":

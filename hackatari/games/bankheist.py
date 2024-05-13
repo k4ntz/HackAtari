@@ -83,7 +83,7 @@ def revisit_city(self):
     PLAYER_X = ram[28]
 
 
-def modif_funcs(modifs):
+def _modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
         if mod == "unlimited_gas":

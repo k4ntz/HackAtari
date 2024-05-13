@@ -1,5 +1,5 @@
-kangaroo module
-===============
+kangaroo
+========
 
 .. automodule:: kangaroo
    :members:

@@ -55,7 +55,7 @@ def alter_fish(self):
                     if self.get_ram()[69+i] > 86:
                         self.set_ram(69+i, 70)
 
-def modif_funcs(modifs):
+def _modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
         mod_n = int(mod[-1])

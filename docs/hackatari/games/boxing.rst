@@ -1,5 +1,5 @@
-boxing module
-=============
+boxing
+======
 
 .. automodule:: boxing
    :members:

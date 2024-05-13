@@ -1,5 +1,5 @@
-mspacman module
-===============
+mspacman
+========
 
 .. automodule:: mspacman
    :members:

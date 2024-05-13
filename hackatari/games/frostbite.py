@@ -63,7 +63,7 @@ def random_color(self):
     self.set_ram(46, ICE_COLOR)
 
 
-def modif_funcs(modifs):
+def _modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
         if mod.startswith('color'):
@@ -113,7 +113,7 @@ def modif_funcs(modifs):
     return step_modifs, reset_modifs
 
 
-# def modif_funcs(modifs):
+# def _modif_funcs(modifs):
 #     step_modifs, reset_modifs = [], []
 #     for mod in modifs:
 #         if mod.startswith('color'):

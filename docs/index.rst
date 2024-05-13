@@ -14,10 +14,12 @@ Welcome to HackAtari's documentation!
 
    .. container:: leftside
 
-      HackAtari is a wrapper around the Atari environments available in gymnasium. 
-      It automatically extracts the objects that exists in the state, 
+      HackAtari is a wrapper around the OCAtari environments available in gymnasium. 
+      It allows you to play altered versions of the Atari games.
+      It alters the RAM of the game to create novel game dynamics, allowing for a wide range of variations.
+      HackAtari environments also allow for object-centric Reinforcement Learning, as it is built upon `OC_Atari <https://github.com/k4ntz/OC_Atari>`_ .
+      OCAtari automatically extracts the objects that exists in the state, 
       either via looking up their attribute in the RAM (fast), or using vision processing methods. 
-      HackAtari environments also allow for object-centric Reinforcement Learning, as it is built upon (OCAtari)[https://github.com/k4ntz/OC_Atari].
 
    .. container:: rightside
 
@@ -45,10 +47,7 @@ Requirements
 ============
 This project depends on:
 
-- gymnasium
-- numpy
-- termcolor (if you want colored Warning error and messages)
-- cv2 and torch (if you want to use an automatic wrapper that provides 4x84x84 observations (as used by DQN and many deep algorithms))
+- ocatar: https://github.com/k4ntz/OC_Atari
 
 Download and install:
 You can download from the
@@ -65,17 +64,15 @@ You can download from the
    :caption: API:
 
    hackatari/core.rst
-   hackatari/
 
 .. toctree::
    :hidden:
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Games:
+   :titlesonly:
    :glob:
 
    hackatari/games/*
-
-
 
 
 Indices and tables

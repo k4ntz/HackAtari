@@ -1,5 +1,5 @@
-freeway module
-==============
+freeway
+=======
 
 .. automodule:: freeway
    :members:

@@ -1,5 +1,5 @@
-asterix module
-==============
+asterix
+=======
 
 .. automodule:: asterix
    :members:

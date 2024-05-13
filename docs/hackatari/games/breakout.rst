@@ -1,5 +1,5 @@
-breakout module
-===============
+breakout
+========
 
 .. automodule:: breakout
    :members:

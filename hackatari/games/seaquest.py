@@ -40,7 +40,7 @@ def oxygen(self):
         self.set_ram(59, 3) # replace life if lost because of bug
 
 
-def modif_funcs(modifs):
+def _modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
         if mod == "oxygen":

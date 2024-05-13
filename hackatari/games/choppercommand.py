@@ -47,7 +47,7 @@ def color(self):
     self.set_ram(117, colors[COLOR])
 
 
-def modif_funcs(modifs):
+def _modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
         if mod == "delay_shots":

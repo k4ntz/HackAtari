@@ -221,7 +221,7 @@ def change_level(self):
     self.set_ram(0, LVL_NUM)
 
 
-def modif_funcs(modifs):
+def _modif_funcs(modifs):
     global TOGGLE_CYAN, TOGGLE_PINK, TOGGLE_ORANGE, TOGGLE_RED
     step_modifs, reset_modifs = [], []
     if "edible_ghosts" in modifs and "inverted" in modifs:

@@ -1,5 +1,5 @@
-pong module
-===========
+pong
+====
 
 .. automodule:: pong
    :members:

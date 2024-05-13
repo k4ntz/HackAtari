@@ -74,7 +74,7 @@ def left_drift(self):
         self.set_ram(49, new_ball_pos)
     TIMER +=1
 
-def modif_funcs(modifs):
+def _modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
         if mod == "lazy_enemy":

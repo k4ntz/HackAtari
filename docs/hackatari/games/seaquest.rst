@@ -1,5 +1,5 @@
-seaquest module
-===============
+seaquest
+========
 
 .. automodule:: seaquest
    :members:

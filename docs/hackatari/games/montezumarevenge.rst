@@ -1,5 +1,5 @@
-montezumarevenge module
-=======================
+montezumarevenge
+================
 
 .. automodule:: montezumarevenge
    :members:

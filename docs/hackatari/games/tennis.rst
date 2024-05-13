@@ -1,5 +1,5 @@
-tennis module
-=============
+tennis
+======
 
 .. automodule:: tennis
    :members:

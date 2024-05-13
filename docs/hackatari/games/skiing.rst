@@ -1,5 +1,5 @@
-skiing module
-=============
+skiing
+======
 
 .. automodule:: skiing
    :members:

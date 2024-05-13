@@ -9,7 +9,9 @@ games
    battlezone
    boxing
    breakout
+   carnival
    choppercommand
+   donkeykong
    fishingderby
    freeway
    frostbite

@@ -1,5 +1,5 @@
-fishingderby module
-===================
+fishingderby
+============
 
 .. automodule:: fishingderby
    :members:

@@ -1,5 +1,5 @@
-bankheist module
-================
+bankheist
+=========
 
 .. automodule:: bankheist
    :members:

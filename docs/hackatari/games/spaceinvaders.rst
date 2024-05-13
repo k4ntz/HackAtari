@@ -1,5 +1,5 @@
-spaceinvaders module
-====================
+spaceinvaders
+=============
 
 .. automodule:: spaceinvaders
    :members:

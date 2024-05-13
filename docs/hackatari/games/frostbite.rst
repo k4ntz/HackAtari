@@ -1,5 +1,5 @@
-frostbite module
-================
+frostbite
+=========
 
 .. automodule:: frostbite
    :members:

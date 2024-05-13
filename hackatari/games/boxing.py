@@ -130,7 +130,7 @@ def reset_onc(self):
     ONCE = 2
 
 
-def modif_funcs(modifs):
+def _modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
         if mod.startswith("gravity"):

@@ -122,7 +122,7 @@ def change_level(self):
     self.set_ram(36, LVL_NUM)
 
 
-def modif_funcs(modifs):
+def _modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     if "random_init" in modifs and "easy_mode" in modifs:
         raise ValueError("Both random_init and easy_mode cannot be enabled at the same time")

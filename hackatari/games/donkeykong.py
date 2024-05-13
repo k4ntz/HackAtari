@@ -23,7 +23,7 @@ def random_start_step(self):
         _randomize_pos(self)
         NBLIVES = ram[35]
 
-def modif_funcs(modifs):
+def _modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
         if mod == "no_barrel":
