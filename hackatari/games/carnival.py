@@ -17,7 +17,7 @@ def unlimited_ammo(self):
 def fast_missiles(self):
     """
     The projectiles fired from the players are faster. 
-    Reduces the speed of the missiles by changing the corresponding ram positions.
+    Increases the speed of the missiles by changing the corresponding ram positions.
     Uses the values 1-3 to determine how by how much to speed the missile up.
     """
     missile_y = self.get_ram()[55]
