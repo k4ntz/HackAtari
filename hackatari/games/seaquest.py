@@ -36,13 +36,14 @@ def is_gamestart(self):
         return True
     return False
 
-def oxygen(self):
+def unlimited_oxygen(self):
     """
-    Changes the behavior of the oxygen bar
+    Changes the behavior of the oxygen bar to remain filled
     by changing the corresponding ram positions
     """
     ram = self.get_ram()
-    self.set_ram(102,64)
+    if ram[97] > 13: # when not surfacing
+        self.set_ram(102, 63)
     if is_gamestart(self):
         self.set_ram(59, 3) # replace life if lost because of bug
 
@@ -60,8 +61,8 @@ def random_color_enemies(self):
 def _modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
-        if mod == "oxygen":
-            step_modifs.append(oxygen)
+        if mod == "unlimited_oxygen":
+            step_modifs.append(unlimited_oxygen)
         elif mod == "gravity":
             step_modifs.append(gravity)
         elif mod == "disable_enemies":
