@@ -60,7 +60,7 @@ class HackAtari(OCAtari):
         self.alter_ram_steps, self.alter_ram_reset = _modif_funcs(modifs)
         self._oc_step = self.step
         self._oc_reset = self.reset
-        if colorswaps is not None:
+        if colorswaps:
             assert_colorswaps(colorswaps)
             self.colorswaps = colorswaps
             # self.step = self._colorswap_step
