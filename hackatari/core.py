@@ -176,7 +176,7 @@ class HumanPlayable(HackAtari):
                     self.paused = not self.paused
 
                 if event.key == pygame.K_r:  # 'R': Reset
-                    self.env.reset()
+                    self.reset()
 
                 elif (event.key,) in self.keys2actions.keys():  # Env action
                     self.current_keys_down.add(event.key)
