@@ -39,6 +39,8 @@ if __name__ == "__main__":
                         help='Takes a picture after the number of steps provided.')
     parser.add_argument('-cs', '--color_swaps', default='',
                         help='Colorswaps to be applied to the images.')
+    parser.add_argument('-rf','--reward_function', type=str, default='', 
+                        help="Replace the default reward fuction with new one in path rf") 
 
     args = parser.parse_args()
     obss = []
@@ -46,10 +48,10 @@ if __name__ == "__main__":
     color_swaps = load_color_swaps(args.color_swaps)
     
     if args.human:
-        env = HumanPlayable(args.game, args.modifs, color_swaps)
+        env = HumanPlayable(args.game, args.modifs, args.reward_function, color_swaps)
         env.run()
     else:
-        env = HackAtari(args.game, args.modifs, color_swaps, render_mode="human")
+        env = HackAtari(args.game, args.modifs, args.reward_function, color_swaps, render_mode="human")
         env.reset()
         done = False
         env.render()
