@@ -211,6 +211,9 @@ def inverted_ms_pacman(self):
         make_edible(self, 4, 60 ,9, 50, 15)
 
 def change_level(self):
+    """
+    Changes the level according to the argument number 0-3. If not specified, selcts random level.
+    """
     global LVL_NUM
     if LVL_NUM is None:
         LVL_NUM = randint(0, 3)
@@ -218,7 +221,7 @@ def change_level(self):
     self.set_ram(0, LVL_NUM)
 
 
-def modif_funcs(modifs):
+def _modif_funcs(modifs):
     global TOGGLE_CYAN, TOGGLE_PINK, TOGGLE_ORANGE, TOGGLE_RED
     step_modifs, reset_modifs = [], []
     if "edible_ghosts" in modifs and "inverted" in modifs:

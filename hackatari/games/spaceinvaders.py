@@ -2,6 +2,10 @@ import numpy as np
 
 NEW_POSITION = 0
 
+PREV_X = 246
+
+MATCH_X = 0
+
 
 def disable_shield_left(self):
     '''
@@ -47,28 +51,44 @@ def curved_shots(self):
     curved_shots: Makes the shots travel on a curved path.
     '''
     curr_laser_pos = self.get_ram()[87]
+    curr_laser_hight = self.get_ram()[85]
+
+    
     # Manipulate the value in RAM cell 87 as long as the upper and the lower threshold
     # are not reached.
     if 40 < curr_laser_pos < 122:
-        laser_displacement = calculate_x_displacement(curr_laser_pos)
+        if 75 < curr_laser_hight < 150:
+            global MATCH_X
+            MATCH_X = self.get_ram()[28]
+        laser_displacement = calculate_x_displacement(self, curr_laser_pos, curr_laser_hight)
         self.set_ram(87, laser_displacement)
-
+    else:
+        global PREV_X
+        PREV_X = self.get_ram()[28]
 
 # calculates the x coordinate displacement based on a parabolic function
-def calculate_x_displacement(current_x):
+def calculate_x_displacement(self, current_x, current_y):
     '''
     calculate_x_displacement: calculates the displacement value based on a parabolic function
     and the current x position.
     '''
-    if current_x < 81:
-        x_out = -0.01 * current_x + current_x
+    # 85
+    global PREV_X
+    global MATCH_X
+    if MATCH_X < PREV_X:
+        x_out = current_x - current_y/160
+    elif MATCH_X > PREV_X:
+        x_out = current_x + current_y/160
     else:
-        x_out = 0.01 * current_x + current_x
+        x_out = current_x
     x_out = int(np.round(x_out))
     return int(x_out)
 
+def controlable_missile(self):
+    self.set_ram(87, self.get_ram()[28])
 
-def modif_funcs(modifs):
+
+def _modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
         if mod == "disable_shield_left":
@@ -83,6 +103,8 @@ def modif_funcs(modifs):
             step_modifs.append(disable_shield_right)
         elif mod == "curved":
             step_modifs.append(curved_shots) 
+        elif mod == "controlable_missile":
+            step_modifs.append(controlable_missile) 
         elif mod.startswith('relocate'):
             mod_n = int(mod[-2:])
             if mod_n < 35 or mod_n > 53:

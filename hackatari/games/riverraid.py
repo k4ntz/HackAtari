@@ -14,7 +14,7 @@ def no_fuel(self):
             self.set_ram(32+i, 0)
 
 
-def modif_funcs(modifs):
+def _modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
         if mod == "no_fuel":

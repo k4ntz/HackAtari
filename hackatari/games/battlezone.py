@@ -6,7 +6,7 @@ def no_radar(self):
     self.set_ram(83, 255)
 
 
-def modif_funcs(modifs):
+def _modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     for mod in modifs:
         if  mod == "no_radar":

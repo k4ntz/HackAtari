@@ -5,8 +5,8 @@ import numpy as np
 import random
 
 
-GameList = ["BankHeist", "BattleZone", "Boxing", "Breakout", "ChopperCommand", "FishingDerby", 
-            "Freeway", "Frostbite", "Kangaroo", "MontezumaRevenge",
+GameList = ["BankHeist", "BattleZone", "Boxing", "Breakout", "Carnival", "ChopperCommand", 
+            "DonkeyKong", "FishingDerby", "Freeway", "Frostbite", "Kangaroo", "MontezumaRevenge",
             "MsPacman", "Pong", "Riverraid", "Seaquest", "Skiing", "SpaceInvaders", "Tennis"]
 
 
@@ -29,7 +29,8 @@ class ALEColorSwapProxy:
 
 class HackAtari(OCAtari):
     """
-    Modified environments from OCAtari
+    HackAtari provides variation of Atari Learning Environments. 
+    It is built on top of OCAtari, which provides object-centric observations.
     """
     def __init__(self, game: str, modifs=[], colorswaps=None, *args, **kwargs):
         """
@@ -54,11 +55,11 @@ class HackAtari(OCAtari):
                 break
         if not covered:
             raise ValueError(f"Game {game} is not covered in the HackAtari")
-        modif_funcs = importlib.import_module(f"hackatari.games.{game.lower()}").modif_funcs
-        self.alter_ram_steps, self.alter_ram_reset = modif_funcs(modifs)
+        _modif_funcs = importlib.import_module(f"hackatari.games.{game.lower()}")._modif_funcs
+        self.alter_ram_steps, self.alter_ram_reset = _modif_funcs(modifs)
         self._oc_step = self.step
         self._oc_reset = self.reset
-        if colorswaps is not None:
+        if colorswaps:
             assert_colorswaps(colorswaps)
             self.colorswaps = colorswaps
             # self.step = self._colorswap_step
@@ -175,7 +176,7 @@ class HumanPlayable(HackAtari):
                     self.paused = not self.paused
 
                 if event.key == pygame.K_r:  # 'R': Reset
-                    self.env.reset()
+                    self.reset()
 
                 elif (event.key,) in self.keys2actions.keys():  # Env action
                     self.current_keys_down.add(event.key)

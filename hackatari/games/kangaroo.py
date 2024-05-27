@@ -70,7 +70,7 @@ def check_new_level_life(self, current_lives, current_level):
 
 def set_kangaroo_position(self, current_level, kangaroo_pos, human_mode):
     """
-    Sets the kangaroo's starting position depending on the FLOOR argument
+    Sets the kangaroo's starting position depending on the FLOOR argument.
     """
     if is_at_start(kangaroo_pos):
         if FLOOR == 1:
@@ -112,6 +112,9 @@ def random_init(self):
 
 
 def change_level(self):
+    """
+    Changes the level according to the argument number 0-2. If not specified, selcts random level.
+    """
     global LVL_NUM
     if LVL_NUM is None:
         LVL_NUM = random.randint(0, 3)
@@ -119,7 +122,7 @@ def change_level(self):
     self.set_ram(36, LVL_NUM)
 
 
-def modif_funcs(modifs):
+def _modif_funcs(modifs):
     step_modifs, reset_modifs = [], []
     if "random_init" in modifs and "easy_mode" in modifs:
         raise ValueError("Both random_init and easy_mode cannot be enabled at the same time")
