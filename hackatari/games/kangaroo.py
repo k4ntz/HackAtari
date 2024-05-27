@@ -68,27 +68,25 @@ def check_new_level_life(self, current_lives, current_level):
         self.last_level = current_level
 
 
-def set_kangaroo_position(self, current_level, kangaroo_pos, human_mode):
+def set_kangaroo_position(self):
     """
     Sets the kangaroo's starting position depending on the FLOOR argument.
     """
+    import ipdb;ipdb.set_trace()
+    ram = self.get_ram()
+    current_level = ram[36]
+    kangaroo_pos = (ram[KANGAROO_POS_X_INDEX], ram[KANGAROO_POS_Y_INDEX])
+    
     if is_at_start(kangaroo_pos):
         if FLOOR == 1:
             # For floor 1, position depends on whether the current level is 2
             new_pos = FLOOR_1_LEVEL2_POS if current_level == LEVEL_2 else FLOOR_1_START_POS
-            if not human_mode:
-                set_ram_kang_pos(self, *new_pos)
-            else:
-                set_ram_kang_pos(self.env, *new_pos)
+            set_ram_kang_pos(self, *new_pos)
         elif FLOOR == 2:
             # For floor 2, position is set to a different location
             # but also depends on the current level
             new_pos = FLOOR_2_LEVEL2_POS if current_level == LEVEL_2 else FLOOR_2_START_POS
-            if not human_mode:
-                set_ram_kang_pos(self, *new_pos)
-            else:
-                set_ram_kang_pos(self.env, *new_pos)
-
+            set_ram_kang_pos(self, *new_pos)
 
 def random_init(self):
     """
@@ -133,6 +131,11 @@ def _modif_funcs(modifs):
             step_modifs.append(disable_coconut)
         elif mod == "random_init":
             reset_modifs.append(random_init)
+        elif "set_floor" in mod:
+            if mod[-1].isdigit():
+                global FLOOR
+                FLOOR = int(mod[-1])
+            reset_modifs.append(set_kangaroo_position)
         # elif mod == "easy_mode":
         #     reset_modifs.append(easy_mode)
         elif "change_level" in mod:
