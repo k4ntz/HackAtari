@@ -1,4 +1,5 @@
 from ocatari.core import OCAtari
+import os
 import importlib
 import pygame
 import numpy as np
@@ -6,8 +7,7 @@ import random
 
 
 GameList = ["BankHeist", "BattleZone", "Boxing", "Breakout", "Carnival", "ChopperCommand", 
-            "DonkeyKong",
-            "FishingDerby", "Freeway", "Frostbite", "Kangaroo", "MontezumaRevenge",
+            "DonkeyKong", "FishingDerby", "Freeway", "Frostbite", "Kangaroo", "MontezumaRevenge",
             "MsPacman", "Pong", "Riverraid", "Seaquest", "Skiing", "SpaceInvaders", "Tennis"]
 
 
@@ -33,7 +33,7 @@ class HackAtari(OCAtari):
     HackAtari provides variation of Atari Learning Environments. 
     It is built on top of OCAtari, which provides object-centric observations.
     """
-    def __init__(self, game: str, modifs=[], colorswaps=None, *args, **kwargs):
+    def __init__(self, game: str, modifs=[], rewardfunc_path=None, colorswaps=None, *args, **kwargs):
         """
         Initialize the game environment.
         """
@@ -57,10 +57,21 @@ class HackAtari(OCAtari):
         if not covered:
             raise ValueError(f"Game {game} is not covered in the HackAtari")
         _modif_funcs = importlib.import_module(f"hackatari.games.{game.lower()}")._modif_funcs
+        
+        if rewardfunc_path:
+            print(f"Changed reward function to {rewardfunc_path}")
+            module_name = os.path.splitext(os.path.basename(rewardfunc_path))[0]
+            spec = importlib.util.spec_from_file_location(module_name, rewardfunc_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            self.new_reward_func = module.reward_function
+            self._oca_step = self.step
+            self.step = self._step_with_lm_reward
+
         self.alter_ram_steps, self.alter_ram_reset = _modif_funcs(modifs)
         self._oc_step = self.step
         self._oc_reset = self.reset
-        if colorswaps is not None:
+        if colorswaps:
             assert_colorswaps(colorswaps)
             self.colorswaps = colorswaps
             # self.step = self._colorswap_step
@@ -70,6 +81,14 @@ class HackAtari(OCAtari):
             self.step = self._alter_step
             self.reset = self._alter_reset
     
+    def _step_with_lm_reward(self, action):
+        obs, game_reward, truncated, terminated, info = self._oca_step(action)
+        try:
+            reward = self.new_reward_func(self.objects)
+        except Exception as e:
+            print("Error in new_reward_func: ", e)
+            reward = 0
+        return obs, reward, truncated, terminated, info
     
     def _alter_step(self, action):
         """
@@ -177,7 +196,7 @@ class HumanPlayable(HackAtari):
                     self.paused = not self.paused
 
                 if event.key == pygame.K_r:  # 'R': Reset
-                    self.env.reset()
+                    self.reset()
 
                 elif (event.key,) in self.keys2actions.keys():  # Env action
                     self.current_keys_down.add(event.key)

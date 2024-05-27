@@ -1,18 +1,17 @@
-import gymnasium as gym
 import numpy as np
-from matplotlib import pyplot as plt
-from tqdm import tqdm
 import pygame
 from ocatari.core import OCAtari, UPSCALE_FACTOR
+from tqdm import tqdm
+
+
+from hackatari.util import load_color_swaps
 from hackatari.core import HackAtari
-# from hackatari.riverraid import ConstantBackgroundRiverraid
 
 """
 This script can be used to identify any RAM positions that
 influence the color of a specific pixel. This can be used to
 identify the values that belong to a GameObject.
 """
-
 
 RAM_RENDER_WIDTH = 1000
 RAM_N_COLS = 8
@@ -23,15 +22,13 @@ RAM_CELL_HEIGHT = 45
 class Renderer:
     window: pygame.Surface
     clock: pygame.time.Clock
-    env: gym.Env
+    env: OCAtari
 
-    def __init__(self, env_name: str, modifs: list):
-        self.env = HackAtari(env_name, modifs, mode="ram", hud=True, render_mode="rgb_array",
-                           render_oc_overlay=True, frameskip=1)
-        # self.env = ConstantBackgroundRiverraid(env_name, mode="ram", hud=True, render_mode="rgb_array",
-        #                    render_oc_overlay=True, frameskip=1)
+    def __init__(self, env_name: str, modifs: list, color_swaps: dict):
+        self.env = HackAtari(env_name, modifs, colorswaps=color_swaps, mode="ram", hud=True, render_mode="rgb_array",
+                             render_oc_overlay=True, frameskip=1, obs_mode="obj")
 
-        self.env.reset(seed=42)[0]
+        self.env.reset(seed=42)
         self.current_frame = self.env.render()
         self._init_pygame(self.current_frame)
         self.paused = False
@@ -45,9 +42,7 @@ class Renderer:
 
         self.active_cell_idx = None
         self.candidate_cell_ids = []
-        self.current_active_cell_input : str = ""
-        # import pickle
-        # self.env._env.env.env.ale.restoreState(pickle.load(open("../HackAtari/riveraid_wat.pkl", 'rb')))
+        self.current_active_cell_input: str = ""
 
     def _init_pygame(self, sample_image):
         pygame.init()
@@ -65,10 +60,9 @@ class Renderer:
             self._handle_user_input()
             if not self.paused:
                 action = self._get_action()
-                tuple = self.env.step(action)
-                rew = tuple[1]
-                if rew != 0:
-                    print(rew)
+                reward = self.env.step(action)[1]
+                if reward != 0:
+                    print(reward)
                 self.current_frame = self.env.render().copy()
             self._render()
         pygame.quit()
@@ -147,15 +141,15 @@ class Renderer:
                 if (event.key,) in self.keys2actions.keys():
                     self.current_keys_down.remove(event.key)
 
-    def _render(self, frame = None):
-        self.window.fill((0,0,0))  # clear the entire window
+    def _render(self, frame=None):
+        self.window.fill((0, 0, 0))  # clear the entire window
         self._render_atari(frame)
         self._render_ram()
         self._render_hover()
         pygame.display.flip()
         pygame.event.pump()
 
-    def _render_atari(self, frame = None):
+    def _render_atari(self, frame=None):
         if frame is None:
             frame = self.current_frame
         frame_surface = pygame.Surface(self.env_render_shape)
@@ -302,17 +296,20 @@ class Renderer:
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
+
     parser = ArgumentParser(description='Seaquest Game Argument Setter')
     parser.add_argument('-g', '--game', type=str, default="Seaquest",
                         help='Game to be run')
-
-    # Argument to enable gravity for the player.
     parser.add_argument('-m', '--modifs', nargs='+', default=[],
                         help='List of the modifications to be brought to the game')
-    
     parser.add_argument('-hu', '--human', action='store_true',
                         help='Let user play the game.')
+    parser.add_argument('-cs', '--color_swaps', default='',
+                        help='Colorswaps to be applied to the images.')
 
     args = parser.parse_args()
-    renderer = Renderer(args.game, args.modifs)
+
+    color_swaps = load_color_swaps(args.color_swaps)
+
+    renderer = Renderer(args.game, args.modifs, color_swaps)
     renderer.run()

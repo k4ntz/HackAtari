@@ -41,8 +41,6 @@ def color(self):
     """
     Changes the color of background to [Black, White, Red, Blue, Green] by choosing a value 0-4. This also affects the enemies colors
     """
-    # for i in range(115, 118):
-    # self.set_ram(116, 0)
     global COLOR
     self.set_ram(117, colors[COLOR])
 

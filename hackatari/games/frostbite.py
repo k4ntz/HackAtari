@@ -81,7 +81,7 @@ def _modif_funcs(modifs):
             if mod_n < 1 or mod_n > 4:
                 raise ValueError("Invalid color for ice, choose number 1-5")
             global LINE
-            LINE[mod_n] = True
+            LINE[mod_n-1] = True
             step_modifs.append(modify_ram_for_color)
         elif mod.startswith('ui_color'):
             if mod[-1].isdigit():
