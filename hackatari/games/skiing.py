@@ -3,8 +3,7 @@
 
 def modify_ram_invert_flag(self):
     '''
-    wind: Sets the ball in the up and right direction by 3 pixles every single ram step
-    to simulate the effect of wind
+    Invert Flag
     '''
     ram = self.get_ram()
     types = ram[70:78]
@@ -19,5 +18,7 @@ def _modif_funcs(modifs):
     for mod in modifs:
         if mod == "invert_flags":
             step_modifs.append(modify_ram_invert_flag)
+        else:
+            print('Invalid or unknown modification')
     return step_modifs, reset_modifs
 
