@@ -58,7 +58,7 @@ if __name__ == "__main__":
         gamecnt += 1
     import os
     if not os.path.isfile(f"results_{args.game}_{args.name}.csv"):
-        with open(f"results_{args.name}.csv", 'w', newline='') as file:
+        with open(f"results_{args.game}_{args.name}", 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerows(data)
     else:
