@@ -95,7 +95,6 @@ class HackAtari(OCAtari):
         
         self.org_reward = self.org_reward+game_reward
         info["org_reward"] = self.org_reward
-
         return obs, reward, truncated, terminated, info
     
     def _alter_step(self, action):
