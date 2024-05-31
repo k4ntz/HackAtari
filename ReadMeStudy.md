@@ -31,7 +31,7 @@ When finishing a game, you have to manually close the game window, not the conso
 * `python run_study.py -g Pong -n [yourname] -m lazy_enemy`
 * `python run_study.py -g Kangaroo -n [yourname] -m disable_coconut disable_monkeys`
 * `python run_study.py -g SpaceInvaders -n [yourname] -m disable_shields`
-* `python run_study.py -g MsPacman -n [yourname] -m change_level1`
+* `python run_study.py -g MsPacman -n [yourname] -m change_level3`
 
 7. Send us the result files
 
