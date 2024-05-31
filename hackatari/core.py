@@ -38,8 +38,8 @@ class HackAtari(OCAtari):
         Initialize the game environment.
         """
         if "frameskip" in kwargs:
-            if "random" in kwargs["frameskip"]:
-                self._frameskip = 0
+            if kwargs["frameskip"] == -1:
+                self._frameskip = ""
             else:
                 self._frameskip = kwargs["frameskip"]
         elif "NoFrameskip" or "v5" in game:
@@ -104,13 +104,21 @@ class HackAtari(OCAtari):
         frameskip = self._frameskip
         if frameskip == 0 or not frameskip:
             frameskip = random.choice((2, 5))
-        for _ in range(frameskip):
+        total_reward = 0.0
+        terminated = truncated = False
+        for i in range(frameskip):
             for func in self.alter_ram_steps:
                 func(self)
-            ret = self._oc_step(action)
+            obs, reward, terminated, truncated, info = self._oc_step(action)
+            done = terminated or truncated
+            total_reward += float(reward)
+            if done:
+                break
             for func in self.alter_ram_steps:
                 func(self)
-        return ret
+        # Note that the observation on the done=True frame
+        # doesn't matter
+        return obs, total_reward, terminated, truncated, info
 
     def _alter_reset(self, *args, **kwargs):
         ret = self._oc_reset(*args, **kwargs)
