@@ -57,12 +57,12 @@ if __name__ == "__main__":
         env.reset()
         gamecnt += 1
     import os
-    if not os.path.isfile(f"results_{args_game}_{args.name}.csv"):
-        with open(f"results_{args_game}_{args.name}", 'w', newline='') as file:
+    if not os.path.isfile(f"results_{args.game}_{args.name}_org.csv"):
+        with open(f"results_{args.game}_{args.name}_org.csv", 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerows(data)
     else:
-        with open(f"results_{args_game}_{args.name}.csv", 'a', newline='') as file:
+        with open(f"results_{args.game}_{args.name}.csv", 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerows(data)
     env.close()
