@@ -38,7 +38,10 @@ class HackAtari(OCAtari):
         Initialize the game environment.
         """
         if "frameskip" in kwargs:
-            self._frameskip = kwargs["frameskip"]
+            if kwargs["frameskip"] == -1:
+                self._frameskip = ""
+            else:
+                self._frameskip = kwargs["frameskip"]
         elif "NoFrameskip" or "v5" in game:
             self._frameskip = 1
         elif "Determinisitc" or "v5" in game:
@@ -58,6 +61,7 @@ class HackAtari(OCAtari):
             raise ValueError(f"Game {game} is not covered in the HackAtari")
         _modif_funcs = importlib.import_module(f"hackatari.games.{game.lower()}")._modif_funcs
         
+        self.org_reward = 0
         if rewardfunc_path:
             print(f"Changed reward function to {rewardfunc_path}")
             module_name = os.path.splitext(os.path.basename(rewardfunc_path))[0]
@@ -84,10 +88,13 @@ class HackAtari(OCAtari):
     def _step_with_lm_reward(self, action):
         obs, game_reward, truncated, terminated, info = self._oca_step(action)
         try:
-            reward = self.new_reward_func(self.objects)
+            reward = self.new_reward_func(self)
         except Exception as e:
             print("Error in new_reward_func: ", e)
             reward = 0
+        
+        self.org_reward = self.org_reward+game_reward
+        info["org_reward"] = self.org_reward
         return obs, reward, truncated, terminated, info
     
     def _alter_step(self, action):
@@ -95,18 +102,27 @@ class HackAtari(OCAtari):
         Take a step in the game environment after altering the ram.
         """
         frameskip = self._frameskip
-        if not frameskip:
+        if frameskip == 0 or not frameskip:
             frameskip = random.choice((2, 5))
-        for _ in range(frameskip):
+        total_reward = 0.0
+        terminated = truncated = False
+        for i in range(frameskip):
             for func in self.alter_ram_steps:
                 func(self)
-            ret = self._oc_step(action)
+            obs, reward, terminated, truncated, info = self._oc_step(action)
+            done = terminated or truncated
+            total_reward += float(reward)
+            if done:
+                break
             for func in self.alter_ram_steps:
                 func(self)
-        return ret
+        # Note that the observation on the done=True frame
+        # doesn't matter
+        return obs, total_reward, terminated, truncated, info
 
     def _alter_reset(self, *args, **kwargs):
         ret = self._oc_reset(*args, **kwargs)
+        self.org_reward = 0
         for func in self.alter_ram_reset:
             func(self)
         return ret

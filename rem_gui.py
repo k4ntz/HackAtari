@@ -24,8 +24,8 @@ class Renderer:
     clock: pygame.time.Clock
     env: OCAtari
 
-    def __init__(self, env_name: str, modifs: list, color_swaps: dict):
-        self.env = HackAtari(env_name, modifs, colorswaps=color_swaps, mode="ram", hud=True, render_mode="rgb_array",
+    def __init__(self, env_name: str, modifs: list, reward_function: str, color_swaps: dict):
+        self.env = HackAtari(env_name, modifs, reward_function, colorswaps=color_swaps, mode="ram", hud=True, render_mode="rgb_array",
                              render_oc_overlay=True, frameskip=1, obs_mode="obj")
 
         self.env.reset(seed=42)
@@ -63,6 +63,7 @@ class Renderer:
                 reward = self.env.step(action)[1]
                 if reward != 0:
                     print(reward)
+                    pass
                 self.current_frame = self.env.render().copy()
             self._render()
         pygame.quit()
@@ -306,10 +307,12 @@ if __name__ == "__main__":
                         help='Let user play the game.')
     parser.add_argument('-cs', '--color_swaps', default='',
                         help='Colorswaps to be applied to the images.')
+    parser.add_argument('-rf','--reward_function', type=str, default='', 
+                        help="Replace the default reward fuction with new one in path rf") 
 
     args = parser.parse_args()
 
     color_swaps = load_color_swaps(args.color_swaps)
 
-    renderer = Renderer(args.game, args.modifs, color_swaps)
+    renderer = Renderer(args.game, args.modifs, args.reward_function, color_swaps)
     renderer.run()
