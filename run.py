@@ -2,8 +2,8 @@ from hackatari import HackAtari, HumanPlayable
 import random
 import numpy as np
 import cv2
-import json
 import matplotlib.pyplot as plt
+from hackatari.util import load_color_swaps
 
 def save_upsampled(rgb_arrays, k=4, l=4):
     augs = []
@@ -39,21 +39,19 @@ if __name__ == "__main__":
                         help='Takes a picture after the number of steps provided.')
     parser.add_argument('-cs', '--color_swaps', default='',
                         help='Colorswaps to be applied to the images.')
+    parser.add_argument('-rf','--reward_function', type=str, default='', 
+                        help="Replace the default reward fuction with new one in path rf") 
 
     args = parser.parse_args()
-    color_swaps = None
     obss = []
-    if args.color_swaps:
-        color_swaps = {}
-        color_swaps_str = json.load(open(args.color_swaps))
-        for key, val in color_swaps_str.items():
-            color_swaps[eval(key)] = eval(val)
+
+    color_swaps = load_color_swaps(args.color_swaps)
     
     if args.human:
-        env = HumanPlayable(args.game, args.modifs, color_swaps)
+        env = HumanPlayable(args.game, args.modifs, args.reward_function, color_swaps)
         env.run()
     else:
-        env = HackAtari(args.game, args.modifs, color_swaps, render_mode="human")
+        env = HackAtari(args.game, args.modifs, args.reward_function, color_swaps, render_mode="human")
         env.reset()
         done = False
         env.render()
