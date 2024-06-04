@@ -25,7 +25,7 @@ class Renderer:
     clock: pygame.time.Clock
     env: gym.Env
 
-    def __init__(self, env_name: str, modifs: list):
+    def __init__(self, env_name: str, modifs: list, no_render: list = []):
         self.env = HackAtari(env_name, modifs, mode="ram", hud=True, render_mode="rgb_array",
                            render_oc_overlay=True, frameskip=1)
         # self.env = ConstantBackgroundRiverraid(env_name, mode="ram", hud=True, render_mode="rgb_array",
@@ -46,6 +46,7 @@ class Renderer:
         self.active_cell_idx = None
         self.candidate_cell_ids = []
         self.current_active_cell_input : str = ""
+        self.no_render = no_render
         # import pickle
         # self.env._env.env.env.ale.restoreState(pickle.load(open("../HackAtari/riveraid_wat.pkl", 'rb')))
 
@@ -208,7 +209,8 @@ class Renderer:
         else:
             color = (20, 20, 20)
         pygame.draw.rect(self.window, color, [x, y, w, h])
-
+        if cell_idx in self.no_render:
+            return
         # Render cell ID label
         if is_active:
             color = (150, 150, 30)
@@ -220,7 +222,6 @@ class Renderer:
         text_rect = text.get_rect()
         text_rect.topleft = (x + 2, y + 2)
         self.window.blit(text, text_rect)
-
         # Render cell value label
         if is_active:
             value = self.current_active_cell_input
@@ -312,7 +313,10 @@ if __name__ == "__main__":
     
     parser.add_argument('-hu', '--human', action='store_true',
                         help='Let user play the game.')
+    
+    parser.add_argument('-nr', '--no_render', type=int, default=[],
+                        help='Cells to not render.', nargs='+')
 
     args = parser.parse_args()
-    renderer = Renderer(args.game, args.modifs)
+    renderer = Renderer(args.game, args.modifs, args.no_render)
     renderer.run()
