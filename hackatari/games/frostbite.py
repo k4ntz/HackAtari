@@ -109,7 +109,7 @@ def _modif_funcs(modifs):
                 raise ValueError("Invalid position for floes, max. value is 160")
             global NEW_X_POS
             NEW_X_POS = mod_n
-            reset_modifs.append(modify_ram_for_floes_position)
+            step_modifs.append(modify_ram_for_floes_position)
     return step_modifs, reset_modifs
 
 

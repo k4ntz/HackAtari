@@ -306,7 +306,6 @@ if __name__ == "__main__":
                         help='List of the modifications to be brought to the game')
     parser.add_argument('-hu', '--human', action='store_true',
                         help='Let user play the game.')
-    
     parser.add_argument('-nr', '--no_render', type=int, default=[],
                         help='Cells to not render.', nargs='+')
     parser.add_argument('-cs', '--color_swaps', default='',
