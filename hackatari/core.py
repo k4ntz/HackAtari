@@ -6,12 +6,12 @@ import numpy as np
 import random
 
 
-GameList = ["Atlantis", "Asterix", "BankHeist", "BattleZone", "Boxing", 
-            "Breakout", "Carnival", "ChopperCommand", 
+GameList = ["Amidar","Atlantis", "Asterix", "BankHeist", "BattleZone",
+            "Boxing", "Breakout", "Carnival", "ChopperCommand", 
             "DonkeyKong", "FishingDerby", "Freeway", 
             "Frostbite", "Kangaroo", "MontezumaRevenge",
-            "MsPacman", "Pong", "Riverraid", "Seaquest", 
-            "Skiing", "SpaceInvaders", "Tennis"]
+            "MsPacman", "Pong", "Riverraid", "Seaquest",  "Skiing",
+            "SpaceInvaders", "Tennis", "Venture", "YarsRevenge"]
 
 
 class ALEColorSwapProxy:
