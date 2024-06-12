@@ -24,7 +24,7 @@ class Renderer:
     clock: pygame.time.Clock
     env: OCAtari
 
-    def __init__(self, env_name: str, modifs: list, reward_function: str, color_swaps: dict,no_render: list = []):
+    def __init__(self, env_name: str, modifs: list, reward_function: str, color_swaps: dict, no_render: list = []):
         self.env = HackAtari(env_name, modifs, reward_function, colorswaps=color_swaps, mode="ram", hud=True, render_mode="rgb_array",
                              render_oc_overlay=True, frameskip=1, obs_mode="obj")
 
@@ -65,6 +65,9 @@ class Renderer:
                 if reward != 0:
                     print(reward)
                     pass
+                for obj in self.env.objects:
+                    if "Player" in str(obj):
+                        print(obj.climbing)
                 self.current_frame = self.env.render().copy()
             self._render()
         pygame.quit()
@@ -95,6 +98,12 @@ class Renderer:
                     else:
                         self.active_cell_idx = self._get_cell_under_mouse()
                         self.current_active_cell_input = ""
+                elif event.button == 3:  # right mouse button pressed
+                    to_hide = self._get_cell_under_mouse()
+                    if to_hide in self.no_render:
+                        self.no_render.remove(to_hide)
+                    else:
+                        self.no_render.append(to_hide)
                 elif event.button == 4:  # mousewheel up
                     cell_idx = self._get_cell_under_mouse()
                     if cell_idx is not None:
