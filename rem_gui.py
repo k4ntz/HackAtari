@@ -6,6 +6,7 @@ from tqdm import tqdm
 
 from hackatari.util import load_color_swaps
 from hackatari.core import HackAtari
+import atexit
 
 """
 This script can be used to identify any RAM positions that
@@ -65,9 +66,7 @@ class Renderer:
                 if reward != 0:
                     print(reward)
                     pass
-                for obj in self.env.objects:
-                    if "Player" in str(obj):
-                        print(obj.climbing)
+                self.env.set_ram(7, 4)
                 self.current_frame = self.env.render().copy()
             self._render()
         pygame.quit()
@@ -327,4 +326,7 @@ if __name__ == "__main__":
     color_swaps = load_color_swaps(args.color_swaps)
 
     renderer = Renderer(args.game, args.modifs, args.reward_function, color_swaps, args.no_render)
+    def exit_handler():
+        print("\nno_render list: ", sorted(renderer.no_render))
+    atexit.register(exit_handler)
     renderer.run()
