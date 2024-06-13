@@ -35,8 +35,8 @@ python run.py -g Seaquest -m oxygen disable_enemies gravity # Starts Seaquest wi
 python run.py -g Kangaroo -m random_init disable_monkeys # Starts Kangaroo with random initial floor and no monkeys (random agent)
 ```
 
-See [the documentation]()
-or [this markdown file]() for more information on the available modifications.
+See [the documentation](https://hackatari.readthedocs.io/en/latest/)
+or [this markdown file](modification_list.md) for more information on the available modifications.
 
 ## Cite our work
 ```bibtex
