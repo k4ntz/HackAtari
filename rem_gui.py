@@ -327,6 +327,9 @@ if __name__ == "__main__":
 
     renderer = Renderer(args.game, args.modifs, args.reward_function, color_swaps, args.no_render)
     def exit_handler():
-        print("\nno_render list: ", sorted(renderer.no_render))
+        print("\nno_render list: ")
+        for i in sorted(renderer.no_render):
+            print(i, end=" ")
+        print("")
     atexit.register(exit_handler)
     renderer.run()
