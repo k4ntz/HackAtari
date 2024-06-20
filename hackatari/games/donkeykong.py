@@ -14,6 +14,7 @@ def _randomize_pos(self):
         self.lasty = startp[1]
 
 def no_barrel(self):
+    # if self.get_ram()[16] == 0:
     self.set_ram(25, 255)
 
 def random_start_step(self):

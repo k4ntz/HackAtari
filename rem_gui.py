@@ -6,6 +6,7 @@ from tqdm import tqdm
 
 from hackatari.util import load_color_swaps
 from hackatari.core import HackAtari
+import atexit
 
 """
 This script can be used to identify any RAM positions that
@@ -24,7 +25,7 @@ class Renderer:
     clock: pygame.time.Clock
     env: OCAtari
 
-    def __init__(self, env_name: str, modifs: list, reward_function: str, color_swaps: dict):
+    def __init__(self, env_name: str, modifs: list, reward_function: str, color_swaps: dict, no_render: list = []):
         self.env = HackAtari(env_name, modifs, reward_function, colorswaps=color_swaps, mode="ram", hud=True, render_mode="rgb_array",
                              render_oc_overlay=True, frameskip=1, obs_mode="obj")
 
@@ -42,7 +43,8 @@ class Renderer:
 
         self.active_cell_idx = None
         self.candidate_cell_ids = []
-        self.current_active_cell_input: str = ""
+        self.current_active_cell_input : str = ""
+        self.no_render = no_render
 
     def _init_pygame(self, sample_image):
         pygame.init()
@@ -64,6 +66,7 @@ class Renderer:
                 if reward != 0:
                     print(reward)
                     pass
+                self.env.set_ram(7, 4)
                 self.current_frame = self.env.render().copy()
             self._render()
         pygame.quit()
@@ -94,6 +97,12 @@ class Renderer:
                     else:
                         self.active_cell_idx = self._get_cell_under_mouse()
                         self.current_active_cell_input = ""
+                elif event.button == 3:  # right mouse button pressed
+                    to_hide = self._get_cell_under_mouse()
+                    if to_hide in self.no_render:
+                        self.no_render.remove(to_hide)
+                    else:
+                        self.no_render.append(to_hide)
                 elif event.button == 4:  # mousewheel up
                     cell_idx = self._get_cell_under_mouse()
                     if cell_idx is not None:
@@ -203,7 +212,8 @@ class Renderer:
         else:
             color = (20, 20, 20)
         pygame.draw.rect(self.window, color, [x, y, w, h])
-
+        if cell_idx in self.no_render:
+            return
         # Render cell ID label
         if is_active:
             color = (150, 150, 30)
@@ -215,7 +225,6 @@ class Renderer:
         text_rect = text.get_rect()
         text_rect.topleft = (x + 2, y + 2)
         self.window.blit(text, text_rect)
-
         # Render cell value label
         if is_active:
             value = self.current_active_cell_input
@@ -305,6 +314,8 @@ if __name__ == "__main__":
                         help='List of the modifications to be brought to the game')
     parser.add_argument('-hu', '--human', action='store_true',
                         help='Let user play the game.')
+    parser.add_argument('-nr', '--no_render', type=int, default=[],
+                        help='Cells to not render.', nargs='+')
     parser.add_argument('-cs', '--color_swaps', default='',
                         help='Colorswaps to be applied to the images.')
     parser.add_argument('-rf','--reward_function', type=str, default='', 
@@ -314,5 +325,11 @@ if __name__ == "__main__":
 
     color_swaps = load_color_swaps(args.color_swaps)
 
-    renderer = Renderer(args.game, args.modifs, args.reward_function, color_swaps)
+    renderer = Renderer(args.game, args.modifs, args.reward_function, color_swaps, args.no_render)
+    def exit_handler():
+        print("\nno_render list: ")
+        for i in sorted(renderer.no_render):
+            print(i, end=" ")
+        print("")
+    atexit.register(exit_handler)
     renderer.run()

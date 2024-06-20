@@ -6,9 +6,12 @@ import numpy as np
 import random
 
 
-GameList = ["BankHeist", "BattleZone", "Boxing", "Breakout", "Carnival", "ChopperCommand", 
-            "DonkeyKong", "FishingDerby", "Freeway", "Frostbite", "Kangaroo", "MontezumaRevenge",
-            "MsPacman", "Pong", "Riverraid", "Seaquest", "Skiing", "SpaceInvaders", "Tennis"]
+GameList = ["Amidar","Atlantis", "Asterix", "BankHeist", "BattleZone",
+            "Boxing", "Breakout", "Carnival", "ChopperCommand", 
+            "DonkeyKong", "FishingDerby", "Freeway", 
+            "Frostbite", "Kangaroo", "MontezumaRevenge",
+            "MsPacman", "Pong", "Riverraid", "Seaquest",  "Skiing",
+            "SpaceInvaders", "Tennis", "Venture", "YarsRevenge"]
 
 
 class ALEColorSwapProxy:
@@ -58,8 +61,11 @@ class HackAtari(OCAtari):
                 game = cgame
                 break
         if not covered:
-            raise ValueError(f"Game {game} is not covered in the HackAtari")
-        _modif_funcs = importlib.import_module(f"hackatari.games.{game.lower()}")._modif_funcs
+            print(f"Game '{game}' not covered yet by OCAtari")
+            print("Available games: ", GameList)
+            _modif_funcs = lambda x: ([], [])
+        else:
+            _modif_funcs = importlib.import_module(f"hackatari.games.{game.lower()}")._modif_funcs
         
         self.org_reward = 0
         if rewardfunc_path:

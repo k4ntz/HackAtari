@@ -1,4 +1,4 @@
-from random import randint
+from random import randint, choice
 
 # Global Variables
 TOGGLE_ORANGE = 0
@@ -8,7 +8,12 @@ TOGGLE_RED = 0
 NUMBER_POWER_PILLS = 4
 LAST_PP_STATUS = 4
 IS_INVERTED = False
-LVL_NUM = None
+LVL_NUM = 0
+LIVES = 2
+
+TIMER = 1
+
+DOT_STATES = [59, 60, 61, 62, 65, 66, 67, 71, 72, 73, 83, 89, 90, 91, 92, 95, 98, 99, 100]
 
 def make_edible(env, ghost_number,  x_pos, ram_x, y_pos, ram_y):
     ''' A helper function to make a certain ghost edible.
@@ -220,6 +225,74 @@ def change_level(self):
         print(f"Selecting Random Level {LVL_NUM}")
     self.set_ram(0, LVL_NUM)
 
+def maze_man(self):
+    self.set_ram(47, 0)
+    ram = self.get_ram()
+
+    collected = True
+
+    for i in range(59, 101):
+        if ram[i] != 0:
+            collected = False
+
+    if collected and ram[39] > 70:
+        add = ram[120] + 32
+        if add <= 144:
+            self.set_ram(120, add)
+        else:
+            self.set_ram(120, 144)
+        global DOT_STATES
+        state = choice(DOT_STATES)
+        bit = choice([0, 2])
+        self.set_ram(state, 16<<bit)#1<<bit)
+    
+    global LVL_NUM, TIMER, LIVES
+    if ram[39] == 69:
+        if ram[0] == 0 and ram[119] == 154:
+                LVL_NUM = 1
+                if LIVES < 3:
+                    LIVES+=1
+                self.reset()
+        elif ram[0] == 1 and ram[119] == 150:
+                LVL_NUM = 2
+                if LIVES < 3:
+                    LIVES+=1
+                self.reset()
+        elif ram[0] == 2 and ram[119] == 158:
+                LVL_NUM = 3
+                if LIVES < 3:
+                    LIVES+=1
+                self.reset()
+        elif ram[0] == 3 and ram[119] == 154:
+                LVL_NUM = 0
+                if LIVES < 3:
+                    LIVES+=1
+                self.reset()
+
+    if ram[39] == 255 and TIMER == 0:
+        if ram[120] < 16 and ram[123] <= 0:
+            LVL_NUM = 0
+            LIVES = 2
+            self.reset()
+        elif ram[120] < 16:
+            LIVES-=1
+            self.reset()
+        else:
+            self.set_ram(120, ram[120]-16)
+
+    TIMER = (TIMER+1)%150
+
+def maze_man_reset(self):
+    global TIMER, LIVES
+    TIMER = 1
+    for i in range(59, 101):
+        self.set_ram(i, 0)
+    self.set_ram(19, 0)
+    self.set_ram(117, 0)
+    self.set_ram(119, 134)
+    self.set_ram(120, 144)
+    self.set_ram(123, LIVES)
+
 
 def _modif_funcs(modifs):
     global TOGGLE_CYAN, TOGGLE_PINK, TOGGLE_ORANGE, TOGGLE_RED
@@ -263,4 +336,13 @@ def _modif_funcs(modifs):
                 LVL_NUM =  int(mod[-1])
                 assert LVL_NUM < 4, "Invalid Level Number (0, 1, 2 or 3)"
             reset_modifs.append(change_level)
+        elif mod == "maze_man":
+            reset_modifs.append(change_level)
+            TOGGLE_CYAN = True
+            TOGGLE_ORANGE = True 
+            TOGGLE_RED = True
+            TOGGLE_PINK = True
+            step_modifs.append(static_ghosts)
+            step_modifs.append(maze_man)
+            reset_modifs.append(maze_man_reset)
     return step_modifs, reset_modifs
