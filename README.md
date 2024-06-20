@@ -1,7 +1,7 @@
 # HackAtari
 
 This repository relies on OCAtari, a fork of the OpenAI Gym Atari environment. 
-The OCAtari repository can be found [here](https://github.com/k4ntz/OC_Atari)
+The OCAtari repository can be found [here](https://github.com/k4ntz/OC_Atari).
 
 
 ## Installation

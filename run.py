@@ -40,7 +40,7 @@ if __name__ == "__main__":
     parser.add_argument('-cs', '--color_swaps', default='',
                         help='Colorswaps to be applied to the images.')
     parser.add_argument('-rf','--reward_function', type=str, default='', 
-                        help="Replace the default reward fuction with new one in path rf") 
+                        help="Replace the default reward fuction with new one in path rf")
 
     args = parser.parse_args()
     obss = []
@@ -54,11 +54,12 @@ if __name__ == "__main__":
         env = HackAtari(args.game, args.modifs, args.reward_function, color_swaps, render_mode="human")
         env.reset()
         done = False
-        env.render()
         nstep = 1
         while not done:
             action = env.action_space.sample()
-            obs, _, terminated, truncated, _ = env.step(action)
+            obs, reward, terminated, truncated, _ = env.step(action)
+            if reward and args.reward_function:
+                print(reward)
             if terminated or truncated:
                 env.reset()
             if nstep == args.picture:
@@ -70,4 +71,5 @@ if __name__ == "__main__":
             if nstep % 100 == 0:
                 print(".", end="", flush=True)
             nstep += 1
+            env.render()
         env.close()

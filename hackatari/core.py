@@ -160,16 +160,17 @@ class HumanPlayable(HackAtari):
     HumanPlayable: Enables human play mode for the game.
     """
 
-    def __init__(self, game, modifs=[], colorswaps={}, *args, **kwargs):
+    def __init__(self, game, modifs=[], rewardfunc_path="", colorswaps={}, *args, **kwargs):
         """
         Initializes the HumanPlayable environment with the specified game and modifications.
         """
         kwargs["render_mode"] = "human"
         kwargs["render_oc_overlay"] = True
-        super(HumanPlayable, self).__init__(game, modifs, colorswaps, *args, **kwargs)
+        super(HumanPlayable, self).__init__(game, modifs, rewardfunc_path, colorswaps, *args, **kwargs)
         self.reset()
         self.render()  # Initialize the pygame video system
-
+        if rewardfunc_path:
+            self.print_reward = True
         self.paused = False
         self.current_keys_down = set()
         self.keys2actions = self.env.unwrapped.get_keys_to_action()
@@ -186,7 +187,9 @@ class HumanPlayable(HackAtari):
             self._handle_user_input()
             if not self.paused:
                 action = self._get_action()
-                self.step(action)
+                _, reward, _, _, _ =self.step(action)
+                if self.print_reward and reward:
+                    print(reward)
                 self.render()
         pygame.quit()
 
