@@ -169,8 +169,7 @@ class HumanPlayable(HackAtari):
         super(HumanPlayable, self).__init__(game, modifs, rewardfunc_path, colorswaps, *args, **kwargs)
         self.reset()
         self.render()  # Initialize the pygame video system
-        if rewardfunc_path:
-            self.print_reward = True
+        self.print_reward = bool(rewardfunc_path)
         self.paused = False
         self.current_keys_down = set()
         self.keys2actions = self.env.unwrapped.get_keys_to_action()

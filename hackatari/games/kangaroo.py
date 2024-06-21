@@ -44,7 +44,6 @@ def set_ram_kang_pos(self, pos_x, pos_y):
     """
     self.set_ram(KANGAROO_POS_X_INDEX, pos_x)
     self.set_ram(KANGAROO_POS_Y_INDEX, pos_y)
-    print("ram set")
 
 
 def is_at_start(pos):
@@ -67,12 +66,16 @@ def check_new_level_life(self, current_lives, current_level):
         self.last_lives = current_lives
         self.last_level = current_level
 
+def unlimited_time(self):
+    """
+    Set the time to unlimited.
+    """
+    self.set_ram(59, 32)
 
 def set_kangaroo_position(self):
     """
     Sets the kangaroo's starting position depending on the FLOOR argument.
     """
-    import ipdb;ipdb.set_trace()
     ram = self.get_ram()
     current_level = ram[36]
     kangaroo_pos = (ram[KANGAROO_POS_X_INDEX], ram[KANGAROO_POS_Y_INDEX])
@@ -96,8 +99,8 @@ def random_init(self):
     current_level = ram[36]
     current_lives = ram[45]
     kangaroo_pos = (ram[KANGAROO_POS_X_INDEX], ram[KANGAROO_POS_Y_INDEX])
-    random_number = random.randint(0, 2)
     if is_at_start(kangaroo_pos):
+        random_number = random.randint(0, 2)
         if random_number == 1:
             # For floor 1, position depends on whether the current level is 2
             new_pos = FLOOR_1_LEVEL2_POS if current_level == LEVEL_2 else FLOOR_1_START_POS
@@ -129,6 +132,8 @@ def _modif_funcs(modifs):
             step_modifs.append(disable_monkeys)
         elif mod == "disable_coconut":
             step_modifs.append(disable_coconut)
+        elif mod == "unlimited_time":
+            step_modifs.append(unlimited_time)
         elif mod == "random_init":
             reset_modifs.append(random_init)
         elif "set_floor" in mod:
@@ -143,5 +148,5 @@ def _modif_funcs(modifs):
                 global LVL_NUM
                 LVL_NUM =  int(mod[-1])
                 assert LVL_NUM < 3, "Invalid Level Number (0, 1 or 2)"
-            reset_modifs.append(change_level)
+            step_modifs.append(change_level)
     return step_modifs, reset_modifs
