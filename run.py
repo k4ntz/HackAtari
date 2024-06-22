@@ -2,8 +2,12 @@ from hackatari import HackAtari, HumanPlayable
 import random
 import numpy as np
 import cv2
+import sys
+
 import matplotlib.pyplot as plt
 from hackatari.util import load_color_swaps
+from ocatari.utils import load_agent
+
 
 def save_upsampled(rgb_arrays, k=4, l=4):
     augs = []
@@ -41,6 +45,8 @@ if __name__ == "__main__":
                         help='Colorswaps to be applied to the images.')
     parser.add_argument('-rf','--reward_function', type=str, default='', 
                         help="Replace the default reward fuction with new one in path rf")
+    parser.add_argument('-a','--agent', type=str, default='', 
+                        help="Replace the default reward fuction with new one in path rf")
 
     args = parser.parse_args()
     obss = []
@@ -50,13 +56,19 @@ if __name__ == "__main__":
     if args.human:
         env = HumanPlayable(args.game, args.modifs, args.reward_function, color_swaps)
         env.run()
-    else:
-        env = HackAtari(args.game, args.modifs, args.reward_function, color_swaps, render_mode="human")
-        env.reset()
+    else:        
+        env = HackAtari(args.game, args.modifs, args.reward_function, color_swaps, render_mode="human", obs_mode="dqn")
+        if args.agent:
+            agent = load_agent(args.agent, env.action_space.n)
+            print(f"Loaded agents from {args.agent}")
+        obs, _ = env.reset()
         done = False
         nstep = 1
         while not done:
-            action = env.action_space.sample()
+            if args.agent:
+                action = agent.draw_action(env.dqn_obs)
+            else:    
+                action = env.action_space.sample()
             obs, reward, terminated, truncated, _ = env.step(action)
             if reward and args.reward_function:
                 print(reward)
