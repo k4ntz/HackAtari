@@ -22,13 +22,8 @@ def save_upsampled(rgb_arrays, k=4, l=4):
 
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description='Seaquest Game Argument Setter')
+    parser = argparse.ArgumentParser(description='HackAtari run.py Argument Setter')
 
-    # Argument to set the oxygen mode
-    # Options:
-    # - 0: easy mode: no oxygen usage
-    # - 1: Default - standard game mode: with standard oxygen usage
-    # - 2: hard mode: oxygen decreases twice as fast
     parser.add_argument('-g', '--game', type=str, default="Seaquest",
                         help='Game to be run')
 
@@ -46,7 +41,7 @@ if __name__ == "__main__":
     parser.add_argument('-rf','--reward_function', type=str, default='', 
                         help="Replace the default reward fuction with new one in path rf")
     parser.add_argument('-a','--agent', type=str, default='', 
-                        help="Replace the default reward fuction with new one in path rf")
+                        help="Path to the cleanrl trained agent to be loaded.")
 
     args = parser.parse_args()
     obss = []
@@ -80,8 +75,8 @@ if __name__ == "__main__":
                 exit()
             elif args.picture - nstep < 4:
                 obss.append(obs)
-            if nstep % 100 == 0:
-                print(".", end="", flush=True)
+            # if nstep % 100 == 0:
+            #     print(".", end="", flush=True)
             nstep += 1
             env.render()
         env.close()
