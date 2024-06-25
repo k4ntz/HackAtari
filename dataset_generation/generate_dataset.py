@@ -95,11 +95,10 @@ for i in tqdm(range(10000)):
     step = f"{'%0.5d' % (game_nr)}_{'%0.5d' % (turn_nr)}"
     dataset["index"].append(step)
     dataset["obs"].append(state.flatten().tolist())
-    dataset["action"].append(action)
-    dataset["obs_after_action"].append(state2.flatten().tolist())
+    dataset["action"].append(action.item())
+    # dataset["obs_after_action"].append(state2.flatten().tolist())
     dataset["reward"].append(reward)
-    import ipdb; ipdb.set_trace()
-    dataset["original_reward"].append(env.org_reward_step)
+    dataset["original_reward"].append(env.org_reward)
     dataset["done"].append(terminated or truncated)
     turn_nr = turn_nr + 1
 
@@ -153,8 +152,10 @@ for i in tqdm(range(10000)):
         # plt.show()
 env.close()
 
-df = pd.DataFrame(dataset, columns=['index', 'obs', 'action', 'obs_after_action', "reward", "original_reward", "done"])
 
+df = pd.DataFrame(dataset, columns=['index', 'obs', 'action',  "reward", "original_reward", "done"])
+
+df[["action", "reward", "original_reward", "done"]] = df[["action", "reward", "original_reward", "done"]].apply(pd.to_numeric, downcast="float")
 # Metadata dictionary
 metadata = {
     'dataset_name': f"HackAtari-DS",
@@ -175,7 +176,7 @@ metadata = {
     'data_types': df.dtypes.astype(str).to_dict(),
     'obs': "A 210x160x3 RGB image as a flatten list",
     'action': f"describes the action taken in this state. Actions are {env._env.env.env.get_action_meanings()}",
-    'obs_after_action': "describes the resulting state after taking the action in the state above",
+    #'obs_after_action': "describes the resulting state after taking the action in the state above",
     'reward': "Describes the reward given for the action a in state s",
     'original_reward': "If an alternative reward function was given, original_reward describe the default reward, else it is 0",
     'done': "Is one if the action ended the game",
@@ -191,7 +192,7 @@ metadata = {
 makedirs("data/datasets/", exist_ok=True)
 makedirs("data/datasets/ALE", exist_ok=True)
 prefix = f"{args.game}_dqn" if args.agent else f"{args.game}_random" 
-df.to_csv(f"data/datasets/{prefix}.csv", index=False)
+#df.to_csv(f"data/datasets/{prefix}.csv", index=False)
 df.to_pickle(f"data/datasets/{prefix}.pkl")
 with open(f'data/datasets/{prefix}_metadata.json', 'w') as f:
     json.dump(metadata, f, indent=4)
