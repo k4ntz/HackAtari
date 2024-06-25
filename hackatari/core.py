@@ -36,7 +36,7 @@ class HackAtari(OCAtari):
     HackAtari provides variation of Atari Learning Environments. 
     It is built on top of OCAtari, which provides object-centric observations.
     """
-    def __init__(self, game: str, modifs=[], rewardfunc_path=None, colorswaps=None, *args, **kwargs):
+    def __init__(self, env_name: str, modifs=[], rewardfunc_path=None, colorswaps=None, *args, **kwargs):
         """
         Initialize the game environment.
         """
@@ -45,23 +45,23 @@ class HackAtari(OCAtari):
                 self._frameskip = ""
             else:
                 self._frameskip = kwargs["frameskip"]
-        elif "NoFrameskip" or "v5" in game:
+        elif "NoFrameskip" or "v5" in env_name:
             self._frameskip = 1
-        elif "Determinisitc" or "v5" in game:
+        elif "Determinisitc" or "v5" in env_name:
             self._frameskip = 4
         else:
             self._frameskip = "0"  # correspond to random frameskip
         kwargs["frameskip"] = 1
         kwargs["render_oc_overlay"] = True
-        super().__init__(game, *args, **kwargs)
+        super().__init__(env_name, *args, **kwargs)
         covered = False
         for cgame in GameList:
-            if cgame in game:
+            if cgame in env_name:
                 covered = True
                 game = cgame
                 break
         if not covered:
-            print(f"Game '{game}' not covered yet by OCAtari")
+            print(f"Game '{env_name}' not covered yet by OCAtari")
             print("Available games: ", GameList)
             _modif_funcs = lambda x: ([], [])
         else:

@@ -20,9 +20,10 @@ from ocatari.utils import load_agent, parser
 # from ocatari.vision.space_invaders import objects_colors
 import pickle
 from tqdm import tqdm
-
 import argparse
-parser = argparse.ArgumentParser(description='HackAtari run.py Argument Setter')
+
+
+parser = argparse.ArgumentParser(description='HackAtari generate_dataset.py Argument Setter')
 parser.add_argument('-g', '--game', type=str, default="Seaquest",
                     help='Game to be run')
 # Argument to enable gravity for the player.
@@ -88,15 +89,8 @@ for i in tqdm(range(10000)):
     else:    
         action = env.action_space.sample()
     obs, reward, terminated, truncated, info = env.step(action)
-    # make a short print every 1000 steps
-    # if i % 1000 == 0:
-    #    print(f"{i} done")
 
     state2 = env.get_rgb_state
-    # frames_after_action.append(state)
-    # rewards.append(reward)
-    # org_rewards.append(env.org_reward_step)
-    # actions.append(action)
 
     step = f"{'%0.5d' % (game_nr)}_{'%0.5d' % (turn_nr)}"
     dataset["index"].append(step)
@@ -104,6 +98,7 @@ for i in tqdm(range(10000)):
     dataset["action"].append(action)
     dataset["obs_after_action"].append(state2.flatten().tolist())
     dataset["reward"].append(reward)
+    import ipdb; ipdb.set_trace()
     dataset["original_reward"].append(env.org_reward_step)
     dataset["done"].append(terminated or truncated)
     turn_nr = turn_nr + 1
@@ -114,50 +109,48 @@ for i in tqdm(range(10000)):
         turn_nr = 0
         game_nr = game_nr + 1
 
-    # The interval defines how often images are saved as png files in addition to the dataset
-    # if i % opts.interval == 0:
-        """
-        print("-"*50)
-        print(f"Frame {i}")
-        print("-"*50)
-        fig, axes = plt.subplots(1, 2)
-        for obs, objects_list, title, ax in zip([obs,obs2], [env.objects, env.objects_v], ["ram", "vis"], axes):
-            print(f"{title}: ", sorted(objects_list, key=lambda o: str(o)))
-            for obj in objects_list:
-                opos = obj.xywh
-                ocol = obj.rgb
-                sur_col = make_darker(ocol, 0.2)
-                mark_bb(obs, opos, color=sur_col)
-                # mark_point(obs, *opos[:2], color=(255, 255, 0))
-            ax.set_xticks([])
-            ax.set_yticks([])
-            ax.imshow(obs)
-            ax.set_title(title)
-        plt.suptitle(f"frame {i}", fontsize=20)
-        plt.show()
-        fig2 = plt.figure()
-        ax2 = fig2.add_subplot(1, 1, 1)
-        for obj in env.objects:
-            opos = obj.xywh
-            ocol = obj.rgb
-            sur_col = make_darker(ocol, 0.8)
-            mark_bb(obs3, opos, color=sur_col)
-        ax2.imshow(obs3)
-        ax2.set_xticks([])
-        ax2.set_yticks([])
-        plt.show()
-        fig3 = plt.figure()
-        ax3 = fig3.add_subplot(1, 1, 1)
-        for obj in env.objects_v:
-            opos = obj.xywh
-            ocol = obj.rgb
-            sur_col = make_darker(ocol, 0.8)
-            mark_bb(obs4, opos, color=sur_col)
-        ax3.imshow(obs4)
-        ax3.set_xticks([])
-        ax3.set_yticks([])
-        plt.show()
-        """
+    ## The interval defines how often images are saved as png files in addition to the dataset
+    ## if i % opts.interval == 0:
+        # print("-"*50)
+        # print(f"Frame {i}")
+        # print("-"*50)
+        # fig, axes = plt.subplots(1, 2)
+        # for obs, objects_list, title, ax in zip([obs,obs2], [env.objects, env.objects_v], ["ram", "vis"], axes):
+        #     print(f"{title}: ", sorted(objects_list, key=lambda o: str(o)))
+        #     for obj in objects_list:
+        #         opos = obj.xywh
+        #         ocol = obj.rgb
+        #         sur_col = make_darker(ocol, 0.2)
+        #         mark_bb(obs, opos, color=sur_col)
+        #         # mark_point(obs, *opos[:2], color=(255, 255, 0))
+        #     ax.set_xticks([])
+        #     ax.set_yticks([])
+        #     ax.imshow(obs)
+        #     ax.set_title(title)
+        # plt.suptitle(f"frame {i}", fontsize=20)
+        # plt.show()
+        # fig2 = plt.figure()
+        # ax2 = fig2.add_subplot(1, 1, 1)
+        # for obj in env.objects:
+        #     opos = obj.xywh
+        #     ocol = obj.rgb
+        #     sur_col = make_darker(ocol, 0.8)
+        #     mark_bb(obs3, opos, color=sur_col)
+        # ax2.imshow(obs3)
+        # ax2.set_xticks([])
+        # ax2.set_yticks([])
+        # plt.show()
+        # fig3 = plt.figure()
+        # ax3 = fig3.add_subplot(1, 1, 1)
+        # for obj in env.objects_v:
+        #     opos = obj.xywh
+        #     ocol = obj.rgb
+        #     sur_col = make_darker(ocol, 0.8)
+        #     mark_bb(obs4, opos, color=sur_col)
+        # ax3.imshow(obs4)
+        # ax3.set_xticks([])
+        # ax3.set_yticks([])
+        # plt.show()
 env.close()
 
 df = pd.DataFrame(dataset, columns=['index', 'obs', 'action', 'obs_after_action', "reward", "original_reward", "done"])
