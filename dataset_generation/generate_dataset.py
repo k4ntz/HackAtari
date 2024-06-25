@@ -28,8 +28,8 @@ parser.add_argument('-g', '--game', type=str, default="Seaquest",
 parser.add_argument('-m', '--modifs', nargs='+', default=[],
                     help='List of the modifications to be brought to the game')
 
-parser.add_argument('-hu', '--human', action='store_true',
-                    help='Let user play the game.')
+#parser.add_argument('-hu', '--human', action='store_true',
+#                    help='Let user play the game.')
 parser.add_argument('-s', '--seed', type=int, default=0,
                     help='Make the generation deterministic.')
 parser.add_argument('-p', '--picture', type=int, default=0,
@@ -107,7 +107,7 @@ for i in tqdm(range(10000)):
         turn_nr = 0
         game_nr = game_nr + 1
 
-    if i % 50 == 0:
+    if i % 1 == 0:
         env.render()
     # The interval defines how often images are saved as png files in addition to the dataset
     # if i % opts.interval == 0:
