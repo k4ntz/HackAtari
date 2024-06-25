@@ -67,6 +67,7 @@ class HackAtari(OCAtari):
         else:
             _modif_funcs = importlib.import_module(f"hackatari.games.{game.lower()}")._modif_funcs
         
+        self.org_return = 0
         self.org_reward = 0
         if rewardfunc_path:
             print(f"Changed reward function to {rewardfunc_path}")
@@ -99,8 +100,9 @@ class HackAtari(OCAtari):
             print("Error in new_reward_func: ", e)
             reward = 0
         
-        self.org_reward = self.org_reward+game_reward
-        info["org_reward"] = self.org_reward
+        self.org_reward = game_reward
+        self.org_return = self.org_return+game_reward
+        info["org_return"] = self.org_return
         return obs, reward, truncated, terminated, info
     
     def _alter_step(self, action):
