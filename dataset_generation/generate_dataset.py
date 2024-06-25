@@ -75,7 +75,7 @@ rewards = []
 actions = []
 
 obs, info = env.reset()
-
+print(env.dqn_obs[0].shape)
 
 # Generate 10,000 samples
 for i in tqdm(range(10000)):
@@ -84,10 +84,11 @@ for i in tqdm(range(10000)):
     r_objs.append(deepcopy(env.objects))
     
     if args.agent:
-        action = agent.draw_action(obs)
+        action = agent.draw_action(env.dqn_obs)
     else:    
         action = env.action_space.sample()
     obs, reward, terminated, truncated, info = env.step(action)
+    print(obs.shape)
     # make a short print every 1000 steps
     # if i % 1000 == 0:
     #    print(f"{i} done")
