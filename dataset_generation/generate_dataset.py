@@ -74,7 +74,7 @@ env.env.seed(args.seed)
 # Init an empty dataset
 game_nr = 0
 turn_nr = 0
-dataset = {"index": [], "obs": [], "action": [], "obs_after_action": [], "obs_dqn": [], "obs_dqn_after_action": [], "reward": [], "original_reward": [], "done" : []}
+dataset = {"index": [], "obs": [], "action": [], "next_obs": [], "obs_dqn": [], "next_obs_dqn": [], "objects": [], "next_objects": [], "reward": [], "original_reward": [], "done" : []}
 
 obs, info = env.reset()
 
@@ -86,8 +86,9 @@ dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
 # Generate 10,000 samples
 for i in tqdm(range(args.frames*args.interval)):
     if i % args.interval == 0:
-        state = env.get_rgb_state
-        dqn_state = env.dqn_obs
+        state = torch.tensor(env.get_rgb_state)
+        dqn_state = env.dqn_obs[0]
+        objects = env.objects
         # frames.append(state)
     
     if args.agent:
@@ -98,20 +99,22 @@ for i in tqdm(range(args.frames*args.interval)):
     step = f"{'%0.5d' % (game_nr)}_{'%0.5d' % (turn_nr)}"
 
     if i % args.interval == 0:
-        state2 = env.get_rgb_state
         # frames_after_action.append(state)
         # rewards.append(reward)
         # org_rewards.append(env.org_reward_step)
         # actions.append(action)
         dataset["index"].append(step)
-        dataset["obs"].append(state.flatten().tolist())
-        dataset["obs_dqn"].append(dqn_state.flatten().tolist())
+        dataset["obs"].append(state)
+        dataset["obs_dqn"].append(dqn_state)
         dataset["action"].append(action.item())
-        dataset["obs_after_action"].append(state2.flatten().tolist())
-        dataset["obs_dqn_after_action"].append(env.dqn_obs.flatten().tolist())
+        dataset["next_obs"].append(torch.tensor(env.get_rgb_state))
+        dataset["next_obs_dqn"].append(env.dqn_obs[0])
+        dataset["objects"].append(objects)
+        dataset["next_objects"].append(env.objects)
         dataset["reward"].append(reward)
         dataset["original_reward"].append(env.org_reward)
         dataset["done"].append(terminated or truncated)
+
     
     turn_nr = turn_nr + 1
 
@@ -168,7 +171,7 @@ for i in tqdm(range(args.frames*args.interval)):
 env.close()
 
 
-df = pd.DataFrame(dataset, columns=['index', 'obs', 'action',  "reward", "original_reward", "done"])
+df = pd.DataFrame(dataset, columns=['index', 'obs', 'next_obs', 'obs_dqn', 'next_obs_dqn', 'objects', 'next_objects', 'action',  "reward", "original_reward", "done"])
 
 df[["action", "reward", "original_reward", "done"]] = df[["action", "reward", "original_reward", "done"]].apply(pd.to_numeric, downcast="float")
 # Metadata dictionary
