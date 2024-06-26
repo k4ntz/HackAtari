@@ -43,6 +43,11 @@ parser.add_argument('-a','--agent', type=str, default='',
                     help="Path to the cleanrl trained agent to be loaded.")
 parser.add_argument('-c','--creator', type=str, default='', 
                     help="Name of the creator of this dataset")
+parser.add_argument('-f','--frames', type=int, default=10000, 
+                    help="How many frames should be generated.")
+parser.add_argument('-i','--interval', type=int, default=1, 
+                    help="How many frames should be skipped between saving samples.")
+
 args = parser.parse_args()
 
 # Init the environment
@@ -69,7 +74,7 @@ env.env.seed(args.seed)
 # Init an empty dataset
 game_nr = 0
 turn_nr = 0
-dataset = {"index": [], "obs": [], "action": [], "obs_after_action": [], "reward": [], "original_reward": [], "done" : []}
+dataset = {"index": [], "obs": [], "action": [], "obs_after_action": [], "obs_dqn": [], "obs_dqn_after_action": [], "reward": [], "original_reward": [], "done" : []}
 
 obs, info = env.reset()
 
@@ -79,33 +84,35 @@ dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
 
 
 # Generate 10,000 samples
-for i in tqdm(range(10000)):
-    state = env.get_rgb_state
-    # frames.append(state)
+for i in tqdm(range(args.frames*args.interval)):
+    if i % args.interval == 0:
+        state = env.get_rgb_state
+        dqn_state = env.dqn_obs
+        # frames.append(state)
     
     if args.agent:
         action = agent.draw_action(env.dqn_obs)
     else:    
         action = env.action_space.sample()
     obs, reward, terminated, truncated, info = env.step(action)
-    # make a short print every 1000 steps
-    # if i % 1000 == 0:
-    #    print(f"{i} done")
-
-    # state2 = env.get_rgb_state
-    # frames_after_action.append(state)
-    # rewards.append(reward)
-    # org_rewards.append(env.org_reward_step)
-    # actions.append(action)
-
     step = f"{'%0.5d' % (game_nr)}_{'%0.5d' % (turn_nr)}"
-    dataset["index"].append(step)
-    dataset["obs"].append(state.flatten().tolist())
-    dataset["action"].append(action.item())
-    # dataset["obs_after_action"].append(state2.flatten().tolist())
-    dataset["reward"].append(reward)
-    dataset["original_reward"].append(env.org_reward)
-    dataset["done"].append(terminated or truncated)
+
+    if i % args.interval == 0:
+        state2 = env.get_rgb_state
+        # frames_after_action.append(state)
+        # rewards.append(reward)
+        # org_rewards.append(env.org_reward_step)
+        # actions.append(action)
+        dataset["index"].append(step)
+        dataset["obs"].append(state.flatten().tolist())
+        dataset["obs_dqn"].append(dqn_state.flatten().tolist())
+        dataset["action"].append(action.item())
+        dataset["obs_after_action"].append(state2.flatten().tolist())
+        dataset["obs_dqn_after_action"].append(env.dqn_obs.flatten().tolist())
+        dataset["reward"].append(reward)
+        dataset["original_reward"].append(env.org_reward)
+        dataset["done"].append(terminated or truncated)
+    
     turn_nr = turn_nr + 1
 
     # if a game is terminated, restart with a new game and update turn and game counter
@@ -183,8 +190,9 @@ metadata = {
     'column_names': list(df.columns),
     'data_types': df.dtypes.astype(str).to_dict(),
     'obs': "A 210x160x3 RGB image as a flatten list",
+    'dqn_obs': "A 4x84x84 grayscaled image of the last four states used by DQN agents to learn",
     'action': f"describes the action taken in this state. Actions are {env._env.env.env.get_action_meanings()}",
-    #'obs_after_action': "describes the resulting state after taking the action in the state above",
+    'obs_after_action': "describes the resulting state after taking the action in the state above",
     'reward': "Describes the reward given for the action a in state s",
     'original_reward': "If an alternative reward function was given, original_reward describe the default reward, else it is 0",
     'done': "Is one if the action ended the game",
@@ -201,7 +209,7 @@ makedirs("data/datasets/", exist_ok=True)
 makedirs("data/datasets/ALE", exist_ok=True)
 prefix = f"{args.game}_dqn" if args.agent else f"{args.game}_random" 
 #df.to_csv(f"data/datasets/{prefix}.csv", index=False)
-df.to_pickle(f"data/datasets/{prefix}.pkl")
+df.to_pickle(f"data/datasets/{prefix}.pkl.gzip", compression='gzip')
 with open(f'data/datasets/{prefix}_metadata.json', 'w') as f:
     json.dump(metadata, f, indent=4)
 
