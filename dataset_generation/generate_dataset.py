@@ -20,6 +20,7 @@ from ocatari.utils import load_agent, parser
 # from ocatari.vision.space_invaders import objects_colors
 import pickle
 from tqdm import tqdm
+from utils import get_dtypes, get_obj_props
 
 import argparse
 parser = argparse.ArgumentParser(description='HackAtari run.py Argument Setter')
@@ -191,9 +192,11 @@ metadata = {
     'num_rows': len(df),
     'num_columns': len(df.columns),
     'column_names': list(df.columns),
-    'data_types': df.dtypes.astype(str).to_dict(),
-    'obs': "A 210x160x3 RGB image as a flatten list",
-    'dqn_obs': "A 4x84x84 grayscaled image of the last four states used by DQN agents to learn",
+    'data_types': get_dtypes(df),
+    'objects_props': get_obj_props(df['objects']),
+    'objects_props_comment': "The objects properties are extracted from the objects list in the dataset. Not all properties are listed, the most useful ones only",
+    'obs': "A 210x160x3 RGB image as a torch tensor of the current state",
+    'dqn_obs': "A 4x84x84 grayscaled image (as torch tensor) of the last four states used by DQN agents to learn",
     'action': f"describes the action taken in this state. Actions are {env._env.env.env.get_action_meanings()}",
     'obs_after_action': "describes the resulting state after taking the action in the state above",
     'reward': "Describes the reward given for the action a in state s",
