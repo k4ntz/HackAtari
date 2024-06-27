@@ -79,7 +79,7 @@ class HackAtari(OCAtari):
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
             self.new_reward_func = module.reward_function
-            self._oca_step = self.step
+            self._hack_step = self.step
             self.step = self._step_with_lm_reward
 
         self.alter_ram_steps, self.alter_ram_reset = _modif_funcs(modifs)
@@ -88,15 +88,13 @@ class HackAtari(OCAtari):
         if colorswaps:
             assert_colorswaps(colorswaps)
             self.colorswaps = colorswaps
-            # self.step = self._colorswap_step
-            # self.reset = self._colorswap_reset
             self.env.env.ale = ALEColorSwapProxy(self.env.env.ale, colorswaps)
         else:
             self.step = self._alter_step
             self.reset = self._alter_reset
     
     def _step_with_lm_reward(self, action):
-        obs, game_reward, truncated, terminated, info = self._oca_step(action)
+        obs, game_reward, truncated, terminated, info = self._hack_step(action)
         try:
             reward = self.new_reward_func(self)
         except Exception as e:
@@ -108,7 +106,7 @@ class HackAtari(OCAtari):
         info["org_return"] = self.org_return
         return obs, reward, truncated, terminated, info
     
-    def _alter_step(self, action):
+    def _alter_step(self, *args, **kwargs):
         """
         Take a step in the game environment after altering the ram.
         """
@@ -117,16 +115,16 @@ class HackAtari(OCAtari):
             frameskip = random.choice((2, 5))
         total_reward = 0.0
         terminated = truncated = False
+        for func in self.alter_ram_steps:
+            func(self)
         for i in range(frameskip):
-            for func in self.alter_ram_steps:
-                func(self)
-            obs, reward, terminated, truncated, info = self._oc_step(action)
-            done = terminated or truncated
+            obs, reward, terminated, truncated, info = self._env.step(*args, **kwargs)
             total_reward += float(reward)
-            if done:
-                break
             for func in self.alter_ram_steps:
                 func(self)
+            if terminated or truncated:
+                break
+        self.detect_objects(self._objects, self._getRAMorScreen(), self.game_name, self.hud)
         # Note that the observation on the done=True frame
         # doesn't matter
         return obs, total_reward, terminated, truncated, info
