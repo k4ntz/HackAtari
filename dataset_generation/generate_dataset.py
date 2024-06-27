@@ -26,12 +26,8 @@ import argparse
 parser = argparse.ArgumentParser(description='HackAtari run.py Argument Setter')
 parser.add_argument('-g', '--game', type=str, default="Seaquest",
                     help='Game to be run')
-# Argument to enable gravity for the player.
 parser.add_argument('-m', '--modifs', nargs='+', default=[],
                     help='List of the modifications to be brought to the game')
-
-#parser.add_argument('-hu', '--human', action='store_true',
-#                    help='Let user play the game.')
 parser.add_argument('-s', '--seed', type=int, default=0,
                     help='Make the generation deterministic.')
 parser.add_argument('-p', '--picture', type=int, default=0,
@@ -46,8 +42,8 @@ parser.add_argument('-c','--creator', type=str, default='',
                     help="Name of the creator of this dataset")
 parser.add_argument('-f','--frames', type=int, default=10000, 
                     help="How many frames should be generated.")
-parser.add_argument('-i','--interval', type=int, default=10, 
-                    help="How many frames should be skipped between saving samples.")
+parser.add_argument('-e','--epsilon', type=float, default=0.1, 
+                    help="The random probability of the state being added to the dataset.")
 
 args = parser.parse_args()
 
@@ -85,90 +81,45 @@ dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
 
 
 # Generate 10,000 samples
-for i in tqdm(range(args.frames*args.interval)):
-    if i % args.interval == 0:
-        state = deepcopy(torch.tensor(env.get_rgb_state))
-        dqn_state = deepcopy(env.dqn_obs[0])
-        objects = deepcopy(env.objects)
-        # frames.append(state)
-    
-    if args.agent:
-        action = agent.draw_action(env.dqn_obs)
-    else:    
-        action = env.action_space.sample()
-    obs, reward, terminated, truncated, info = env.step(action)
-    step = f"{'%0.5d' % (game_nr)}_{'%0.5d' % (turn_nr)}"
+counts = 0
+with tqdm(total=args.frames) as pbar:
+    while counts < args.frames:
+        selected = random.random() < args.epsilon
+        if selected:
+            state = deepcopy(torch.tensor(env.get_rgb_state))
+            dqn_state = deepcopy(env.dqn_obs[0])
+            objects = deepcopy(env.objects)
+        
+        if args.agent:
+            action = agent.draw_action(env.dqn_obs)
+        else:    
+            action = env.action_space.sample()
+        obs, reward, terminated, truncated, info = env.step(action)
+        step = f"{'%0.5d' % (game_nr)}_{'%0.5d' % (turn_nr)}"
 
-    if i % args.interval == 0:
-        # frames_after_action.append(state)
-        # rewards.append(reward)
-        # org_rewards.append(env.org_reward_step)
-        # actions.append(action)
-        dataset["index"].append(step)
-        dataset["obs"].append(state)
-        dataset["obs_dqn"].append(dqn_state)
-        dataset["action"].append(action.item())
-        dataset["next_obs"].append(torch.tensor(env.get_rgb_state))
-        dataset["next_obs_dqn"].append(env.dqn_obs[0])
-        dataset["objects"].append(objects)
-        dataset["next_objects"].append(env.objects)
-        dataset["reward"].append(reward)
-        dataset["original_reward"].append(env.org_reward)
-        dataset["done"].append(terminated or truncated)
+        if selected:
+            dataset["index"].append(step)
+            dataset["obs"].append(state)
+            dataset["obs_dqn"].append(dqn_state)
+            dataset["action"].append(action.item())
+            dataset["next_obs"].append(torch.tensor(env.get_rgb_state))
+            dataset["next_obs_dqn"].append(env.dqn_obs[0])
+            dataset["objects"].append(objects)
+            dataset["next_objects"].append(env.objects)
+            dataset["reward"].append(reward)
+            dataset["original_reward"].append(env.org_reward)
+            dataset["done"].append(terminated or truncated)
+            pbar.update(1)
+            counts += 1
+        
+        turn_nr = turn_nr + 1
 
-    
-    turn_nr = turn_nr + 1
+        # if a game is terminated, restart with a new game and update turn and game counter
+        if terminated or truncated:
+            obs, info = env.reset()
+            turn_nr = 0
+            game_nr = game_nr + 1
 
-    # if a game is terminated, restart with a new game and update turn and game counter
-    if terminated or truncated:
-        obs, info = env.reset()
-        turn_nr = 0
-        game_nr = game_nr + 1
-
-    # The interval defines how often images are saved as png files in addition to the dataset
-    # if i % opts.interval == 0:
-        """
-        print("-"*50)
-        print(f"Frame {i}")
-        print("-"*50)
-        fig, axes = plt.subplots(1, 2)
-        for obs, objects_list, title, ax in zip([obs,obs2], [env.objects, env.objects_v], ["ram", "vis"], axes):
-            print(f"{title}: ", sorted(objects_list, key=lambda o: str(o)))
-            for obj in objects_list:
-                opos = obj.xywh
-                ocol = obj.rgb
-                sur_col = make_darker(ocol, 0.2)
-                mark_bb(obs, opos, color=sur_col)
-                # mark_point(obs, *opos[:2], color=(255, 255, 0))
-            ax.set_xticks([])
-            ax.set_yticks([])
-            ax.imshow(obs)
-            ax.set_title(title)
-        plt.suptitle(f"frame {i}", fontsize=20)
-        plt.show()
-        fig2 = plt.figure()
-        ax2 = fig2.add_subplot(1, 1, 1)
-        for obj in env.objects:
-            opos = obj.xywh
-            ocol = obj.rgb
-            sur_col = make_darker(ocol, 0.8)
-            mark_bb(obs3, opos, color=sur_col)
-        ax2.imshow(obs3)
-        ax2.set_xticks([])
-        ax2.set_yticks([])
-        plt.show()
-        fig3 = plt.figure()
-        ax3 = fig3.add_subplot(1, 1, 1)
-        for obj in env.objects_v:
-            opos = obj.xywh
-            ocol = obj.rgb
-            sur_col = make_darker(ocol, 0.8)
-            mark_bb(obs4, opos, color=sur_col)
-        ax3.imshow(obs4)
-        ax3.set_xticks([])
-        ax3.set_yticks([])
-        plt.show()
-        """
 env.close()
 
 
@@ -186,6 +137,8 @@ metadata = {
     'created_by': args.creator,
     'creation_date': dt_string,
     'seed': args.seed,
+    'epsilon': "The random probability of the state being added to the dataset.",
+    'epsilon_value': args.epsilon,
     'description': 'This dataset was describes an agent playing a HackAtari game variant.',
     'source': 'Generated manually by letting the agent play on the HackAtari game variant, described by the game name and modifications above. \
        An alternative reward_function (see above) can be given.',
@@ -194,7 +147,7 @@ metadata = {
     'column_names': list(df.columns),
     'data_types': get_dtypes(df),
     'objects_props': get_obj_props(df['objects']),
-    'objects_props_comment': "The objects properties are extracted from the objects list in the dataset. Not all properties are listed, the most useful ones only",
+    'objects_props_description': "The objects properties are extracted from the objects list in the dataset. Not all properties are listed, the most useful ones only",
     'obs': "A 210x160x3 RGB image as a torch tensor of the current state",
     'obs_dqn': "A 4x84x84 grayscaled image (as torch tensor) of the last four states used by DQN agents to learn",
     'action': f"describes the action taken in this state. Actions are {env._env.env.env.get_action_meanings()}",

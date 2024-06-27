@@ -66,6 +66,16 @@ class HackAtari(OCAtari):
             _modif_funcs = lambda x: ([], [])
         else:
             _modif_funcs = importlib.import_module(f"hackatari.games.{game.lower()}")._modif_funcs
+
+        self.alter_ram_steps, self.alter_ram_reset = _modif_funcs(modifs)
+        self._oc_step = self.step
+        self._oc_reset = self.reset
+        if colorswaps:
+            assert_colorswaps(colorswaps)
+            self.colorswaps = colorswaps
+            self.env.env.ale = ALEColorSwapProxy(self.env.env.ale, colorswaps)
+        self.step = self._alter_step
+        self.reset = self._alter_reset
         
         self.org_return = 0
         self.org_reward = 0
@@ -81,17 +91,6 @@ class HackAtari(OCAtari):
             self.new_reward_func = module.reward_function
             self._hack_step = self.step
             self.step = self._step_with_lm_reward
-
-        self.alter_ram_steps, self.alter_ram_reset = _modif_funcs(modifs)
-        self._oc_step = self.step
-        self._oc_reset = self.reset
-        if colorswaps:
-            assert_colorswaps(colorswaps)
-            self.colorswaps = colorswaps
-            self.env.env.ale = ALEColorSwapProxy(self.env.env.ale, colorswaps)
-        else:
-            self.step = self._alter_step
-            self.reset = self._alter_reset
     
     def _step_with_lm_reward(self, action):
         obs, game_reward, truncated, terminated, info = self._hack_step(action)
@@ -130,10 +129,13 @@ class HackAtari(OCAtari):
         return obs, total_reward, terminated, truncated, info
 
     def _alter_reset(self, *args, **kwargs):
-        ret = self._oc_reset(*args, **kwargs)
+        ret = self._env.reset(*args, **kwargs)
         self.org_reward = 0
+        self.org_return = 0
         for func in self.alter_ram_reset:
             func(self)
+        self.detect_objects(self._objects, self._getRAMorScreen(), self.game_name, self.hud)
+        self._reset_buffer()
         return ret
 
     def _colorswap_step(self, *args, **kwargs):
