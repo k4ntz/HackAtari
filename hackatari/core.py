@@ -73,6 +73,9 @@ class HackAtari(OCAtari):
             print(f"Changed reward function to {rewardfunc_path}")
             module_name = os.path.splitext(os.path.basename(rewardfunc_path))[0]
             spec = importlib.util.spec_from_file_location(module_name, rewardfunc_path)
+            if spec is None:
+                print(f"Error loading reward function from {rewardfunc_path}, please check the path.")
+                exit(1)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
             self.new_reward_func = module.reward_function
