@@ -46,7 +46,7 @@ def color(self):
 
 
 def _modif_funcs(modifs):
-    step_modifs, reset_modifs = [], []
+    step_modifs, reset_modifs, inpaintings = [], [], False
     for mod in modifs:
         if mod == "delay_shots":
             step_modifs.append(delay_shots)
@@ -66,4 +66,4 @@ def _modif_funcs(modifs):
             global COLOR
             COLOR = mod_n
             step_modifs.append(color)
-    return step_modifs, reset_modifs
+    return step_modifs, reset_modifs, inpaintings

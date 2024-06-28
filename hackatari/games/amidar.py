@@ -30,7 +30,7 @@ def set_player(self):
 
 
 def _modif_funcs(modifs): 
-    step_modifs, reset_modifs = [], []
+    step_modifs, reset_modifs, inpaintings = [], [], False
     for mod in modifs:
         if mod == "change_enemy":
             step_modifs.append(set_enemies)
@@ -40,5 +40,5 @@ def _modif_funcs(modifs):
             step_modifs.append(no_enemies)
         else:
             print('Invalid or unknown modification')
-    return step_modifs, reset_modifs
+    return step_modifs, reset_modifs, inpaintings
 

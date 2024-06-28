@@ -64,7 +64,7 @@ def random_color(self):
 
 
 def _modif_funcs(modifs):
-    step_modifs, reset_modifs = [], []
+    step_modifs, reset_modifs, inpaintings = [], [], False
     for mod in modifs:
         if mod.startswith('color'):
             if mod[-1].isdigit():
@@ -110,11 +110,11 @@ def _modif_funcs(modifs):
             global NEW_X_POS
             NEW_X_POS = mod_n
             step_modifs.append(modify_ram_for_floes_position)
-    return step_modifs, reset_modifs
+    return step_modifs, reset_modifs, inpaintings
 
 
 # def _modif_funcs(modifs):
-#     step_modifs, reset_modifs = [], []
+#     step_modifs, reset_modifs, inpaintings = [], [], False
 #     for mod in modifs:
 #         if mod.startswith('color'):
 #             mod_n = int(mod[-3:])
@@ -151,4 +151,4 @@ def _modif_funcs(modifs):
 #             global NEW_X_POS
 #             NEW_X_POS = mod_n
 #             reset_modifs.append(modify_ram_for_floes_position)
-#     return step_modifs, reset_modifs
+#     return step_modifs, reset_modifs, inpaintings

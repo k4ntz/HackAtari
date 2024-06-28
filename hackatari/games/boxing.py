@@ -131,7 +131,7 @@ def reset_onc(self):
 
 
 def _modif_funcs(modifs):
-    step_modifs, reset_modifs = [], []
+    step_modifs, reset_modifs, inpaintings = [], [], False
     for mod in modifs:
         if mod.startswith("gravity"):
             if mod[-1].isdigit():
@@ -170,4 +170,4 @@ def _modif_funcs(modifs):
             reset_modifs.append(reset_onc)
         else:
             raise ValueError("Invalid modification")
-    return step_modifs, reset_modifs
+    return step_modifs, reset_modifs, inpaintings

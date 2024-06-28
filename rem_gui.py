@@ -4,7 +4,7 @@ from ocatari.core import OCAtari, UPSCALE_FACTOR
 from tqdm import tqdm
 
 
-from hackatari.util import load_color_swaps
+from hackatari.utils import load_color_swaps
 from hackatari.core import HackAtari
 import atexit
 

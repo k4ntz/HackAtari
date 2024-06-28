@@ -15,10 +15,10 @@ def no_fuel(self):
 
 
 def _modif_funcs(modifs):
-    step_modifs, reset_modifs = [], []
+    step_modifs, reset_modifs, inpaintings = [], [], False
     for mod in modifs:
         if mod == "no_fuel":
             step_modifs.append(no_fuel)
         else:
             print('Invalid modification')
-    return step_modifs, reset_modifs
+    return step_modifs, reset_modifs, inpaintings

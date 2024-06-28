@@ -5,7 +5,7 @@ import cv2
 import sys
 
 import matplotlib.pyplot as plt
-from hackatari.util import load_color_swaps
+from hackatari.utils import load_color_swaps
 from ocatari.utils import load_agent
 
 

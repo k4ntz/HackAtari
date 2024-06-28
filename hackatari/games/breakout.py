@@ -87,7 +87,7 @@ def color_rows(self):
             self.set_ram(64+i, ROW_COLORS[i])
 
 def _modif_funcs(modifs):
-    step_modifs, reset_modifs = [], []
+    step_modifs, reset_modifs, inpaintings = [], [], False
     for mod in modifs:
         if mod.startswith('s'):
             global STRENGTH
@@ -142,4 +142,4 @@ def _modif_funcs(modifs):
                                   \nExample: Use 'color_r01-54' to make the bottom row of blocks white and the top row of blocks green.\
                                   \n'color_r01-54' == 'color_r0154' and color values 0-4 [black, white, red, blue, green]")
             step_modifs.append(color_rows)
-    return step_modifs, reset_modifs
+    return step_modifs, reset_modifs, inpaintings

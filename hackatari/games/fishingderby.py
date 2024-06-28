@@ -56,7 +56,7 @@ def alter_fish(self):
                         self.set_ram(69+i, 70)
 
 def _modif_funcs(modifs):
-    step_modifs, reset_modifs = [], []
+    step_modifs, reset_modifs, inpaintings = [], [], False
     for mod in modifs:
         mod_n = int(mod[-1])
         if mod.startswith('f'):
@@ -67,4 +67,4 @@ def _modif_funcs(modifs):
             global SHARK_MODE
             SHARK_MODE = mod_n
             step_modifs.append(alter_shark)
-    return step_modifs, reset_modifs
+    return step_modifs, reset_modifs, inpaintings

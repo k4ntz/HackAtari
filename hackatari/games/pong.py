@@ -75,7 +75,7 @@ def left_drift(self):
     TIMER +=1
 
 def _modif_funcs(modifs):
-    step_modifs, reset_modifs = [], []
+    step_modifs, reset_modifs, inpaintings = [], [], False
     for mod in modifs:
         if mod == "lazy_enemy":
             step_modifs.append(lazy_enemy)
@@ -103,4 +103,4 @@ def _modif_funcs(modifs):
         #     step_modifs.append(disable_enemies)
             else:
                 print('Invalid modification')
-    return step_modifs, reset_modifs
+    return step_modifs, reset_modifs, inpaintings

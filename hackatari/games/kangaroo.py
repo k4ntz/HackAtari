@@ -1,6 +1,5 @@
 import random
-
-
+import numpy as np
 
 # Constants for clarity and maintainability
 KANGAROO_POS_X_INDEX = 17  # RAM index for kangaroo's X position
@@ -123,8 +122,16 @@ def change_level(self):
     self.set_ram(36, LVL_NUM)
 
 
+def no_ladder_inpaintings():
+    background_color = np.array((80, 0, 132))
+    w, h = 8, 36
+    patch = (np.ones((h, w, 3)) * background_color).astype(np.uint8)
+    ladder_poses = [(132, 36), (132, 132), (20, 84)]
+    return [(y, x, h, w, patch) for x, y in ladder_poses] # needs swapped positions
+
+
 def _modif_funcs(modifs):
-    step_modifs, reset_modifs = [], []
+    step_modifs, reset_modifs, inpaintings = [], [], False
     if "random_init" in modifs and "easy_mode" in modifs:
         raise ValueError("Both random_init and easy_mode cannot be enabled at the same time")
     for mod in modifs:
@@ -149,4 +156,6 @@ def _modif_funcs(modifs):
                 LVL_NUM =  int(mod[-1])
                 assert LVL_NUM < 3, "Invalid Level Number (0, 1 or 2)"
             step_modifs.append(change_level)
-    return step_modifs, reset_modifs
+        elif mod == "no_ladder":
+            inpaintings = no_ladder_inpaintings()
+    return step_modifs, reset_modifs, inpaintings

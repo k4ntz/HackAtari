@@ -84,7 +84,7 @@ def revisit_city(self):
 
 
 def _modif_funcs(modifs):
-    step_modifs, reset_modifs = [], []
+    step_modifs, reset_modifs, inpaintings = [], [], False
     for mod in modifs:
         if mod == "unlimited_gas":
             step_modifs.append(unlimited_gas)
@@ -97,4 +97,4 @@ def _modif_funcs(modifs):
             reset_modifs.append(random_city_res)
         elif mod == "revisit_city":
             step_modifs.append(revisit_city)
-    return step_modifs, reset_modifs
+    return step_modifs, reset_modifs, inpaintings

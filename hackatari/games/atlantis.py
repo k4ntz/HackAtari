@@ -65,7 +65,7 @@ def speed_mode(self):
 
 
 def _modif_funcs(modifs):
-    step_modifs, reset_modifs = [], []
+    step_modifs, reset_modifs, inpaintings = [], [], False
     for mod in modifs:
         if mod == "no_last_line":
             step_modifs.append(no_last_line)
@@ -89,5 +89,5 @@ def _modif_funcs(modifs):
             step_modifs.append(speed_mode)
         else:
             print('Invalid or unknown modification')
-    return step_modifs, reset_modifs
+    return step_modifs, reset_modifs, inpaintings
 
