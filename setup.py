@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 
 
 with open("README.md", "r", encoding="utf-8") as fh:
@@ -23,7 +23,6 @@ setup(
     long_description_content_type='text/markdown',
     install_requires=[
         "ocatari",
-        
     ]
 )
 
