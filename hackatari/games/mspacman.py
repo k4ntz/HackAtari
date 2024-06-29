@@ -296,7 +296,7 @@ def maze_man_reset(self):
 
 def _modif_funcs(modifs):
     global TOGGLE_CYAN, TOGGLE_PINK, TOGGLE_ORANGE, TOGGLE_RED
-    step_modifs, reset_modifs, inpaintings = [], [], False
+    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
     if "edible_ghosts" in modifs and "inverted" in modifs:
         raise ValueError("The modification \"ghosts_edible\" is unnecessary when playing in inverted mode")
     for mod in modifs:
@@ -345,4 +345,4 @@ def _modif_funcs(modifs):
             step_modifs.append(static_ghosts)
             step_modifs.append(maze_man)
             reset_modifs.append(maze_man_reset)
-    return step_modifs, reset_modifs, inpaintings
+    return step_modifs, reset_modifs, inpaintings, place_above

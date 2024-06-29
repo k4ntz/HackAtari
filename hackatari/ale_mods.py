@@ -33,8 +33,7 @@ class ALEColorSwap:
         return ret
 
 
-def inpainting(image, x, y, w, h, subimage):
-    # x, y, w, h = y, x, h, w
+def inpainting(image, x, y, w, h, subimage, _):
     x_end = min(x + w, 210)
     y_end = min(y + h, 160)
     image[x:x_end, y:y_end, :] = subimage[:x_end - x, :y_end - y, :]
@@ -42,18 +41,19 @@ def inpainting(image, x, y, w, h, subimage):
 def masked_inpainting(image, x, y, w, h, subimage, inpaint_colors):
     x_end = min(x + w, 210)
     y_end = min(y + h, 160)
-    mask = np.zeros_like(image, dtype=bool)
+    mask = np.zeros((x_end-x, y_end-y), dtype=bool)
     for inpaint_color in inpaint_colors:
-        mask = np.all(image[x:x_end, y:y_end, :] != inpaint_color, axis=-1)
-    image[x:x_end, y:y_end, :] = np.where(mask[..., None], subimage[:x_end - x, :y_end - y, :], image[x:x_end, y:y_end, :])
+        mask += np.all(image[x:x_end, y:y_end, :] == inpaint_color, axis=-1)
+    image[x:x_end, y:y_end, :] = np.where(np.invert(mask)[..., None], subimage[:x_end - x, :y_end - y, :], image[x:x_end, y:y_end, :])
         
     
 
 class ALEInpainting:
-    def __init__(self, ale, inpaintings):
+    def __init__(self, ale, inpaintings, place_above=[]):
         self._ale = ale
         self._inpaintings = inpaintings
-        self._place_above = [(214, 92, 92)]
+        self._inpainting_func = inpainting if not place_above else masked_inpainting
+        self.place_above = place_above
 
     def __getattr__(self, name):
         if name == "getScreenRGB" or name == "getScreen":
@@ -63,5 +63,18 @@ class ALEInpainting:
     def custom_getScreenRGB(self, *args, **kwargs):
         ret = self._ale.getScreenRGB(*args, **kwargs)
         for x, y, w, h, subimage in self._inpaintings:
-            masked_inpainting(ret, x, y, w, h, subimage, self._place_above)
+            self._inpainting_func(ret, x, y, w, h, subimage, self._place_above)
         return ret
+    
+    @property
+    def place_above(self):
+        return self._place_above
+    
+    @place_above.setter
+    def place_above(self, colors):
+        assert all(len(c) == 3 for c in colors), "Colors need to be RGB tuples"
+        self._place_above = colors
+        if colors:
+            self._inpainting_func = masked_inpainting
+        else:
+            self._inpainting_func = inpainting

@@ -7,8 +7,8 @@ def no_radar(self):
 
 
 def _modif_funcs(modifs):
-    step_modifs, reset_modifs, inpaintings = [], [], False
+    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
     for mod in modifs:
         if  mod == "no_radar":
             step_modifs.append(no_radar)
-    return step_modifs, reset_modifs, inpaintings
+    return step_modifs, reset_modifs, inpaintings, place_above

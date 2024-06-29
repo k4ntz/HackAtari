@@ -89,7 +89,7 @@ def controlable_missile(self):
 
 
 def _modif_funcs(modifs):
-    step_modifs, reset_modifs, inpaintings = [], [], False
+    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
     for mod in modifs:
         if mod == "disable_shield_left":
             step_modifs.append(disable_shield_left)
@@ -112,4 +112,4 @@ def _modif_funcs(modifs):
             global NEW_POSITION
             NEW_POSITION = mod_n
             reset_modifs.append(relocate_shields)        
-    return step_modifs, reset_modifs, inpaintings
+    return step_modifs, reset_modifs, inpaintings, place_above

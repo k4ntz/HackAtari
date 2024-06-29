@@ -131,7 +131,7 @@ def no_ladder_inpaintings():
 
 
 def _modif_funcs(modifs):
-    step_modifs, reset_modifs, inpaintings = [], [], False
+    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
     if "random_init" in modifs and "easy_mode" in modifs:
         raise ValueError("Both random_init and easy_mode cannot be enabled at the same time")
     for mod in modifs:
@@ -158,4 +158,5 @@ def _modif_funcs(modifs):
             step_modifs.append(change_level)
         elif mod == "no_ladder":
             inpaintings = no_ladder_inpaintings()
-    return step_modifs, reset_modifs, inpaintings
+            place_above.extend(((223, 183, 85), (227, 151, 89))) # Player, Monkey
+    return step_modifs, reset_modifs, inpaintings, place_above

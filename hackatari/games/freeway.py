@@ -93,7 +93,7 @@ def handle_car_stop_mode_3(self):
 
 
 def _modif_funcs(modifs):
-    step_modifs, reset_modifs, inpaintings = [], [], False
+    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
     for mod in modifs:
         mod_n = int(mod[-1])
         if mod.startswith('s'):
@@ -109,4 +109,4 @@ def _modif_funcs(modifs):
             global CARS_COLOR
             CARS_COLOR = color_map.get(mod_n, 256)
             step_modifs.append(modify_ram_for_color)
-    return step_modifs, reset_modifs, inpaintings
+    return step_modifs, reset_modifs, inpaintings, place_above

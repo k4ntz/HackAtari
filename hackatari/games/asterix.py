@@ -22,7 +22,7 @@ def odd_lines_free(self):
         self.set_ram(18-i, 11)
 
 def _modif_funcs(modifs):
-    step_modifs, reset_modifs, inpaintings = [], [], False
+    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
     global SPEED
     for mod in modifs:
         if mod == "obelix":
@@ -40,4 +40,4 @@ def _modif_funcs(modifs):
             step_modifs.append(odd_lines_free)
         else:
             print('Invalid modification')
-    return step_modifs, reset_modifs, inpaintings
+    return step_modifs, reset_modifs, inpaintings, place_above

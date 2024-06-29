@@ -50,9 +50,9 @@ class HackAtari(OCAtari):
         else:
             _modif_funcs = importlib.import_module(f"hackatari.games.{game.lower()}")._modif_funcs
 
-        self.alter_ram_steps, self.alter_ram_reset, inpaintings = _modif_funcs(modifs)
+        self.alter_ram_steps, self.alter_ram_reset, inpaintings, place_above = _modif_funcs(modifs)
         if inpaintings:
-            self.env.env.ale = ALEInpainting(self.env.env.ale, inpaintings)
+            self.env.env.ale = ALEInpainting(self.env.env.ale, inpaintings, place_above)
         self._oc_step = self.step
         self._oc_reset = self.reset
         if colorswaps:

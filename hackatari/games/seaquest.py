@@ -59,7 +59,7 @@ def random_color_enemies(self):
 
 
 def _modif_funcs(modifs):
-    step_modifs, reset_modifs, inpaintings = [], [], False
+    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
     for mod in modifs:
         if mod == "unlimited_oxygen":
             step_modifs.append(unlimited_oxygen)
@@ -69,4 +69,4 @@ def _modif_funcs(modifs):
             step_modifs.append(disable_enemies)
         if mod == "random_color_enemies":
             step_modifs.append(random_color_enemies)
-    return step_modifs, reset_modifs, inpaintings
+    return step_modifs, reset_modifs, inpaintings, place_above

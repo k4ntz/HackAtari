@@ -47,16 +47,19 @@ def wall_updates(self):
                 flags.append((x, y))
     self.env.env.ale._inpaintings = [(y, x, h, w, wall) for x, y in flags]
 
+def wall_updates_reset(self):
+    self.env.env.ale.place_above = []
 
 def _modif_funcs(modifs):
-    step_modifs, reset_modifs, inpaintings = [], [], False
+    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
     for mod in modifs:
         if mod == "invert_flags":
             step_modifs.append(modify_ram_invert_flag)
         elif mod == "walls":
             inpaintings = wall_inpaintings()
             step_modifs.append(wall_updates)
+            place_above.append((214, 92, 92))
         else:
             print('Invalid or unknown modification')
-    return step_modifs, reset_modifs, inpaintings
+    return step_modifs, reset_modifs, inpaintings, place_above
 

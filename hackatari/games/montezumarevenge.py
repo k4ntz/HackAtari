@@ -110,7 +110,7 @@ def unify_item_color(self):
 
 
 def _modif_funcs(modifs):
-    step_modifs, reset_modifs, inpaintings = [], [], False
+    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
     for mod in modifs:
         if mod == "random_position_start":
             step_modifs.append(random_position_start)
@@ -139,4 +139,4 @@ def _modif_funcs(modifs):
             step_modifs.append(unify_item_color)
         else:
             print('Invalid modification')
-    return step_modifs, reset_modifs, inpaintings
+    return step_modifs, reset_modifs, inpaintings, place_above

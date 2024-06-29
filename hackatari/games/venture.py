@@ -45,7 +45,7 @@ def reset_random_colors(self):
 # ram 62 == map layout
 
 def _modif_funcs(modifs):
-    step_modifs, reset_modifs, inpaintings = [], [], False
+    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
     for mod in modifs:
         if mod == "enemy_color_random":
             step_modifs.append(random_colors)
@@ -62,5 +62,5 @@ def _modif_funcs(modifs):
             step_modifs.append(enemy_colors)
         else:
             print('Invalid or unknown modification')
-    return step_modifs, reset_modifs, inpaintings
+    return step_modifs, reset_modifs, inpaintings, place_above
 

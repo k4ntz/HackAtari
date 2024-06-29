@@ -28,7 +28,7 @@ def fast_missiles(self):
 
 
 def _modif_funcs(modifs):
-    step_modifs, reset_modifs, inpaintings = [], [], False
+    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
     for mod in modifs:
         if mod == "no_flying_ducks":
             step_modifs.append(no_flying_ducks)
@@ -46,4 +46,4 @@ def _modif_funcs(modifs):
             step_modifs.append(fast_missiles)
         else:
             print('Invalid modification')
-    return step_modifs, reset_modifs, inpaintings
+    return step_modifs, reset_modifs, inpaintings, place_above
