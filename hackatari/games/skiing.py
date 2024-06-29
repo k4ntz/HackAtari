@@ -41,10 +41,10 @@ def wall_updates(self):
     flags = []
     for i in range(8):
         if ram[70+i] == 2: # Flag
-            x, y = (ram[62+i], 178 - ram[86+i])
-            if y > 177 or y < 27 or (y in [27, 28] and height < MINIMAL_HEIGHT[type]):
-                flags.append()
-    print(flags)
+            x, y = (ram[62+i], 182 - ram[86+i])
+            height = 75 - ram[90+i]
+            if not(y > 177 or y < 27 or (y in [27, 28] and height < 16)):
+                flags.append((x, y))
     self.env.env.ale._inpaintings = [(y, x, h, w, wall) for x, y in flags]
 
 
