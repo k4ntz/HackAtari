@@ -1,6 +1,21 @@
 # from random import random
 import numpy as np
 
+dark_grey_line = [100] * 38
+brick_line1 = [180, 180, 180, 180, 180, 100, 180, 180, 180, 180, 180, 180, 100,
+        180, 180, 180, 180, 180, 180, 100, 180, 180, 180, 180, 180, 180,
+        100, 180, 180, 180, 180, 180, 180, 100, 180, 180, 180, 180]
+brick_line2 = [100, 180, 180, 180, 180, 180, 180, 100, 180, 180, 180, 180, 180,
+        180, 100, 180, 180, 180, 180, 180, 180, 100, 180, 180, 180, 180,
+        180, 180, 100, 180, 180, 180, 180, 180, 180, 100, 180, 180]
+brick_line3 = [180, 180, 100, 180, 180, 180, 180, 180, 180, 100, 180, 180, 180,
+        180, 180, 180, 100, 180, 180, 180, 180, 180, 180, 100, 180, 180,
+        180, 180, 180, 180, 100, 180, 180, 180, 180, 180, 180, 100]
+wall = np.array([dark_grey_line, brick_line1, brick_line1, brick_line1,
+                 dark_grey_line, brick_line2, brick_line2, brick_line2,
+                 dark_grey_line, brick_line3, brick_line3, brick_line3,
+                 dark_grey_line, dark_grey_line], dtype=np.uint8)
+
 def modify_ram_invert_flag(self):
     '''
     Invert Flag
@@ -14,10 +29,23 @@ def modify_ram_invert_flag(self):
 
 def wall_inpaintings():
     background_color = np.array((80, 0, 132))
-    w, h = 8, 36
-    patch = (np.ones((h, w, 3)) * background_color).astype(np.uint8)
-    ladder_poses = [(132, 36), (132, 132), (20, 84)]
-    return [(y, x, h, w, patch) for x, y in ladder_poses] # needs swapped positions
+    wall_rgb = np.stack((wall,) * 3, axis=-1)
+    w, h = wall.shape[1], wall.shape[0]
+    ladder_poses = [(0, 0)]
+    return [(y, x, h, w, wall_rgb) for x, y in ladder_poses] # needs swapped positions
+
+def wall_updates(self):
+    ram = self.get_ram()
+    wall = self.env.env.ale._inpaintings[0][-1]
+    w, h = wall.shape[1], wall.shape[0]
+    flags = []
+    for i in range(8):
+        if ram[70+i] == 2: # Flag
+            x, y = (ram[62+i], 178 - ram[86+i])
+            if y > 177 or y < 27 or (y in [27, 28] and height < MINIMAL_HEIGHT[type]):
+                flags.append()
+    print(flags)
+    self.env.env.ale._inpaintings = [(y, x, h, w, wall) for x, y in flags]
 
 
 def _modif_funcs(modifs):
@@ -25,6 +53,9 @@ def _modif_funcs(modifs):
     for mod in modifs:
         if mod == "invert_flags":
             step_modifs.append(modify_ram_invert_flag)
+        elif mod == "walls":
+            inpaintings = wall_inpaintings()
+            step_modifs.append(wall_updates)
         else:
             print('Invalid or unknown modification')
     return step_modifs, reset_modifs, inpaintings
