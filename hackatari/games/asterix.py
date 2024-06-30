@@ -21,23 +21,23 @@ def odd_lines_free(self):
         self.set_ram(73+i, i+1)
         self.set_ram(18-i, 11)
 
-def _modif_funcs(modifs):
-    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
+def _modif_funcs(env, modifs):
+    
     global SPEED
     for mod in modifs:
         if mod == "obelix":
-            step_modifs.append(obelix)
+            env.step_modifs.append(obelix)
             SPEED += 4
         elif mod.startswith("speed"):
             mod_n = int(mod[-1])
             SPEED += 8 * mod_n
-            step_modifs.append(set_speed)
+            env.step_modifs.append(set_speed)
         elif mod == "unlimited_lives":
-            step_modifs.append(unlimited_lives)
+            env.step_modifs.append(unlimited_lives)
         elif mod == "even_lines_free":
-            step_modifs.append(even_lines_free)
+            env.step_modifs.append(even_lines_free)
         elif mod == "odd_lines_free":
-            step_modifs.append(odd_lines_free)
+            env.step_modifs.append(odd_lines_free)
         else:
             print('Invalid modification')
-    return step_modifs, reset_modifs, inpaintings, place_above
+    

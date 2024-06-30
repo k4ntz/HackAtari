@@ -64,15 +64,15 @@ def speed_mode(self):
                 self.set_ram(75+i, SPEED)
 
 
-def _modif_funcs(modifs):
-    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
+def _modif_funcs(env, modifs):
+    
     for mod in modifs:
         if mod == "no_last_line":
-            step_modifs.append(no_last_line)
+            env.step_modifs.append(no_last_line)
         elif mod == "jets_only":
-            step_modifs.append(jets_only)
+            env.step_modifs.append(jets_only)
         elif mod == "randomize_enemies":
-            step_modifs.append(random_enemies)
+            env.step_modifs.append(random_enemies)
         elif mod.startswith("speed_mode"):
             print(mod[-1])
             if mod[-1].isdigit():
@@ -86,8 +86,8 @@ def _modif_funcs(modifs):
             else:
                 raise ValueError("Append value 2-10 to your mod-argument to increase speed accordingly")
             
-            step_modifs.append(speed_mode)
+            env.step_modifs.append(speed_mode)
         else:
             print('Invalid or unknown modification')
-    return step_modifs, reset_modifs, inpaintings, place_above
+    
 

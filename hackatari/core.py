@@ -50,9 +50,11 @@ class HackAtari(OCAtari):
         else:
             _modif_funcs = importlib.import_module(f"hackatari.games.{game.lower()}")._modif_funcs
 
-        self.alter_ram_steps, self.alter_ram_reset, inpaintings, place_above = _modif_funcs(modifs)
-        if inpaintings:
-            self.env.env.ale = ALEInpainting(self.env.env.ale, inpaintings, place_above)
+        self.step_modifs, self.reset_modifs, self.post_detection_modifs = [], [], []
+        self.inpaintings, self.place_above = [], []
+        _modif_funcs(self, modifs)
+        if self.inpaintings:
+            self.env.env.ale = ALEInpainting(self.env.env.ale, self.inpaintings, self.place_above)
         self._oc_step = self.step
         self._oc_reset = self.reset
         if colorswaps:
@@ -99,16 +101,18 @@ class HackAtari(OCAtari):
             frameskip = random.choice((2, 5))
         total_reward = 0.0
         terminated = truncated = False
-        for func in self.alter_ram_steps:
+        for func in self.step_modifs:
             func(self)
         for i in range(frameskip):
             obs, reward, terminated, truncated, info = self._env.step(*args, **kwargs)
             total_reward += float(reward)
-            for func in self.alter_ram_steps:
+            for func in self.step_modifs:
                 func(self)
             if terminated or truncated:
                 break
         self.detect_objects(self._objects, self._getRAMorScreen(), self.game_name, self.hud)
+        for func in self.post_detection_modifs:
+            func(self)
         # Note that the observation on the done=True frame
         # doesn't matter
         return obs, total_reward, terminated, truncated, info
@@ -117,9 +121,11 @@ class HackAtari(OCAtari):
         ret = self._env.reset(*args, **kwargs)
         self.org_reward = 0
         self.org_return = 0
-        for func in self.alter_ram_reset:
+        for func in self.reset_modifs:
             func(self)
         self.detect_objects(self._objects, self._getRAMorScreen(), self.game_name, self.hud)
+        for func in self.post_detection_modifs:
+            func(self)
         self._reset_buffer()
         return ret
 

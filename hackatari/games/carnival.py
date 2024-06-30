@@ -27,13 +27,13 @@ def fast_missiles(self):
         self.set_ram(55, missile_y - MISSILE_SPEED_INCREASE)
 
 
-def _modif_funcs(modifs):
-    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
+def _modif_funcs(env, modifs):
+    
     for mod in modifs:
         if mod == "no_flying_ducks":
-            step_modifs.append(no_flying_ducks)
+            env.step_modifs.append(no_flying_ducks)
         elif mod == "unlimited_ammo":
-            step_modifs.append(unlimited_ammo)
+            env.step_modifs.append(unlimited_ammo)
         elif mod.startswith("fast_missiles"):
             if mod[-1].isdigit():
                 mod_n = int(mod[-1])
@@ -43,7 +43,7 @@ def _modif_funcs(modifs):
                 raise ValueError("Append value 1-3 to your fast_missiles mod-argument")
             global MISSILE_SPEED_INCREASE
             MISSILE_SPEED_INCREASE = mod_n
-            step_modifs.append(fast_missiles)
+            env.step_modifs.append(fast_missiles)
         else:
             print('Invalid modification')
-    return step_modifs, reset_modifs, inpaintings, place_above
+    

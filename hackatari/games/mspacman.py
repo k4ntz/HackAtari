@@ -294,9 +294,9 @@ def maze_man_reset(self):
     self.set_ram(123, LIVES)
 
 
-def _modif_funcs(modifs):
+def _modif_funcs(env, modifs):
     global TOGGLE_CYAN, TOGGLE_PINK, TOGGLE_ORANGE, TOGGLE_RED
-    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
+    
     if "edible_ghosts" in modifs and "inverted" in modifs:
         raise ValueError("The modification \"ghosts_edible\" is unnecessary when playing in inverted mode")
     for mod in modifs:
@@ -305,44 +305,44 @@ def _modif_funcs(modifs):
             TOGGLE_ORANGE = True 
             TOGGLE_RED = True
             TOGGLE_PINK = True
-            step_modifs.append(static_ghosts)
+            env.step_modifs.append(static_ghosts)
         elif mod == "disable_orange":
             TOGGLE_ORANGE = True
-            step_modifs.append(static_ghosts)
+            env.step_modifs.append(static_ghosts)
         elif mod == "disable_red":
             TOGGLE_RED = True
-            step_modifs.append(static_ghosts)
+            env.step_modifs.append(static_ghosts)
         elif mod == "disable_cyan":
             TOGGLE_CYAN = True
-            step_modifs.append(static_ghosts)
+            env.step_modifs.append(static_ghosts)
         elif mod == "disable_pink":
             TOGGLE_PINK = True
-            step_modifs.append(static_ghosts)
+            env.step_modifs.append(static_ghosts)
         elif mod.startswith("power"):
             mod_n = int(mod[-1])
             if mod_n < 0 or mod_n > 4:
                 raise ValueError("Invalid Number of Power Pills, choose number 0-4")
             global NUMBER_POWER_PILLS
             NUMBER_POWER_PILLS = mod_n
-            reset_modifs.append(number_power_pills)
+            env.reset_modifs.append(number_power_pills)
         elif mod == "edible_ghosts":
-            step_modifs.append(edible_ghosts)
+            env.step_modifs.append(edible_ghosts)
         elif mod == "inverted":
-            step_modifs.append(inverted_ms_pacman)
-            reset_modifs.append(inverted_ms_pacman_reset)
+            env.step_modifs.append(inverted_ms_pacman)
+            env.reset_modifs.append(inverted_ms_pacman_reset)
         elif "change_level" in mod:
             if mod[-1].isdigit():
                 global LVL_NUM
                 LVL_NUM =  int(mod[-1])
                 assert LVL_NUM < 4, "Invalid Level Number (0, 1, 2 or 3)"
-            reset_modifs.append(change_level)
+            env.reset_modifs.append(change_level)
         elif mod == "maze_man":
-            reset_modifs.append(change_level)
+            env.reset_modifs.append(change_level)
             TOGGLE_CYAN = True
             TOGGLE_ORANGE = True 
             TOGGLE_RED = True
             TOGGLE_PINK = True
-            step_modifs.append(static_ghosts)
-            step_modifs.append(maze_man)
-            reset_modifs.append(maze_man_reset)
-    return step_modifs, reset_modifs, inpaintings, place_above
+            env.step_modifs.append(static_ghosts)
+            env.step_modifs.append(maze_man)
+            env.reset_modifs.append(maze_man_reset)
+    

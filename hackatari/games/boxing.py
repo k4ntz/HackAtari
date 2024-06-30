@@ -130,19 +130,19 @@ def reset_onc(self):
     ONCE = 2
 
 
-def _modif_funcs(modifs):
-    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
+def _modif_funcs(env, modifs):
+    
     for mod in modifs:
         if mod.startswith("gravity"):
             if mod[-1].isdigit():
                 global GRAVITY
                 GRAVITY = 7-int(mod[-1])
                 assert 1 < GRAVITY < 7, "Invalid Gravity lelvel, choose number 1-5"
-            step_modifs.append(gravity)
+            env.step_modifs.append(gravity)
         elif mod == "one_armed":
-            step_modifs.append(one_armed)
+            env.step_modifs.append(one_armed)
         elif mod == "drunken_boxing":
-            step_modifs.append(drunken_boxing)
+            env.step_modifs.append(drunken_boxing)
         elif mod.startswith("color_p"):
             if mod[-1].isdigit():
                 mod_n = int(mod[-1])
@@ -154,7 +154,7 @@ def _modif_funcs(modifs):
                 raise ValueError("Append value 0-3 [black, red, blue, green] to your color mod-argument")
             global PLAYER_COLOR
             PLAYER_COLOR = mod_n
-            step_modifs.append(color_player)
+            env.step_modifs.append(color_player)
         elif mod.startswith("color_e"):
             if mod[-1].isdigit():
                 mod_n = int(mod[-1]) + 1
@@ -164,10 +164,10 @@ def _modif_funcs(modifs):
                 raise ValueError("Append value 0-3 [white, red, blue, green] to your color mod-argument")
             global ENEMY_COLOR
             ENEMY_COLOR = mod_n
-            step_modifs.append(color_enemy)
+            env.step_modifs.append(color_enemy)
         elif mod.startswith("switch_p"):
-            step_modifs.append(switch_positions)
-            reset_modifs.append(reset_onc)
+            env.step_modifs.append(switch_positions)
+            env.reset_modifs.append(reset_onc)
         else:
             raise ValueError("Invalid modification")
-    return step_modifs, reset_modifs, inpaintings, place_above
+    

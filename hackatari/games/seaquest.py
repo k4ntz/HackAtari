@@ -58,15 +58,15 @@ def random_color_enemies(self):
         self.set_ram(44 + i, CURRENT_COLORS[i])
 
 
-def _modif_funcs(modifs):
-    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
+def _modif_funcs(env, modifs):
+    
     for mod in modifs:
         if mod == "unlimited_oxygen":
-            step_modifs.append(unlimited_oxygen)
+            env.step_modifs.append(unlimited_oxygen)
         elif mod == "gravity":
-            step_modifs.append(gravity)
+            env.step_modifs.append(gravity)
         elif mod == "disable_enemies":
-            step_modifs.append(disable_enemies)
+            env.step_modifs.append(disable_enemies)
         if mod == "random_color_enemies":
-            step_modifs.append(random_color_enemies)
-    return step_modifs, reset_modifs, inpaintings, place_above
+            env.step_modifs.append(random_color_enemies)
+    

@@ -44,12 +44,12 @@ def reset_random_colors(self):
 
 # ram 62 == map layout
 
-def _modif_funcs(modifs):
-    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
+def _modif_funcs(env, modifs):
+    
     for mod in modifs:
         if mod == "enemy_color_random":
-            step_modifs.append(random_colors)
-            reset_modifs.append(reset_random_colors)
+            env.step_modifs.append(random_colors)
+            env.reset_modifs.append(reset_random_colors)
         elif mod.startswith("enemy_color"):
             if mod[-1].isdigit():
                 mod_n = int(mod[-1])
@@ -59,8 +59,8 @@ def _modif_funcs(modifs):
                 raise ValueError("Append value 0-4 [black, white, red, blue, green] to your color mod-argument")
             global ENEMY_COLOR
             ENEMY_COLOR = mod_n
-            step_modifs.append(enemy_colors)
+            env.step_modifs.append(enemy_colors)
         else:
             print('Invalid or unknown modification')
-    return step_modifs, reset_modifs, inpaintings, place_above
+    
 

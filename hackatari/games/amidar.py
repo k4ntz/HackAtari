@@ -29,16 +29,16 @@ def set_player(self):
     
 
 
-def _modif_funcs(modifs): 
-    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
+def _modif_funcs(env, modifs): 
+    
     for mod in modifs:
         if mod == "change_enemy":
-            step_modifs.append(set_enemies)
+            env.step_modifs.append(set_enemies)
         elif mod == "change_player":
-            step_modifs.append(set_player)
+            env.step_modifs.append(set_player)
         elif mod == "no_enemies":
-            step_modifs.append(no_enemies)
+            env.step_modifs.append(no_enemies)
         else:
             print('Invalid or unknown modification')
-    return step_modifs, reset_modifs, inpaintings, place_above
+    
 

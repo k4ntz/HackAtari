@@ -109,24 +109,24 @@ def unify_item_color(self):
     self.set_ram(50, COLORS[COLOR_INDEX])
 
 
-def _modif_funcs(modifs):
-    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
+def _modif_funcs(env, modifs):
+    
     for mod in modifs:
         if mod == "random_position_start":
-            step_modifs.append(random_position_start)
-            reset_modifs.append(random_position_start_res)
+            env.step_modifs.append(random_position_start)
+            env.reset_modifs.append(random_position_start_res)
         elif mod.startswith("level"):
             global LEVEL
             try:
                 LEVEL = int(mod[-1])
             except:
                 raise("Append a number 0-9 to the end of the mod-argument to choose the level")
-            reset_modifs.append(set_level)
+            env.reset_modifs.append(set_level)
         elif mod == "randomize_items":
-            step_modifs.append(change_items)
-            reset_modifs.append(randomize_items)
+            env.step_modifs.append(change_items)
+            env.reset_modifs.append(randomize_items)
         elif mod == "full_inventory":
-            step_modifs.append(full_inventory)
+            env.step_modifs.append(full_inventory)
         elif mod.startswith("item_color"):
             if mod[-1].isdigit():
                 mod_n = int(mod[-1])
@@ -136,7 +136,7 @@ def _modif_funcs(modifs):
                 raise ValueError("Append value 0-4 [Black (Invisible), Orang (Ruby), White (Sword), Yellow (Key), Green (Snake)] to your color mod-argument")
             global COLOR_INDEX
             COLOR_INDEX = mod_n
-            step_modifs.append(unify_item_color)
+            env.step_modifs.append(unify_item_color)
         else:
             print('Invalid modification')
-    return step_modifs, reset_modifs, inpaintings, place_above
+    

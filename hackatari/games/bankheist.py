@@ -83,18 +83,18 @@ def revisit_city(self):
     PLAYER_X = ram[28]
 
 
-def _modif_funcs(modifs):
-    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
+def _modif_funcs(env, modifs):
+    
     for mod in modifs:
         if mod == "unlimited_gas":
-            step_modifs.append(unlimited_gas)
+            env.step_modifs.append(unlimited_gas)
         elif mod == "no_police":
-            step_modifs.append(no_police)
+            env.step_modifs.append(no_police)
         elif mod == "only_police":
-            step_modifs.append(only_police)
+            env.step_modifs.append(only_police)
         elif mod == "random_city":
-            step_modifs.append(random_city)
-            reset_modifs.append(random_city_res)
+            env.step_modifs.append(random_city)
+            env.reset_modifs.append(random_city_res)
         elif mod == "revisit_city":
-            step_modifs.append(revisit_city)
-    return step_modifs, reset_modifs, inpaintings, place_above
+            env.step_modifs.append(revisit_city)
+    

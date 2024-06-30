@@ -92,21 +92,21 @@ def handle_car_stop_mode_3(self):
         set_ram_value(self, new_pos_down, 150)
 
 
-def _modif_funcs(modifs):
-    step_modifs, reset_modifs, inpaintings, place_above = [], [], False, []
+def _modif_funcs(env, modifs):
+    
     for mod in modifs:
         mod_n = int(mod[-1])
         if mod.startswith('s'):
             if mod_n == 1:
-                step_modifs.append(handle_car_stop_mode_1)
+                env.step_modifs.append(handle_car_stop_mode_1)
             elif mod_n == 2:
-                step_modifs.append(handle_car_stop_mode_2)
+                env.step_modifs.append(handle_car_stop_mode_2)
             elif mod_n == 3:
-                step_modifs.append(handle_car_stop_mode_3)
+                env.step_modifs.append(handle_car_stop_mode_3)
             else:
                 raise ValueError("Invalid modification number")
         elif mod.startswith('c'):
             global CARS_COLOR
             CARS_COLOR = color_map.get(mod_n, 256)
-            step_modifs.append(modify_ram_for_color)
-    return step_modifs, reset_modifs, inpaintings, place_above
+            env.step_modifs.append(modify_ram_for_color)
+    
