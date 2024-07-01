@@ -115,10 +115,11 @@ class HackAtari(OCAtari):
             func(self)
         # Note that the observation on the done=True frame
         # doesn't matter
+        obs = self._post_step(obs)
         return obs, total_reward, terminated, truncated, info
 
     def _alter_reset(self, *args, **kwargs):
-        ret = self._env.reset(*args, **kwargs)
+        obs, info = self._env.reset(*args, **kwargs)
         self.org_reward = 0
         self.org_return = 0
         for func in self.reset_modifs:
@@ -127,7 +128,8 @@ class HackAtari(OCAtari):
         for func in self.post_detection_modifs:
             func(self)
         self._reset_buffer()
-        return ret
+        obs = self._post_step(obs)
+        return obs, info
 
     # def _colorswap_step(self, *args, **kwargs):
     #     """
