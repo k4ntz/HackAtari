@@ -17,6 +17,10 @@ def no_barrel(self):
     # if self.get_ram()[16] == 0:
     self.set_ram(25, 255)
 
+def unlimited_time(self):
+    # if self.get_ram()[16] == 0:
+    self.set_ram(36, 70)
+
 def random_start_step(self):
     global NBLIVES
     ram = self.get_ram()
@@ -29,6 +33,8 @@ def _modif_funcs(env, modifs):
     for mod in modifs:
         if mod == "no_barrel":
             env.step_modifs.append(no_barrel)
+        if mod == "unlimited_time":
+            env.step_modifs.append(unlimited_time)
         elif mod == "random_start":
             env.reset_modifs.append(_randomize_pos)
             env.step_modifs.append(random_start_step)
