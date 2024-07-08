@@ -14,11 +14,11 @@ def no_fuel(self):
             self.set_ram(32+i, 0)
 
 
-def _modif_funcs(modifs):
-    step_modifs, reset_modifs = [], []
+def _modif_funcs(env, modifs):
+    
     for mod in modifs:
         if mod == "no_fuel":
-            step_modifs.append(no_fuel)
+            env.step_modifs.append(no_fuel)
         else:
             print('Invalid modification')
-    return step_modifs, reset_modifs
+    

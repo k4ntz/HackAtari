@@ -63,8 +63,8 @@ def random_color(self):
     self.set_ram(46, ICE_COLOR)
 
 
-def _modif_funcs(modifs):
-    step_modifs, reset_modifs = [], []
+def _modif_funcs(env, modifs):
+    
     for mod in modifs:
         if mod.startswith('color'):
             if mod[-1].isdigit():
@@ -75,14 +75,14 @@ def _modif_funcs(modifs):
                 raise ValueError("Append value 0-3 [black, red, blue, green] to your color mod-argument")
             global ICE_COLOR
             ICE_COLOR = mod_n
-            step_modifs.append(modify_ram_for_color)
+            env.step_modifs.append(modify_ram_for_color)
         elif mod.startswith('line'):
             mod_n = int(mod[-1])
             if mod_n < 1 or mod_n > 4:
                 raise ValueError("Invalid color for ice, choose number 1-5")
             global LINE
             LINE[mod_n-1] = True
-            step_modifs.append(modify_ram_for_color)
+            env.step_modifs.append(modify_ram_for_color)
         elif mod.startswith('ui_color'):
             if mod[-1].isdigit():
                 mod_n = int(mod[-1])
@@ -92,14 +92,14 @@ def _modif_funcs(modifs):
                 raise ValueError("Append value 0-3 [black, red, blue, green] to your ui_color mod-argument")
             global UI_COLOR
             UI_COLOR = mod_n
-            step_modifs.append(modify_ram_for_uicolor)
+            env.step_modifs.append(modify_ram_for_uicolor)
         elif mod.startswith('e'):
             mod_n = int(mod[-1])
             if mod_n < 0 or mod_n > 3:
                 raise ValueError("Invalid number of enenmies, choose number 0-3")
             global ENEMIES_NUMBER
             ENEMIES_NUMBER = mod_n
-            step_modifs.append(modify_ram_for_enemy_amount)
+            env.step_modifs.append(modify_ram_for_enemy_amount)
         elif mod.startswith('f'):
             for i in range(3):
                 if mod[-3+i:].isdigit():
@@ -109,12 +109,12 @@ def _modif_funcs(modifs):
                 raise ValueError("Invalid position for floes, max. value is 160")
             global NEW_X_POS
             NEW_X_POS = mod_n
-            reset_modifs.append(modify_ram_for_floes_position)
-    return step_modifs, reset_modifs
+            env.step_modifs.append(modify_ram_for_floes_position)
+    
 
 
-# def _modif_funcs(modifs):
-#     step_modifs, reset_modifs = [], []
+# def _modif_funcs(env, modifs):
+#     
 #     for mod in modifs:
 #         if mod.startswith('color'):
 #             mod_n = int(mod[-3:])
@@ -122,33 +122,33 @@ def _modif_funcs(modifs):
 #                 raise ValueError("Invalid color for ice")
 #             global ICE_COLOR
 #             ICE_COLOR = mod_n
-#             #step_modifs.append(modify_ram_for_color)
+#             #env.step_modifs.append(modify_ram_for_color)
 #         elif mod.startswith('line'):
 #             mod_n = int(mod[-1])
 #             if mod_n < 1 or mod_n > 5:
 #                 raise ValueError("Invalid color for ice")
 #             global LINE
 #             LINE[mod_n] = True
-#             step_modifs.append(modify_ram_for_color)
+#             env.step_modifs.append(modify_ram_for_color)
 #         elif mod.startswith('color_ui'):
 #             mod_n = int(mod[-3:])
 #             if mod_n < 0 or mod_n > 255:
 #                 raise ValueError("Invalid color for UI")
 #             global UI_COLOR
 #             UI_COLOR = mod_n
-#             step_modifs.append(modify_ram_for_uicolor)
+#             env.step_modifs.append(modify_ram_for_uicolor)
 #         elif mod.startswith('e'):
 #             mod_n = int(mod[-1])
 #             if mod_n < 0 or mod_n > 3:
 #                 raise ValueError("Invalid number of enenmies")
 #             global ENEMIES_NUMBER
 #             ENEMIES_NUMBER = mod_n
-#             step_modifs.append(modify_ram_for_enemy_amount)
+#             env.step_modifs.append(modify_ram_for_enemy_amount)
 #         elif mod.startswith('f'):
 #             mod_n = int(mod[-3:])
 #             if mod_n < 0 or mod_n > 255:
 #                 raise ValueError("Invalid position for floes")
 #             global NEW_X_POS
 #             NEW_X_POS = mod_n
-#             reset_modifs.append(modify_ram_for_floes_position)
-#     return step_modifs, reset_modifs
+#             env.reset_modifs.append(modify_ram_for_floes_position)
+#     

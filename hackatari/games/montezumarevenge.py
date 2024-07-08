@@ -7,6 +7,9 @@ BASE_DELAY = 108
 DELAY = BASE_DELAY
 DEAD = False
 
+COLORS = [0, 1, 2, 4, 6]
+COLOR_INDEX = 4
+
 LEVEL = 0
 
 # First list entey are is the item type (ram[49] for type, ram[50] for color), second list entry is the amount and space between items of the same type (ram[84])
@@ -98,28 +101,42 @@ def full_inventory(self):
     """
     self.set_ram(65, 249)
 
+def unify_item_color(self):
+    """
+    All items are turned into the same color. [Black (Invisible), Orang (Ruby), White (Sword), Yellow (Key), Green (Snake)]
+    """
+    global COLORS, COLOR_INDEX
+    self.set_ram(50, COLORS[COLOR_INDEX])
 
-def start_key(self):
-    self.set_ram(65, 4)
 
-def _modif_funcs(modifs):
-    step_modifs, reset_modifs = [], []
+def _modif_funcs(env, modifs):
+    
     for mod in modifs:
         if mod == "random_position_start":
-            step_modifs.append(random_position_start)
-            reset_modifs.append(random_position_start_res)
+            env.step_modifs.append(random_position_start)
+            env.reset_modifs.append(random_position_start_res)
         elif mod.startswith("level"):
             global LEVEL
             try:
                 LEVEL = int(mod[-1])
             except:
                 raise("Append a number 0-9 to the end of the mod-argument to choose the level")
-            reset_modifs.append(set_level)
+            env.reset_modifs.append(set_level)
         elif mod == "randomize_items":
-            step_modifs.append(change_items)
-            reset_modifs.append(randomize_items)
+            env.step_modifs.append(change_items)
+            env.reset_modifs.append(randomize_items)
         elif mod == "full_inventory":
-            step_modifs.append(full_inventory)
+            env.step_modifs.append(full_inventory)
+        elif mod.startswith("item_color"):
+            if mod[-1].isdigit():
+                mod_n = int(mod[-1])
+                if mod_n < 0 or mod_n > 4:
+                    raise ValueError("Invalid color value, choose value 0-4 [Black (Invisible), Orang (Ruby), White (Sword), Yellow (Key), Green (Snake)]")
+            else:
+                raise ValueError("Append value 0-4 [Black (Invisible), Orang (Ruby), White (Sword), Yellow (Key), Green (Snake)] to your color mod-argument")
+            global COLOR_INDEX
+            COLOR_INDEX = mod_n
+            env.step_modifs.append(unify_item_color)
         else:
             print('Invalid modification')
-    return step_modifs, reset_modifs
+    

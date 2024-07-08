@@ -63,17 +63,17 @@ def lower_player(self):
     """      
     self.set_ram(80, 1)
 
-def _modif_funcs(modifs):
-    step_modifs, reset_modifs = [], []
+def _modif_funcs(env, modifs):
+    
     for mod in modifs:
         if mod == "wind":
-            step_modifs.append(modify_ram_adding_wind)
+            env.step_modifs.append(modify_ram_adding_wind)
         if mod == "upper_pitches":
-            step_modifs.append(upper_pitches)
+            env.step_modifs.append(upper_pitches)
         if mod == "lower_pitches":
-            step_modifs.append(lower_pitches)
+            env.step_modifs.append(lower_pitches)
         if mod == "upper_player":
-            step_modifs.append(upper_player)
+            env.step_modifs.append(upper_player)
         if mod == "lower_player":
-            step_modifs.append(lower_player)
-    return step_modifs, reset_modifs
+            env.step_modifs.append(lower_player)
+    

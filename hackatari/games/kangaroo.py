@@ -1,5 +1,6 @@
 import random
-
+import numpy as np
+from ocatari.ram.kangaroo import Ladder
 
 
 # Constants for clarity and maintainability
@@ -16,6 +17,7 @@ FLOOR_2_START_POS = (65, 6)
 ANY_FLOOR_INSTANT_WIN = (110, 0)
 
 LVL_NUM = None
+
 
 def disable_monkeys(self):
     """
@@ -44,7 +46,6 @@ def set_ram_kang_pos(self, pos_x, pos_y):
     """
     self.set_ram(KANGAROO_POS_X_INDEX, pos_x)
     self.set_ram(KANGAROO_POS_Y_INDEX, pos_y)
-    print("ram set")
 
 
 def is_at_start(pos):
@@ -67,12 +68,16 @@ def check_new_level_life(self, current_lives, current_level):
         self.last_lives = current_lives
         self.last_level = current_level
 
+def unlimited_time(self):
+    """
+    Set the time to unlimited.
+    """
+    self.set_ram(59, 32)
 
 def set_kangaroo_position(self):
     """
     Sets the kangaroo's starting position depending on the FLOOR argument.
     """
-    import ipdb;ipdb.set_trace()
     ram = self.get_ram()
     current_level = ram[36]
     kangaroo_pos = (ram[KANGAROO_POS_X_INDEX], ram[KANGAROO_POS_Y_INDEX])
@@ -96,8 +101,8 @@ def random_init(self):
     current_level = ram[36]
     current_lives = ram[45]
     kangaroo_pos = (ram[KANGAROO_POS_X_INDEX], ram[KANGAROO_POS_Y_INDEX])
-    random_number = random.randint(0, 2)
     if is_at_start(kangaroo_pos):
+        random_number = random.randint(0, 2)
         if random_number == 1:
             # For floor 1, position depends on whether the current level is 2
             new_pos = FLOOR_1_LEVEL2_POS if current_level == LEVEL_2 else FLOOR_1_START_POS
@@ -120,28 +125,56 @@ def change_level(self):
     self.set_ram(36, LVL_NUM)
 
 
-def _modif_funcs(modifs):
-    step_modifs, reset_modifs = [], []
+def no_ladder_inpaintings():
+    background_color = np.array((80, 0, 132))
+    w, h = 8, 36
+    patch = (np.ones((h, w, 3)) * background_color).astype(np.uint8)
+    ladder_poses = [(132, 36), (132, 132), (20, 84)]
+    return [(y, x, h, w, patch) for x, y in ladder_poses] # needs swapped positions
+
+def no_ladder_step(self):
+    y_pos = self.get_ram()[16]
+    climbing = self.get_ram()[18]
+    if climbing == 47:
+        self.set_ram(18, 73)
+        self.set_ram(16, y_pos+1)
+    elif climbing == 39:
+        self.set_ram(18, 65)
+        self.set_ram(16, y_pos+1)
+
+def remove_ladder(self):
+    for obj in self.objects:
+        if isinstance(obj, Ladder):
+            self._objects.remove(obj)
+
+
+def _modif_funcs(env, modifs):
     if "random_init" in modifs and "easy_mode" in modifs:
         raise ValueError("Both random_init and easy_mode cannot be enabled at the same time")
     for mod in modifs:
         if mod == "disable_monkeys":
-            step_modifs.append(disable_monkeys)
+            env.step_modifs.append(disable_monkeys)
         elif mod == "disable_coconut":
-            step_modifs.append(disable_coconut)
+            env.step_modifs.append(disable_coconut)
+        elif mod == "unlimited_time":
+            env.step_modifs.append(unlimited_time)
         elif mod == "random_init":
-            reset_modifs.append(random_init)
+            env.reset_modifs.append(random_init)
         elif "set_floor" in mod:
             if mod[-1].isdigit():
                 global FLOOR
                 FLOOR = int(mod[-1])
-            reset_modifs.append(set_kangaroo_position)
+            env.reset_modifs.append(set_kangaroo_position)
         # elif mod == "easy_mode":
-        #     reset_modifs.append(easy_mode)
+        #     env.reset_modifs.append(easy_mode)
         elif "change_level" in mod:
             if mod[-1].isdigit():
                 global LVL_NUM
                 LVL_NUM =  int(mod[-1])
                 assert LVL_NUM < 3, "Invalid Level Number (0, 1 or 2)"
-            reset_modifs.append(change_level)
-    return step_modifs, reset_modifs
+            env.step_modifs.append(change_level)
+        elif mod == "no_ladder":
+            env.inpaintings = no_ladder_inpaintings()
+            env.step_modifs.append(no_ladder_step)
+            env.place_above.extend(((223, 183, 85), (227, 151, 89))) # Player, Monkey
+            env.post_detection_modifs.append(remove_ladder)    

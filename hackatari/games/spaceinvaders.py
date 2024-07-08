@@ -88,28 +88,28 @@ def controlable_missile(self):
     self.set_ram(87, self.get_ram()[28])
 
 
-def _modif_funcs(modifs):
-    step_modifs, reset_modifs = [], []
+def _modif_funcs(env, modifs):
+    
     for mod in modifs:
         if mod == "disable_shield_left":
-            step_modifs.append(disable_shield_left)
+            env.step_modifs.append(disable_shield_left)
         elif mod == "disable_shield_middle":
-            step_modifs.append(disable_shield_middle)
+            env.step_modifs.append(disable_shield_middle)
         elif mod == "disable_shield_right":
-            step_modifs.append(disable_shield_right)
+            env.step_modifs.append(disable_shield_right)
         elif mod == "disable_shields":
-            step_modifs.append(disable_shield_left)
-            step_modifs.append(disable_shield_middle)
-            step_modifs.append(disable_shield_right)
+            env.step_modifs.append(disable_shield_left)
+            env.step_modifs.append(disable_shield_middle)
+            env.step_modifs.append(disable_shield_right)
         elif mod == "curved":
-            step_modifs.append(curved_shots) 
+            env.step_modifs.append(curved_shots) 
         elif mod == "controlable_missile":
-            step_modifs.append(controlable_missile) 
+            env.step_modifs.append(controlable_missile) 
         elif mod.startswith('relocate'):
             mod_n = int(mod[-2:])
             if mod_n < 35 or mod_n > 53:
                 raise ValueError("Invalid position for shields, choose value 35-53")
             global NEW_POSITION
             NEW_POSITION = mod_n
-            reset_modifs.append(relocate_shields)        
-    return step_modifs, reset_modifs
+            env.reset_modifs.append(relocate_shields)        
+    

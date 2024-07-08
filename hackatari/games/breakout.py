@@ -86,8 +86,8 @@ def color_rows(self):
         if ROW_COLORS[i] is not None:
             self.set_ram(64+i, ROW_COLORS[i])
 
-def _modif_funcs(modifs):
-    step_modifs, reset_modifs = [], []
+def _modif_funcs(env, modifs):
+    
     for mod in modifs:
         if mod.startswith('s'):
             global STRENGTH
@@ -95,15 +95,15 @@ def _modif_funcs(modifs):
             STRENGTH = mod_n
         elif mod.startswith('d'):
             if mod[-1] == "r":
-                step_modifs.append(right_drift)
+                env.step_modifs.append(right_drift)
             elif mod[-1] == "l":
-                step_modifs.append(left_drift)
+                env.step_modifs.append(left_drift)
             else:
                 raise ValueError("Invalid drift, choose 'l' or 'r'")
         elif mod == "gravity":
-            step_modifs.append(gravity)
+            env.step_modifs.append(gravity)
         elif mod == "inverse_gravity":
-            step_modifs.append(inverse_gravity)
+            env.step_modifs.append(inverse_gravity)
         elif mod.startswith("color_p"):
             if mod[-1].isdigit():
                 mod_n = int(mod[-1])
@@ -113,7 +113,7 @@ def _modif_funcs(modifs):
                 raise ValueError("Append value 0-4 [black, white, red, blue, green] to your color mod-argument")
             global PLAYER_COLOR
             PLAYER_COLOR = mod_n
-            step_modifs.append(color_player)
+            env.step_modifs.append(color_player)
         elif mod.startswith("color_b"):
             if mod[-1].isdigit():
                 mod_n = int(mod[-1])
@@ -123,7 +123,7 @@ def _modif_funcs(modifs):
                 raise ValueError("Append value 0-4 [black, white, red, blue, green] to your color mod-argument")
             global BLOCK_COLOR
             BLOCK_COLOR = mod_n
-            step_modifs.append(color_block)
+            env.step_modifs.append(color_block)
         elif mod.startswith("color_r"):
             has_value = False
             for i in range(7,len(mod)-1):
@@ -141,5 +141,5 @@ def _modif_funcs(modifs):
                 raise ValueError("Invalid color and row value\
                                   \nExample: Use 'color_r01-54' to make the bottom row of blocks white and the top row of blocks green.\
                                   \n'color_r01-54' == 'color_r0154' and color values 0-4 [black, white, red, blue, green]")
-            step_modifs.append(color_rows)
-    return step_modifs, reset_modifs
+            env.step_modifs.append(color_rows)
+    

@@ -14,7 +14,12 @@ def _randomize_pos(self):
         self.lasty = startp[1]
 
 def no_barrel(self):
+    # if self.get_ram()[16] == 0:
     self.set_ram(25, 255)
+
+def unlimited_time(self):
+    # if self.get_ram()[16] == 0:
+    self.set_ram(36, 70)
 
 def random_start_step(self):
     global NBLIVES
@@ -23,14 +28,16 @@ def random_start_step(self):
         _randomize_pos(self)
         NBLIVES = ram[35]
 
-def _modif_funcs(modifs):
-    step_modifs, reset_modifs = [], []
+def _modif_funcs(env, modifs):
+    
     for mod in modifs:
         if mod == "no_barrel":
-            step_modifs.append(no_barrel)
+            env.step_modifs.append(no_barrel)
+        if mod == "unlimited_time":
+            env.step_modifs.append(unlimited_time)
         elif mod == "random_start":
-            reset_modifs.append(_randomize_pos)
-            step_modifs.append(random_start_step)
+            env.reset_modifs.append(_randomize_pos)
+            env.step_modifs.append(random_start_step)
         else:
             print('Invalid modification')
-    return step_modifs, reset_modifs
+    

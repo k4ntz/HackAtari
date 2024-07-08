@@ -2,8 +2,12 @@ from hackatari import HackAtari, HumanPlayable
 import random
 import numpy as np
 import cv2
+import sys
+
 import matplotlib.pyplot as plt
-from hackatari.util import load_color_swaps
+from hackatari.utils import load_color_swaps
+from ocatari.utils import load_agent
+
 
 def save_upsampled(rgb_arrays, k=4, l=4):
     augs = []
@@ -18,13 +22,8 @@ def save_upsampled(rgb_arrays, k=4, l=4):
 
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description='Seaquest Game Argument Setter')
+    parser = argparse.ArgumentParser(description='HackAtari run.py Argument Setter')
 
-    # Argument to set the oxygen mode
-    # Options:
-    # - 0: easy mode: no oxygen usage
-    # - 1: Default - standard game mode: with standard oxygen usage
-    # - 2: hard mode: oxygen decreases twice as fast
     parser.add_argument('-g', '--game', type=str, default="Seaquest",
                         help='Game to be run')
 
@@ -40,7 +39,9 @@ if __name__ == "__main__":
     parser.add_argument('-cs', '--color_swaps', default='',
                         help='Colorswaps to be applied to the images.')
     parser.add_argument('-rf','--reward_function', type=str, default='', 
-                        help="Replace the default reward fuction with new one in path rf") 
+                        help="Replace the default reward fuction with new one in path rf")
+    parser.add_argument('-a','--agent', type=str, default='', 
+                        help="Path to the cleanrl trained agent to be loaded.")
 
     args = parser.parse_args()
     obss = []
@@ -50,15 +51,22 @@ if __name__ == "__main__":
     if args.human:
         env = HumanPlayable(args.game, args.modifs, args.reward_function, color_swaps)
         env.run()
-    else:
-        env = HackAtari(args.game, args.modifs, args.reward_function, color_swaps, render_mode="human")
-        env.reset()
+    else:        
+        env = HackAtari(args.game, args.modifs, args.reward_function, color_swaps, render_mode="human", obs_mode="dqn")
+        if args.agent:
+            agent = load_agent(args.agent, env.action_space.n)
+            print(f"Loaded agents from {args.agent}")
+        obs, _ = env.reset()
         done = False
-        env.render()
         nstep = 1
         while not done:
-            action = env.action_space.sample()
-            obs, _, terminated, truncated, _ = env.step(action)
+            if args.agent:
+                action = agent.draw_action(env.dqn_obs)
+            else:    
+                action = env.action_space.sample()
+            obs, reward, terminated, truncated, _ = env.step(action)
+            if reward and args.reward_function:
+                print(reward)
             if terminated or truncated:
                 env.reset()
             if nstep == args.picture:
@@ -67,7 +75,8 @@ if __name__ == "__main__":
                 exit()
             elif args.picture - nstep < 4:
                 obss.append(obs)
-            if nstep % 100 == 0:
-                print(".", end="", flush=True)
+            # if nstep % 100 == 0:
+            #     print(".", end="", flush=True)
             nstep += 1
+            env.render()
         env.close()

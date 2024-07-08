@@ -45,17 +45,17 @@ def color(self):
     self.set_ram(117, colors[COLOR])
 
 
-def _modif_funcs(modifs):
-    step_modifs, reset_modifs = [], []
+def _modif_funcs(env, modifs):
+    
     for mod in modifs:
         if mod == "delay_shots":
-            step_modifs.append(delay_shots)
+            env.step_modifs.append(delay_shots)
         elif mod == "no_enemies":
-            step_modifs.append(no_enemies)
+            env.step_modifs.append(no_enemies)
         elif mod == "no_radar":
-            step_modifs.append(no_radar)
+            env.step_modifs.append(no_radar)
         elif mod == "invis_player":
-            step_modifs.append(invisible_player)
+            env.step_modifs.append(invisible_player)
         elif mod.startswith("color"):
             if mod[-1].isdigit():
                 mod_n = int(mod[-1])
@@ -65,5 +65,5 @@ def _modif_funcs(modifs):
                 raise ValueError("Append value 0-4 [black, white, red, blue, green] to your color mod-argument")
             global COLOR
             COLOR = mod_n
-            step_modifs.append(color)
-    return step_modifs, reset_modifs
+            env.step_modifs.append(color)
+    

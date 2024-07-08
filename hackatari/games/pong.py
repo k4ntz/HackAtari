@@ -74,11 +74,11 @@ def left_drift(self):
         self.set_ram(49, new_ball_pos)
     TIMER +=1
 
-def _modif_funcs(modifs):
-    step_modifs, reset_modifs = [], []
+def _modif_funcs(env, modifs):
+    
     for mod in modifs:
         if mod == "lazy_enemy":
-            step_modifs.append(lazy_enemy)
+            env.step_modifs.append(lazy_enemy)
         else:
             if mod[-1].isdigit():
                 global STRENGTH
@@ -90,17 +90,17 @@ def _modif_funcs(modifs):
                 else:
                     STRENGTH = mod_n*2
             if mod.startswith("up_drift"):
-                step_modifs.append(up_drift)
+                env.step_modifs.append(up_drift)
             elif mod.startswith("down_drift"):
-                step_modifs.append(down_drift)
+                env.step_modifs.append(down_drift)
             elif mod.startswith("left_drift"):
-                step_modifs.append(left_drift)
+                env.step_modifs.append(left_drift)
             elif mod.startswith("right_drift"):
-                step_modifs.append(right_drift)
+                env.step_modifs.append(right_drift)
         # elif mod == "gravity":
-        #     step_modifs.append(gravity)
+        #     env.step_modifs.append(gravity)
         # elif mod == "disable_enemies":
-        #     step_modifs.append(disable_enemies)
+        #     env.step_modifs.append(disable_enemies)
             else:
                 print('Invalid modification')
-    return step_modifs, reset_modifs
+    
