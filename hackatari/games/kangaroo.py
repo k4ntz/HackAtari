@@ -44,9 +44,17 @@ def set_ram_kang_pos(self, pos_x, pos_y):
     pos_x (int): The x-coordinate for the kangaroo's position.
     pos_y (int): The y-coordinate for the kangaroo's position.
     """
-    self.set_ram(KANGAROO_POS_X_INDEX, pos_x)
-    self.set_ram(KANGAROO_POS_Y_INDEX, pos_y)
+    if not self._already_reset:
+        self.set_ram(KANGAROO_POS_X_INDEX, pos_x)
+        self.set_ram(KANGAROO_POS_Y_INDEX, pos_y)
+        self.set_ram(33, 255)
+        self._already_reset = True
 
+def _check_reseted(self):
+    y_pos = self.get_ram()[16]
+    if y_pos == 0 or y_pos == 22:
+        self.set_ram(33, 255)
+        self._already_reset = False
 
 def is_at_start(pos):
     """
@@ -80,8 +88,7 @@ def set_kangaroo_position(self):
     """
     ram = self.get_ram()
     current_level = ram[36]
-    kangaroo_pos = (ram[KANGAROO_POS_X_INDEX], ram[KANGAROO_POS_Y_INDEX])
-    
+    kangaroo_pos = (ram[KANGAROO_POS_X_INDEX], ram[KANGAROO_POS_Y_INDEX])    
     if is_at_start(kangaroo_pos):
         if FLOOR == 1:
             # For floor 1, position depends on whether the current level is 2
@@ -93,13 +100,13 @@ def set_kangaroo_position(self):
             new_pos = FLOOR_2_LEVEL2_POS if current_level == LEVEL_2 else FLOOR_2_START_POS
             set_ram_kang_pos(self, *new_pos)
 
+
 def random_init(self):
     """
     Randomize the floor on which the player starts.
     """
     ram = self.get_ram()
     current_level = ram[36]
-    current_lives = ram[45]
     kangaroo_pos = (ram[KANGAROO_POS_X_INDEX], ram[KANGAROO_POS_Y_INDEX])
     if is_at_start(kangaroo_pos):
         random_number = random.randint(0, 2)
@@ -112,6 +119,8 @@ def random_init(self):
             # but also depends on the current level
             new_pos = FLOOR_2_LEVEL2_POS if current_level == LEVEL_2 else FLOOR_2_START_POS
             set_ram_kang_pos(self, *new_pos)
+        elif random_number == 0:
+            self._already_reset = True
 
 
 def change_level(self):
@@ -123,6 +132,7 @@ def change_level(self):
         LVL_NUM = random.randint(0, 3)
         print(f"Selcting Random Level {LVL_NUM}")
     self.set_ram(36, LVL_NUM)
+
 
 
 def no_ladder_inpaintings():
@@ -149,8 +159,11 @@ def remove_ladder(self):
 
 
 def _modif_funcs(env, modifs):
-    if "random_init" in modifs and "easy_mode" in modifs:
-        raise ValueError("Both random_init and easy_mode cannot be enabled at the same time")
+    if "change_level" in modifs:
+        modifs.remove("change_level")
+        modifs.insert(0, "change_level") # Change level should be the first modif to be applied
+    env.step_modifs.append(_check_reseted)
+    env._already_reset = False
     for mod in modifs:
         if mod == "disable_monkeys":
             env.step_modifs.append(disable_monkeys)
@@ -159,12 +172,14 @@ def _modif_funcs(env, modifs):
         elif mod == "unlimited_time":
             env.step_modifs.append(unlimited_time)
         elif mod == "random_init":
+            env.step_modifs.append(random_init)
             env.reset_modifs.append(random_init)
         elif "set_floor" in mod:
             if mod[-1].isdigit():
                 global FLOOR
                 FLOOR = int(mod[-1])
             env.reset_modifs.append(set_kangaroo_position)
+            env.step_modifs.append(set_kangaroo_position)
         # elif mod == "easy_mode":
         #     env.reset_modifs.append(easy_mode)
         elif "change_level" in mod:
