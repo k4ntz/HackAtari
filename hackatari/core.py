@@ -217,6 +217,9 @@ class HumanPlayable(HackAtari):
                 if event.key == pygame.K_p:  # 'P': Pause/Resume
                     self.paused = not self.paused
 
+                if event.key == pygame.K_q:  # 'Q': Quit
+                    self.running = False
+
                 if event.key == pygame.K_r:  # 'R': Reset
                     self.reset()
 
