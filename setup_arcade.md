@@ -92,13 +92,17 @@ flatpak run io.github.antimicrox.antimicrox
 add profiles of the Git Repo to the corresponding Controllers.
 
 ### check config
-open config file: (TODO: check correct config path)
+open config file:
 ```
-TBD /home/hackatari/.var/app/io.github.antimicrox.antimicrox/config
+/home/hackatari/.var/app/io.github.antimicrox.antimicrox/config/antimicrox/antimicrox_settings.ini
 ```
-check the config file, that the configs are correctly saved (TODO: insert right config lines!)
+check that the follwing lines are in the config
 ```
-TBD
+[Controllers]
+Controller030020617900000006000000100100001216ConfigFile1=/home/hackatari/arcade/HackAtari/arcade/left.gamecontroller.amgp
+Controller030020617900000006000000100100001216LastSelected=/home/hackatari/arcade/HackAtari/arcade/left.gamecontroller.amgp
+Controller030020617900000006000000100100001218ConfigFile1=/home/hackatari/arcade/HackAtari/arcade/right.gamecontroller.amgp
+Controller030020617900000006000000100100001218LastSelected=/home/hackatari/arcade/HackAtari/arcade/right.gamecontroller.amgp
 ```
 Optional:
 change config file to read only
