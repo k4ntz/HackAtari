@@ -3,6 +3,8 @@ import random
 import numpy as np
 import cv2
 import sys
+import pygame
+
 
 import matplotlib.pyplot as plt
 from hackatari.utils import load_color_swaps
@@ -60,6 +62,11 @@ if __name__ == "__main__":
         done = False
         nstep = 1
         while not done:
+            # Human intervention to end the run
+            events = pygame.event.get()
+            for event in events:
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_q:  # 'Q': Quit
+                    done = True
             if args.agent:
                 action = agent.draw_action(env.dqn_obs)
             else:    
