@@ -171,14 +171,14 @@ system_menu() {
     clear
         if [[ $update_pos -eq $CHOICE ]]; then
         cd ~/arcade/OC_Atari
-        git pull origin master
-        python setup.py install
+        git pull origin master >> OC_Atari_update.log 
+        python setup.py install >> OC_Atari_update.log
 
         cd ~/arcade/HackAtari
-        git pull origin master
-        pip3 install -e .
+        git pull origin master >> HackAtari_update.log
+        pip3 install -e . >> HackAtari_update.log
 
-        systemctl reboot -i
+        # systemctl reboot -i
         return 1
     fi
 
