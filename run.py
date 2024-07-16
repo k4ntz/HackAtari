@@ -55,6 +55,7 @@ if __name__ == "__main__":
         env.run()
     else:        
         env = HackAtari(args.game, args.modifs, args.reward_function, color_swaps, render_mode="human", obs_mode="dqn")
+        pygame.init()
         if args.agent:
             agent = load_agent(args.agent, env.action_space.n)
             print(f"Loaded agents from {args.agent}")
