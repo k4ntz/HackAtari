@@ -72,7 +72,7 @@ game_menu() {
     local menu_options=()
     local i=1
     # Populate the Menu with the Games
-    declare -a games=("BankHeist" "BattleZone" "Boxing" "Breakout" "Carnival" "ChopperCommand" "DonkeyKong" "FishingDerby" "Freeway" "Frostbite" "Kangaroo" "MontezumaRevenge" "MsPacman" "Pong" "RiverRaid" "Seaquest" "Skiing" "SpaceInvaders" "Tennis")
+    declare -a games=("BankHeist" "BattleZone" "Boxing" "Breakout" "Carnival" "ChopperCommand" "DonkeyKong" "FishingDerby" "Freeway" "Frostbite" "Kangaroo" "MontezumaRevenge" "MsPacman" "Pong" "Riverraid" "Seaquest" "Skiing" "SpaceInvaders" "Tennis")
 
     #show_infobox "${#games[@]}"
     length=${#games[@]}
