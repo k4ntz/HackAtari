@@ -46,7 +46,6 @@ run_game() {
         if [ "$choosen_options" == "" ]; then
             # show_infobox "python run.py -g "$sel_game" -hu"
             python3 run.py -g "$sel_game" -hu
-            exit 1
         else
             # show_infobox "python run.py -g "$sel_game" -hu -m $choosen_options"
             python3 run.py -g "$sel_game" -hu -m $choosen_options

@@ -63,7 +63,6 @@ def reward_function(self) -> float:
         for diver in divers:
             if check_collision(player, diver) and COLLECTED != 6:
                 COLLISION=True  
-                print("COLLISION")   
                 
     if DIVERS > len(divers) and COLLISION:
         reward += 1  # Scaled down reward for collecting a diver
@@ -83,7 +82,7 @@ def reward_function(self) -> float:
                 LOW_OXYGEN = False
                 reward += 5
             else:
-                reward += 1
+                reward += 0
         
     if oxygen_bar and oxygen_bar.value <= 20 and player.y != 45:
         LOW_OXYGEN = True
