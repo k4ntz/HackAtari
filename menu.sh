@@ -38,7 +38,7 @@ show_infobox() {
 }
 
 run_game() {
-    sel_game="$1"
+    sel_game="ALE/$1"
     sel_model="$2"
     # show_infobox "$sel_game"
     if [ "$sel_model" = "Human" ]; then
