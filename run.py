@@ -3,6 +3,8 @@ import random
 import numpy as np
 import cv2
 import sys
+import pygame
+
 
 import matplotlib.pyplot as plt
 from hackatari.utils import load_color_swaps
@@ -53,6 +55,7 @@ if __name__ == "__main__":
         env.run()
     else:        
         env = HackAtari(args.game, args.modifs, args.reward_function, color_swaps, render_mode="human", obs_mode="dqn")
+        pygame.init()
         if args.agent:
             agent = load_agent(args.agent, env.action_space.n)
             print(f"Loaded agents from {args.agent}")
@@ -60,6 +63,11 @@ if __name__ == "__main__":
         done = False
         nstep = 1
         while not done:
+            # Human intervention to end the run
+            events = pygame.event.get()
+            for event in events:
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_q:  # 'Q': Quit
+                    done = True
             if args.agent:
                 action = agent.draw_action(env.dqn_obs)
             else:    
