@@ -110,7 +110,7 @@ class HackAtari(OCAtari):
                 func(self)
             if terminated or truncated:
                 break
-        self.detect_objects(self._objects, self._getRAMorScreen(), self.game_name, self.hud)
+        self.detect_objects()
         for func in self.post_detection_modifs:
             func(self)
         # Note that the observation on the done=True frame
@@ -123,7 +123,7 @@ class HackAtari(OCAtari):
         self.org_return = 0
         for func in self.reset_modifs:
             func(self)
-        self.detect_objects(self._objects, self._getRAMorScreen(), self.game_name, self.hud)
+        self.detect_objects()
         for func in self.post_detection_modifs:
             func(self)
         self._reset_buffer()

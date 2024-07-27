@@ -20,7 +20,7 @@ from ocatari.utils import load_agent, parser
 # from ocatari.vision.space_invaders import objects_colors
 import pickle
 from tqdm import tqdm
-from utils import get_dtypes, get_obj_props
+from utils import get_dtypes, get_obj_props, same_object_list
 from copy import deepcopy
 import argparse
 parser = argparse.ArgumentParser(description='HackAtari run.py Argument Setter')
@@ -48,7 +48,8 @@ parser.add_argument('-e','--epsilon', type=float, default=0.1,
 args = parser.parse_args()
 
 # Init the environment
-env = HackAtari(args.game, args.modifs, args.reward_function, args.color_swaps, render_mode="human", obs_mode="dqn")
+env = HackAtari(args.game, args.modifs, args.reward_function, args.color_swaps, 
+                render_mode="human", obs_mode="dqn", mode="vision")
 
 # Set up an agent
 if args.agent:
@@ -79,17 +80,16 @@ now = datetime.now()
 dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
 
 
-
 # Generate 10,000 samples
 counts = 0
 with tqdm(total=args.frames) as pbar:
     while counts < args.frames:
-        selected = random.random() < args.epsilon
+        selected = random.random() < args.epsilon #and same_object_list(env.objects, env.objects_v)
         if selected:
             state = deepcopy(torch.tensor(env.get_rgb_state))
             dqn_state = deepcopy(env.dqn_obs[0])
             objects = deepcopy(env.objects)
-        
+            
         if args.agent:
             action = agent.draw_action(env.dqn_obs)
         else:    
