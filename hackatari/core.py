@@ -81,14 +81,14 @@ class HackAtari(OCAtari):
     
     def _step_with_lm_reward(self, action):
         obs, game_reward, truncated, terminated, info = self._hack_step(action)
+        self.org_reward = game_reward
+        self.org_return = self.org_return+game_reward
         try:
             reward = self.new_reward_func(self)
         except Exception as e:
             print("Error in new_reward_func: ", e)
             reward = 0
         
-        self.org_reward = game_reward
-        self.org_return = self.org_return+game_reward
         info["org_return"] = self.org_return
         return obs, reward, truncated, terminated, info
     
