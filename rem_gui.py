@@ -7,6 +7,7 @@ from tqdm import tqdm
 from hackatari.utils import load_color_swaps
 from hackatari.core import HackAtari
 import atexit
+import pickle as pkl
 
 """
 This script can be used to identify any RAM positions that
@@ -114,6 +115,13 @@ class Renderer:
             elif event.type == pygame.KEYDOWN:  # keyboard key pressed
                 if event.key == pygame.K_p:  # 'P': pause/resume
                     self.paused = not self.paused
+                
+                if event.key == pygame.K_s:  # 'S': save
+                    if self.paused:
+                        statepkl = self.env._ale.cloneState()
+                        with open(f"state_{self.env.game_name}.pkl", "wb") as f:
+                            pkl.dump(statepkl, f)
+                            print(f"State saved in state_{self.env.game_name}.pkl.")
 
                 if event.key == pygame.K_r:  # 'R': reset
                     self.env.reset()
@@ -311,6 +319,7 @@ if __name__ == "__main__":
                         help='Game to be run')
     parser.add_argument('-m', '--modifs', nargs='+', default=[],
                         help='List of the modifications to be brought to the game')
+    parser.add_argument('-ls', '--load_state', type=str, default="")
     parser.add_argument('-hu', '--human', action='store_true',
                         help='Let user play the game.')
     parser.add_argument('-nr', '--no_render', type=int, default=[],
@@ -325,6 +334,11 @@ if __name__ == "__main__":
     color_swaps = load_color_swaps(args.color_swaps)
 
     renderer = Renderer(args.game, args.modifs, args.reward_function, color_swaps, args.no_render)
+    if args.load_state:
+        with open(args.load_state, "rb") as f:
+            state = pkl.load(f)
+            renderer.env._ale.restoreState(state)
+            print(f"State loaded from {args.load_state}")
     def exit_handler():
         if renderer.no_render:
             print("\nno_render list: ")
