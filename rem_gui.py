@@ -121,7 +121,7 @@ class Renderer:
                 elif event.key == pygame.K_ESCAPE and self.active_cell_idx is not None:
                     self._unselect_active_cell()
 
-                elif (event.key,) in self.keys2actions.keys():  # env action
+                elif [x for x in self.keys2actions.keys() if event.key in x]: #(event.key,) in self.keys2actions.keys() or [x for x in self.keys2actions.keys() if event.key in x]:  # env action
                     self.current_keys_down.add(event.key)
 
                 elif pygame.K_0 <= event.key <= pygame.K_9:  # enter digit
@@ -138,7 +138,7 @@ class Renderer:
                     if self.active_cell_idx is not None:
                         self.current_active_cell_input = self.current_active_cell_input[:-1]
 
-                elif event.key == pygame.K_RETURN:
+                elif event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER:
                     if self.active_cell_idx is not None:
                         if len(self.current_active_cell_input) > 0:
                             new_cell_value = int(self.current_active_cell_input)
@@ -147,7 +147,7 @@ class Renderer:
                         self._unselect_active_cell()
 
             elif event.type == pygame.KEYUP:  # keyboard key released
-                if (event.key,) in self.keys2actions.keys():
+                if [x for x in self.keys2actions.keys() if event.key in x]: #(event.key,) in self.keys2actions.keys():
                     self.current_keys_down.remove(event.key)
 
     def _render(self, frame=None):
@@ -311,6 +311,10 @@ if __name__ == "__main__":
                         help='Game to be run')
     parser.add_argument('-m', '--modifs', nargs='+', default=[],
                         help='List of the modifications to be brought to the game')
+    parser.add_argument('sm', '--switch_modifs', nargs='+', default=[],
+                        help='List of the modifications to be brought to the game after a certain frame')
+    parser.add_argument('sf', '--switch_frame', nargs='+', default=[],
+                        help='Swicht_modfis are applied to the game after this frame-threshold')
     parser.add_argument('-hu', '--human', action='store_true',
                         help='Let user play the game.')
     parser.add_argument('-nr', '--no_render', type=int, default=[],
@@ -324,7 +328,8 @@ if __name__ == "__main__":
 
     color_swaps = load_color_swaps(args.color_swaps)
 
-    renderer = Renderer(args.game, args.modifs, args.reward_function, color_swaps, args.no_render)
+    renderer = Renderer(args.game, args.modifs, args.switch_modifs, args.switch_frame, args.reward_function, color_swaps, args.no_render)
+
     def exit_handler():
         if renderer.no_render:
             print("\nno_render list: ")
@@ -332,4 +337,5 @@ if __name__ == "__main__":
                 print(i, end=" ")
             print("")
     atexit.register(exit_handler)
+
     renderer.run()

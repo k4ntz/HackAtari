@@ -36,6 +36,10 @@ if __name__ == "__main__":
     parser.add_argument('-hu', '--human', action='store_true',
                         help='Let user play the game.')
     
+    parser.add_argument('-sm', '--switch_modifs', nargs='+', default=[],
+                        help='List of the modifications to be brought to the game after a certain frame')
+    parser.add_argument('-sf', '--switch_frame', type=int, default=0,
+                        help='Swicht_modfis are applied to the game after this frame-threshold')
     parser.add_argument('-p', '--picture', type=int, default=0,
                         help='Takes a picture after the number of steps provided.')
     parser.add_argument('-cs', '--color_swaps', default='',
@@ -51,10 +55,10 @@ if __name__ == "__main__":
     color_swaps = load_color_swaps(args.color_swaps)
     
     if args.human:
-        env = HumanPlayable(args.game, args.modifs, args.reward_function, color_swaps)
+        env = HumanPlayable(args.game, args.modifs, args.switch_modifs, args.switch_frame, args.reward_function, args.color_swaps)
         env.run()
     else:        
-        env = HackAtari(args.game, args.modifs, args.reward_function, color_swaps, render_mode="human", obs_mode="dqn")
+        env = HackAtari(args.game, args.modifs, args.switch_modifs, args.switch_frame, args.reward_function, color_swaps, render_mode="human", obs_mode="dqn")
         pygame.init()
         if args.agent:
             agent = load_agent(args.agent, env.action_space.n)
