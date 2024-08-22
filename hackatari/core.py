@@ -19,7 +19,7 @@ class HackAtari(OCAtari):
     HackAtari provides variation of Atari Learning Environments. 
     It is built on top of OCAtari, which provides object-centric observations.
     """
-    def __init__(self, env_name: str, modifs=[], switch_modfis=[], switch_frame=1000, rewardfunc_path=None, colorswaps=None, *args, **kwargs):
+    def __init__(self, env_name: str, modifs=[], switch_modfis=[], switch_frame=1000, rewardfunc_path=None, colorswaps=None, mode=0, difficulty=0, *args, **kwargs):
         """
         Initialize the game environment.
         """
@@ -85,6 +85,9 @@ class HackAtari(OCAtari):
             self.new_reward_func = module.reward_function
             self._hack_step = self.step
             self.step = self._step_with_lm_reward
+        
+        self.env.env.ale.setMode(mode)
+        self.env.env.ale.setDifficulty(difficulty)
     
     def _step_with_lm_reward(self, action):
         obs, game_reward, truncated, terminated, info = self._hack_step(action)
@@ -118,7 +121,7 @@ class HackAtari(OCAtari):
                 func(self)
             if terminated or truncated:
                 break
-        # self.detect_objects()
+        self.detect_objects()
         for func in self.post_detection_modifs:
             func(self)
         # Note that the observation on the done=True frame
@@ -132,7 +135,7 @@ class HackAtari(OCAtari):
         self.org_return = 0
         for func in self.reset_modifs:
             func(self)
-        # self.detect_objects()
+        self.detect_objects()
         for func in self.post_detection_modifs:
             func(self)
         self._reset_buffer()
@@ -210,13 +213,13 @@ class HumanPlayable(HackAtari):
     HumanPlayable: Enables human play mode for the game.
     """
 
-    def __init__(self, game, modifs=[], switch_modfis=[], switch_frame=1000, rewardfunc_path="", colorswaps={}, *args, **kwargs):
+    def __init__(self, game, modifs=[], switch_modfis=[], switch_frame=1000, rewardfunc_path="", colorswaps={}, mode=0, difficulty=0, *args, **kwargs):
         """
         Initializes the HumanPlayable environment with the specified game and modifications.
         """
         kwargs["render_mode"] = "human"
         kwargs["render_oc_overlay"] = True
-        super(HumanPlayable, self).__init__(game, modifs, switch_modfis, switch_frame, rewardfunc_path, colorswaps, *args, **kwargs)
+        super(HumanPlayable, self).__init__(game, modifs, switch_modfis, switch_frame, rewardfunc_path, colorswaps, mode, difficulty, *args, **kwargs)
         self.reset()
         self.render()  # Initialize the pygame video system
         self.print_reward = bool(rewardfunc_path)
