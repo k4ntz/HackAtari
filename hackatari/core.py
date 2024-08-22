@@ -86,8 +86,16 @@ class HackAtari(OCAtari):
             self._hack_step = self.step
             self.step = self._step_with_lm_reward
         
-        self.env.env.ale.setMode(mode)
-        self.env.env.ale.setDifficulty(difficulty)
+        try:
+            self.env.env.ale.setMode(mode)
+        except RuntimeError:
+            print(f"Oops!  That was no valid number. The available modes are {self.env.env.ale.getAvailableModes()}")
+            exit()
+        try:
+            self.env.env.ale.setDifficulty(difficulty)
+        except RuntimeError:
+            print(f"Oops!  That was no valid number. The available difficulties are {self.env.env.ale.getAvailableDifficulties()}")
+            exit()
     
     def _step_with_lm_reward(self, action):
         obs, game_reward, truncated, terminated, info = self._hack_step(action)
