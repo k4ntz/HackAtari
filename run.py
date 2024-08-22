@@ -48,7 +48,7 @@ if __name__ == "__main__":
                         help="Replace the default reward fuction with new one in path rf")
     parser.add_argument('-a','--agent', type=str, default='', 
                         help="Path to the cleanrl trained agent to be loaded.")
-    parser.add_argument('-mo','--mode', type=int, default=0, 
+    parser.add_argument('-mo','--game_mode', type=int, default=0, 
                         help="Use an alternative ALE game mode")
     parser.add_argument('-d','--difficulty', type=int, default=0, 
                         help="Use an alternative ALE difficulty for the game.")
@@ -61,10 +61,10 @@ if __name__ == "__main__":
     color_swaps = load_color_swaps(args.color_swaps)
     
     if args.human:
-        env = HumanPlayable(args.game, args.modifs, args.switch_modifs, args.switch_frame, args.reward_function, args.color_swaps, args.mode, args.difficulty)
+        env = HumanPlayable(args.game, args.modifs, args.switch_modifs, args.switch_frame, args.reward_function, args.color_swaps, args.game_mode, args.difficulty)
         env.run()
     else:        
-        env = HackAtari(args.game, args.modifs, args.switch_modifs, args.switch_frame, args.reward_function, color_swaps, args.mode, args.difficulty, render_mode="human", obs_mode="dqn")
+        env = HackAtari(args.game, args.modifs, args.switch_modifs, args.switch_frame, args.reward_function, color_swaps, args.game_mode, args.difficulty, render_mode="human", obs_mode="dqn")
         pygame.init()
         if args.agent:
             agent = load_agent(args.agent, env.action_space.n)

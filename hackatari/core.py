@@ -19,7 +19,7 @@ class HackAtari(OCAtari):
     HackAtari provides variation of Atari Learning Environments. 
     It is built on top of OCAtari, which provides object-centric observations.
     """
-    def __init__(self, env_name: str, modifs=[], switch_modfis=[], switch_frame=1000, rewardfunc_path=None, colorswaps=None, mode=0, difficulty=0, *args, **kwargs):
+    def __init__(self, env_name: str, modifs=[], switch_modfis=[], switch_frame=1000, rewardfunc_path=None, colorswaps=None, game_mode=0, difficulty=0, *args, **kwargs):
         """
         Initialize the game environment.
         """
@@ -87,7 +87,7 @@ class HackAtari(OCAtari):
             self.step = self._step_with_lm_reward
         
         try:
-            self.env.env.ale.setMode(mode)
+            self.env.env.ale.setMode(game_mode)
         except RuntimeError:
             print(f"Oops!  That was no valid number. The available modes are {self.env.env.ale.getAvailableModes()}")
             exit()
