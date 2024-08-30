@@ -50,6 +50,7 @@ class HackAtari(OCAtari):
         else:
             self._modif_funcs = importlib.import_module(f"hackatari.games.{game.lower()}")._modif_funcs
 
+        self.action = 0
         self.step_modifs, self.reset_modifs, self.post_detection_modifs = [], [], []
         self.inpaintings, self.place_above = [], []
         self._modif_funcs(self, modifs)
@@ -123,6 +124,8 @@ class HackAtari(OCAtari):
             func(self)
         for i in range(frameskip):
             obs, reward, terminated, truncated, info = self._env.step(*args, **kwargs)
+
+            self.action = args[0]
 
             total_reward += float(reward)
             for func in self.step_modifs:
