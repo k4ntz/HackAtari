@@ -18,6 +18,8 @@ ANY_FLOOR_INSTANT_WIN = (110, 0)
 
 VIRTUAL_RAM_19 = 0
 LADDER_X = None
+KANGAROO_Y = 18
+START = False
 
 ADDED_LADDERS_POSES = None
 LVL_NUM = None
@@ -150,7 +152,7 @@ def remove_original_ladder_inpaintings():
 def _on_ladder(px, py, ladders):
     # py = feet position of kangaroo
     for ladder in ladders:
-        if abs(px - ladder[0]) < 4 and ladder[1] <= py < ladder[1] + 40:
+        if abs(px - ladder[0]) < 4 and ladder[1]-9 <= py < ladder[1] + 40:
             return True
     return False
 
@@ -181,52 +183,50 @@ def added_ladder_step(self):
     py = y_pos + 24 # feet position
     if ram[18] in [20, 28]:
         py -= 8 # ducking 
-    global VIRTUAL_RAM_19, LADDER_X
-    if _on_ladder(x_pos, py, ADDED_LADDERS_POSES):
-        if LADDER_X is not None:
+    global VIRTUAL_RAM_19, LADDER_X, KANGAROO_Y, START
+    if _on_ladder(x_pos, py-1, ADDED_LADDERS_POSES):
+        if LADDER_X is not None and ram[114] not in [21, 15, 9]:
             self.set_ram(17, LADDER_X)
-        if self.action in [2, 6, 7]:
+        if ram[16] < KANGAROO_Y:
             if ram[18]&64:
                 self.set_ram(18, ram[18]&(not 64)|32)
-                LADDER_X = ram[17]
+                self.set_ram(16, KANGAROO_Y)
             elif ram[16] < 19 and ram[16]&1:
                 self.set_ram(18, 39)
             elif ram[16] < 19:
                 self.set_ram(18, 47)
-                self.set_ram(18, 47)
-            VIRTUAL_RAM_19 = VIRTUAL_RAM_19 + 1
-            if ram[18]&32:
-                if VIRTUAL_RAM_19 > 39:
-                    self.set_ram(18, ram[18]^8)
-                    self.set_ram(16, ram[16] - 1)
-                    VIRTUAL_RAM_19 = 0
-        elif self.action in [5, 8, 9]:
+            if VIRTUAL_RAM_19 > 1:
+                self.set_ram(16, KANGAROO_Y-1)
+                KANGAROO_Y-=1
+                VIRTUAL_RAM_19 = 0
+            VIRTUAL_RAM_19+=1
+        elif ram[16] > KANGAROO_Y and ram[114] not in [21, 15, 9]:
             if ram[18]&16:
                 self.set_ram(18, ram[18]&(not 16)|32)
-                LADDER_X = ram[17]
+                if ram[16] not in [18, 12, 6]:
+                    LADDER_X = ram[17]
             elif ram[16] < 19 and ram[16]&1:
                 self.set_ram(18, 39)
             elif ram[16] < 19:
                 self.set_ram(18, 47)
-            VIRTUAL_RAM_19 = VIRTUAL_RAM_19 + 1
-            if ram[18]&32:
-                if VIRTUAL_RAM_19 > 49:
-                    self.set_ram(18, ram[18]^8)
-                    self.set_ram(16, ram[16] + 1)
-                    VIRTUAL_RAM_19 = 0
-        print(VIRTUAL_RAM_19)
-    elif self.action in [5, 8, 9] and _on_ladder(x_pos, (ram[16]+6)*8+4, ADDED_LADDERS_POSES):
-        print("hey")
-        LADDER_X = ram[17]
-        self.set_ram(18, ram[18]&(not 16))
-        # self.set_ram(16, ram[16]+1)
-        VIRTUAL_RAM_19 = 0
+            if VIRTUAL_RAM_19 > 75:
+                self.set_ram(16, KANGAROO_Y+1)
+                KANGAROO_Y+=1
+                VIRTUAL_RAM_19 = 0
+            VIRTUAL_RAM_19+=1
+        elif ram[16] > KANGAROO_Y and ram[114] in [15, 9]:
+            print("hey")
+            LADDER_X = ram[17]
+            self.set_ram(18, ram[18]&(not 16))
+            VIRTUAL_RAM_19 = 0
+            KANGAROO_Y = ram[16]
     else:
         LADDER_X = None
         VIRTUAL_RAM_19 = 0
+        KANGAROO_Y = ram[16]
         # break
 
-def remove_ladders(self): 
+def remove_ladders(self):  
     self._removed_ladders_poses = [(132, 36), (132, 132), (20, 84)]
     for i, obj in enumerate(self._objects):
         if isinstance(obj, Ladder):
@@ -248,7 +248,7 @@ def add_ladders_inpaintings(ladder_poses):
     return [(y, x, h, w, patch) for x, y in ladder_poses] # needs swapped positions
 
 def bs(self):
-    self.set_ram(18, 39)
+    self.set_ram(96, 148)
 
 # def skip_start(self):
 #     self.set_ram(56, 255)
