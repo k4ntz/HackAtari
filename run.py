@@ -78,6 +78,7 @@ if __name__ == "__main__":
             for event in events:
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_q:  # 'Q': Quit
                     done = True
+            [print(x) for x in env.objects]
             if args.agent:
                 action = agent.draw_action(env.dqn_obs)
             else:    
@@ -97,4 +98,5 @@ if __name__ == "__main__":
             #     print(".", end="", flush=True)
             nstep += 1
             env.render()
+            
         env.close()
