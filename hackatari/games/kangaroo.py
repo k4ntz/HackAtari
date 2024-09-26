@@ -16,6 +16,12 @@ FLOOR_1_START_POS = (65, 12)
 FLOOR_2_START_POS = (65, 6)
 ANY_FLOOR_INSTANT_WIN = (110, 0)
 
+VIRTUAL_RAM_19 = 0
+LADDER_X = None
+KANGAROO_Y = 18
+START = False
+
+ADDED_LADDERS_POSES = None
 LVL_NUM = None
 
 
@@ -135,28 +141,117 @@ def change_level(self):
 
 
 
-def no_ladder_inpaintings():
+def remove_original_ladder_inpaintings():
     background_color = np.array((80, 0, 132))
     w, h = 8, 36
     patch = (np.ones((h, w, 3)) * background_color).astype(np.uint8)
     ladder_poses = [(132, 36), (132, 132), (20, 84)]
     return [(y, x, h, w, patch) for x, y in ladder_poses] # needs swapped positions
 
-def no_ladder_step(self):
-    y_pos = self.get_ram()[16]
-    climbing = self.get_ram()[18]
-    if climbing == 47:
-        self.set_ram(18, 73)
-        self.set_ram(16, y_pos+1)
-    elif climbing == 39:
-        self.set_ram(18, 65)
-        self.set_ram(16, y_pos+1)
 
-def remove_ladder(self):
-    for obj in self.objects:
+def _on_ladder(px, py, ladders):
+    # py = feet position of kangaroo
+    for ladder in ladders:
+        if abs(px - ladder[0]) < 4 and ladder[1]-9 <= py < ladder[1] + 40:
+            return True
+    return False
+
+
+def removed_ladder_step(self):
+    ram = self.get_ram()
+    y_ram = ram[16]
+    y_pos = y_ram * 8 + 4
+    x_pos = ram[17] + 15
+    climbing = ram[18]
+    py = y_pos + 24 # feet position
+    if ram[18] in [20, 28]:
+        py -= 8 # ducking 
+    if _on_ladder(x_pos, py, self._removed_ladders_poses):
+        print("On Removed ladder")
+        if climbing == 47:
+            self.set_ram(18, 73)
+            self.set_ram(16, y_ram+1)
+        elif climbing == 39:
+            self.set_ram(18, 65)
+            self.set_ram(16, y_ram+1)
+
+def added_ladder_step(self):
+    ram = self.get_ram()
+    y_ram = ram[16]
+    y_pos = y_ram * 8 + 4
+    x_pos = ram[17] + 15
+    py = y_pos + 24 # feet position
+    if ram[18] in [20, 28]:
+        py -= 8 # ducking 
+    global VIRTUAL_RAM_19, LADDER_X, KANGAROO_Y, START
+    if _on_ladder(x_pos, py-1, ADDED_LADDERS_POSES):
+        if LADDER_X is not None and ram[114] not in [21, 15, 9]:
+            self.set_ram(17, LADDER_X)
+        if ram[16] < KANGAROO_Y:
+            if ram[18]&64:
+                self.set_ram(18, ram[18]&(not 64)|32)
+                self.set_ram(16, KANGAROO_Y)
+            elif ram[16] < 19 and ram[16]&1:
+                self.set_ram(18, 39)
+            elif ram[16] < 19:
+                self.set_ram(18, 47)
+            if VIRTUAL_RAM_19 > 1:
+                self.set_ram(16, KANGAROO_Y-1)
+                KANGAROO_Y-=1
+                VIRTUAL_RAM_19 = 0
+            VIRTUAL_RAM_19+=1
+        elif ram[16] > KANGAROO_Y and ram[114] not in [21, 15, 9]:
+            if ram[18]&16:
+                self.set_ram(18, ram[18]&(not 16)|32)
+                if ram[16] not in [18, 12, 6]:
+                    LADDER_X = ram[17]
+            elif ram[16] < 19 and ram[16]&1:
+                self.set_ram(18, 39)
+            elif ram[16] < 19:
+                self.set_ram(18, 47)
+            if VIRTUAL_RAM_19 > 75:
+                self.set_ram(16, KANGAROO_Y+1)
+                KANGAROO_Y+=1
+                VIRTUAL_RAM_19 = 0
+            VIRTUAL_RAM_19+=1
+        elif ram[16] > KANGAROO_Y and ram[114] in [15, 9]:
+            print("hey")
+            LADDER_X = ram[17]
+            self.set_ram(18, ram[18]&(not 16))
+            VIRTUAL_RAM_19 = 0
+            KANGAROO_Y = ram[16]
+    else:
+        LADDER_X = None
+        VIRTUAL_RAM_19 = 0
+        KANGAROO_Y = ram[16]
+        # break
+
+def remove_ladders(self):  
+    self._removed_ladders_poses = [(132, 36), (132, 132), (20, 84)]
+    for i, obj in enumerate(self._objects):
         if isinstance(obj, Ladder):
-            self._objects.remove(obj)
+            self._objects[i] = None
 
+def moved_ladders(self):
+    self._removed_ladders_poses = [(132, 36), (132, 132), (20, 84)]
+    i = 0
+    for obj in self._objects:
+        if isinstance(obj, Ladder):
+            obj.xy = ADDED_LADDERS_POSES[i]
+            i += 1
+
+def add_ladders_inpaintings(ladder_poses):
+    bg = [[[80,   0, 132]] * 8] * 4
+    rung = [[[162,  98,  33]] * 8] * 4
+    h, w = 36, 8
+    patch = np.array(rung + bg + rung + bg + rung + bg + rung + bg + rung).astype(np.uint8)
+    return [(y, x, h, w, patch) for x, y in ladder_poses] # needs swapped positions
+
+def bs(self):
+    self.set_ram(96, 148)
+
+# def skip_start(self):
+#     self.set_ram(56, 255)
 
 def _modif_funcs(env, modifs):
     if "change_level" in modifs:
@@ -189,7 +284,20 @@ def _modif_funcs(env, modifs):
                 assert LVL_NUM < 3, "Invalid Level Number (0, 1 or 2)"
             env.step_modifs.append(change_level)
         elif mod == "no_ladder":
-            env.inpaintings = no_ladder_inpaintings()
-            env.step_modifs.append(no_ladder_step)
+            assert "change_level" not in modifs, "Change level can't be used with no_ladder"
+            env.inpaintings = remove_original_ladder_inpaintings()
+            env.step_modifs.append(removed_ladder_step)
             env.place_above.extend(((223, 183, 85), (227, 151, 89))) # Player, Monkey
-            env.post_detection_modifs.append(remove_ladder)    
+            env.post_detection_modifs.append(remove_ladders)    
+        elif mod == "invert_ladders":
+            assert "change_level" not in modifs, "Change level can't be used with invert_ladders"
+            global ADDED_LADDERS_POSES
+            ADDED_LADDERS_POSES = [(80, 36), (85, 132), (90, 84)]
+            env.inpaintings = remove_original_ladder_inpaintings() + add_ladders_inpaintings(ADDED_LADDERS_POSES)
+            env.step_modifs.extend((removed_ladder_step, added_ladder_step))
+            env.place_above.extend(((223, 183, 85), (227, 151, 89))) # Player, Monkey
+            env.post_detection_modifs.append(moved_ladders)
+        # elif mod == "skip_start":
+        #     env.reset_modifs.append(skip_start)
+        elif mod == "bs":
+            env.step_modifs.append(bs)

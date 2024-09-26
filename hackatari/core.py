@@ -8,9 +8,9 @@ from hackatari.ale_mods import ALEColorSwap, ALEInpainting, colorswappinng, asse
 
 GameList = ["Amidar","Atlantis", "Asterix", "BankHeist", "BattleZone",
             "Boxing", "Breakout", "Carnival", "ChopperCommand", 
-            "DonkeyKong", "FishingDerby", "Freeway", 
-            "Frostbite", "Kangaroo", "MontezumaRevenge",
-            "MsPacman", "Pong", "Riverraid", "Seaquest",  "Skiing",
+            "DonkeyKong", "DoubleDunk", "FishingDerby", "Freeway", 
+            "Frostbite", "Kangaroo", "KungFuMaster", "MontezumaRevenge",
+            "MsPacman", "NameThisGame","Pong", "Riverraid", "Seaquest",  "Skiing",
             "SpaceInvaders", "Tennis", "Venture", "YarsRevenge"]
 
 
@@ -19,7 +19,7 @@ class HackAtari(OCAtari):
     HackAtari provides variation of Atari Learning Environments. 
     It is built on top of OCAtari, which provides object-centric observations.
     """
-    def __init__(self, env_name: str, modifs=[], rewardfunc_path=None, colorswaps=None, *args, **kwargs):
+    def __init__(self, env_name: str, modifs=[], switch_modfis=[], switch_frame=1000, rewardfunc_path=None, colorswaps=None, game_mode=0, difficulty=0, *args, **kwargs):
         """
         Initialize the game environment.
         """
@@ -46,13 +46,14 @@ class HackAtari(OCAtari):
         if not covered:
             print(f"Game '{env_name}' not covered yet by OCAtari")
             print("Available games: ", GameList)
-            _modif_funcs = lambda x, y: ([], [])
+            # _modif_funcs = lambda x, y: ([], [])
+            self._modif_funcs = lambda x, y: ([], [])
         else:
-            _modif_funcs = importlib.import_module(f"hackatari.games.{game.lower()}")._modif_funcs
+            self._modif_funcs = importlib.import_module(f"hackatari.games.{game.lower()}")._modif_funcs
 
         self.step_modifs, self.reset_modifs, self.post_detection_modifs = [], [], []
         self.inpaintings, self.place_above = [], []
-        _modif_funcs(self, modifs)
+        self._modif_funcs(self, modifs)
         if self.inpaintings:
             self.env.env.ale = ALEInpainting(self.env.env.ale, self.inpaintings, self.place_above)
         self._oc_step = self.step
@@ -61,8 +62,15 @@ class HackAtari(OCAtari):
             assert_colorswaps(colorswaps)
             self.colorswaps = colorswaps
             self.env.env.ale = ALEColorSwap(self.env.env.ale, colorswaps)
-        self.step = self._alter_step
-        self.reset = self._alter_reset
+        if switch_modfis:
+            self.switch_modfis = switch_modfis
+            self.switch_frame = switch_frame
+            self.modfis = modifs
+            self.step = self._alter_step_with_switch
+            self.reset = self._alter_reset_with_switch
+        else:
+            self.step = self._alter_step
+            self.reset = self._alter_reset
         
         self.org_return = 0
         self.org_reward = 0
@@ -78,6 +86,17 @@ class HackAtari(OCAtari):
             self.new_reward_func = module.reward_function
             self._hack_step = self.step
             self.step = self._step_with_lm_reward
+        
+        try:
+            self.env.env.ale.setMode(game_mode)
+        except RuntimeError:
+            print(f"Oops!  That was no valid number. The available modes are {self.env.env.ale.getAvailableModes()}")
+            exit()
+        try:
+            self.env.env.ale.setDifficulty(difficulty)
+        except RuntimeError:
+            print(f"Oops!  That was no valid number. The available difficulties are {self.env.env.ale.getAvailableDifficulties()}")
+            exit()
     
     def _step_with_lm_reward(self, action):
         obs, game_reward, truncated, terminated, info = self._hack_step(action)
@@ -105,6 +124,7 @@ class HackAtari(OCAtari):
             func(self)
         for i in range(frameskip):
             obs, reward, terminated, truncated, info = self._env.step(*args, **kwargs)
+
             total_reward += float(reward)
             for func in self.step_modifs:
                 func(self)
@@ -131,6 +151,50 @@ class HackAtari(OCAtari):
         self._reset_buffer()
         # obs = self._post_step(obs)
         self._fill_buffer()
+        return obs, info
+
+    def _alter_step_with_switch(self, *args, **kwargs):
+        """
+        Take a step in the game environment after altering the ram.
+        """
+        # print(self.step_modifs)
+        frameskip = self._frameskip
+        if frameskip == 0 or not frameskip:
+            frameskip = random.choice((2, 5))
+        total_reward = 0.0
+        terminated = truncated = False
+        for func in self.step_modifs:
+            func(self)
+        for i in range(frameskip):
+            obs, reward, terminated, truncated, info = self._env.step(*args, **kwargs)
+            total_reward += float(reward)
+            for func in self.step_modifs:
+                func(self)
+            if terminated or truncated:
+                break
+        # self.detect_objects()
+        if self.switch_frame - frameskip <= info['episode_frame_number'] < self.switch_frame:
+            self._modif_funcs(self, self.switch_modfis)
+        for func in self.post_detection_modifs:
+            func(self)
+        # Note that the observation on the done=True frame
+        # doesn't matter
+        # obs = self._post_step(obs)
+        return obs, total_reward, terminated, truncated, info
+
+    def _alter_reset_with_switch(self, *args, **kwargs):
+        self.step_modifs, self.reset_modfis = [], []
+        self._modif_funcs(self, self.modfis)
+        obs, info = self._env.reset(*args, **kwargs)
+        self.org_reward = 0
+        self.org_return = 0
+        for func in self.reset_modifs:
+            func(self)
+        # self.detect_objects()
+        for func in self.post_detection_modifs:
+            func(self)
+        self._reset_buffer()
+        # obs = self._post_step(obs)
         return obs, info
 
     # def _colorswap_step(self, *args, **kwargs):
@@ -160,13 +224,13 @@ class HumanPlayable(HackAtari):
     HumanPlayable: Enables human play mode for the game.
     """
 
-    def __init__(self, game, modifs=[], rewardfunc_path="", colorswaps={}, *args, **kwargs):
+    def __init__(self, game, modifs=[], switch_modfis=[], switch_frame=1000, rewardfunc_path="", colorswaps={}, mode=0, difficulty=0, *args, **kwargs):
         """
         Initializes the HumanPlayable environment with the specified game and modifications.
         """
         kwargs["render_mode"] = "human"
         kwargs["render_oc_overlay"] = True
-        super(HumanPlayable, self).__init__(game, modifs, rewardfunc_path, colorswaps, *args, **kwargs)
+        super(HumanPlayable, self).__init__(game, modifs, switch_modfis, switch_frame, rewardfunc_path, colorswaps, mode, difficulty, *args, **kwargs)
         self.reset()
         self.render()  # Initialize the pygame video system
         self.print_reward = bool(rewardfunc_path)
