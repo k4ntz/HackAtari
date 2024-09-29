@@ -46,7 +46,7 @@ class HackAtari(OCAtari):
         if not covered:
             print(f"Game '{env_name}' not covered yet by OCAtari")
             print("Available games: ", GameList)
-            exit(1)
+            # _modif_funcs = lambda x, y: ([], [])
             self._modif_funcs = lambda x, y: ([], [])
         else:
             self._modif_funcs = importlib.import_module(f"hackatari.games.{game.lower()}")._modif_funcs
@@ -136,6 +136,7 @@ class HackAtari(OCAtari):
         # Note that the observation on the done=True frame
         # doesn't matter
         # obs = self._post_step(obs)
+        self._fill_buffer()
         return obs, total_reward, terminated, truncated, info
 
     def _alter_reset(self, *args, **kwargs):
@@ -149,6 +150,7 @@ class HackAtari(OCAtari):
             func(self)
         self._reset_buffer()
         # obs = self._post_step(obs)
+        self._fill_buffer()
         return obs, info
 
     def _alter_step_with_switch(self, *args, **kwargs):
