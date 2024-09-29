@@ -168,7 +168,6 @@ def removed_ladder_step(self):
     if ram[18] in [20, 28]:
         py -= 8 # ducking 
     if _on_ladder(x_pos, py, self._removed_ladders_poses):
-        print("On Removed ladder")
         if climbing == 47:
             self.set_ram(18, 73)
             self.set_ram(16, y_ram+1)
@@ -211,7 +210,6 @@ def added_ladder_step(self):
                 #     self.set_ram(18, 39)
             VIRTUAL_RAM_19+=1
         elif ram[16] > KANGAROO_Y and ram[114] not in [21, 15, 9]:  # climbing down
-            print("Climbing Down")
             if ram[18]&16:
                 self.set_ram(18, ram[18]&(not 16)|32)
                 if ram[16] not in [18, 12, 6]:
@@ -226,19 +224,15 @@ def added_ladder_step(self):
                 VIRTUAL_RAM_19 = 0
             VIRTUAL_RAM_19+=1
         elif ram[16] > KANGAROO_Y and ram[114] in [15, 9]:  # on platform
-            print("On Platform")
             LADDER_X = ram[17]
-            print(LADDER_X)
             self.set_ram(18, ram[18]&(not 16))
             VIRTUAL_RAM_19 = 0
             KANGAROO_Y = ram[16]
     else:
-        # print("Not on Ladder")
         LADDER_X = None
         VIRTUAL_RAM_19 = 0
         KANGAROO_Y = ram[16]
         # break
-    # print(self.get_ram()[16])
 
 def remove_ladders(self):  
     self._removed_ladders_poses = [(132, 36), (132, 132), (20, 84)]
