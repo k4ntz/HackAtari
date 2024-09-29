@@ -46,7 +46,8 @@ class HackAtari(OCAtari):
         if not covered:
             print(f"Game '{env_name}' not covered yet by OCAtari")
             print("Available games: ", GameList)
-            self._modif_funcs = lambda x: ([], [])
+            exit(1)
+            self._modif_funcs = lambda x, y: ([], [])
         else:
             self._modif_funcs = importlib.import_module(f"hackatari.games.{game.lower()}")._modif_funcs
 

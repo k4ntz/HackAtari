@@ -75,7 +75,6 @@ def left_drift(self):
     TIMER +=1
 
 def _modif_funcs(env, modifs):
-    
     for mod in modifs:
         if mod == "lazy_enemy":
             env.step_modifs.append(lazy_enemy)
