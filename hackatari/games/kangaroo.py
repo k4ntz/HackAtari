@@ -20,6 +20,7 @@ VIRTUAL_RAM_19 = 0
 LADDER_X = None
 KANGAROO_Y = 18
 START = False
+CLIMBING_VIRTUAL_RAM = 39
 
 ADDED_LADDERS_POSES = None
 LVL_NUM = None
@@ -175,6 +176,7 @@ def removed_ladder_step(self):
             self.set_ram(18, 65)
             self.set_ram(16, y_ram+1)
 
+
 def added_ladder_step(self):
     ram = self.get_ram()
     y_ram = ram[16]
@@ -185,9 +187,11 @@ def added_ladder_step(self):
         py -= 8 # ducking 
     global VIRTUAL_RAM_19, LADDER_X, KANGAROO_Y, START
     if _on_ladder(x_pos, py-1, ADDED_LADDERS_POSES):
+        global CLIMBING_VIRTUAL_RAM
         if LADDER_X is not None and ram[114] not in [21, 15, 9]:
             self.set_ram(17, LADDER_X)
-        if ram[16] < KANGAROO_Y:
+        if ram[16] < KANGAROO_Y: # climbing up
+            print("Climbing Up")
             if ram[18]&64:
                 self.set_ram(18, ram[18]&(not 64)|32)
                 self.set_ram(16, KANGAROO_Y)
@@ -195,12 +199,19 @@ def added_ladder_step(self):
                 self.set_ram(18, 39)
             elif ram[16] < 19:
                 self.set_ram(18, 47)
-            if VIRTUAL_RAM_19 > 1:
-                self.set_ram(16, KANGAROO_Y-1)
+            if VIRTUAL_RAM_19 > 0:
                 KANGAROO_Y-=1
+                self.set_ram(16, KANGAROO_Y)
                 VIRTUAL_RAM_19 = 0
+                # if CLIMBING_VIRTUAL_RAM == 39:
+                #     CLIMBING_VIRTUAL_RAM = 47
+                #     self.set_ram(18, 47)
+                # elif CLIMBING_VIRTUAL_RAM == 47:
+                #     CLIMBING_VIRTUAL_RAM = 39
+                #     self.set_ram(18, 39)
             VIRTUAL_RAM_19+=1
-        elif ram[16] > KANGAROO_Y and ram[114] not in [21, 15, 9]:
+        elif ram[16] > KANGAROO_Y and ram[114] not in [21, 15, 9]:  # climbing down
+            print("Climbing Down")
             if ram[18]&16:
                 self.set_ram(18, ram[18]&(not 16)|32)
                 if ram[16] not in [18, 12, 6]:
@@ -209,22 +220,25 @@ def added_ladder_step(self):
                 self.set_ram(18, 39)
             elif ram[16] < 19:
                 self.set_ram(18, 47)
-            if VIRTUAL_RAM_19 > 75:
+            if VIRTUAL_RAM_19 > 65:
                 self.set_ram(16, KANGAROO_Y+1)
                 KANGAROO_Y+=1
                 VIRTUAL_RAM_19 = 0
             VIRTUAL_RAM_19+=1
-        elif ram[16] > KANGAROO_Y and ram[114] in [15, 9]:
-            print("hey")
+        elif ram[16] > KANGAROO_Y and ram[114] in [15, 9]:  # on platform
+            print("On Platform")
             LADDER_X = ram[17]
+            print(LADDER_X)
             self.set_ram(18, ram[18]&(not 16))
             VIRTUAL_RAM_19 = 0
             KANGAROO_Y = ram[16]
     else:
+        # print("Not on Ladder")
         LADDER_X = None
         VIRTUAL_RAM_19 = 0
         KANGAROO_Y = ram[16]
         # break
+    # print(self.get_ram()[16])
 
 def remove_ladders(self):  
     self._removed_ladders_poses = [(132, 36), (132, 132), (20, 84)]
@@ -292,7 +306,8 @@ def _modif_funcs(env, modifs):
         elif mod == "invert_ladders":
             assert "change_level" not in modifs, "Change level can't be used with invert_ladders"
             global ADDED_LADDERS_POSES
-            ADDED_LADDERS_POSES = [(80, 36), (85, 132), (90, 84)]
+            # ADDED_LADDERS_POSES = [(80, 36), (85, 132), (90, 84)]
+            ADDED_LADDERS_POSES = [(80, 36), (80, 132), (100, 84)]
             env.inpaintings = remove_original_ladder_inpaintings() + add_ladders_inpaintings(ADDED_LADDERS_POSES)
             env.step_modifs.extend((removed_ladder_step, added_ladder_step))
             env.place_above.extend(((223, 183, 85), (227, 151, 89))) # Player, Monkey
