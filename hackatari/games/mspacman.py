@@ -15,6 +15,28 @@ TIMER = 1
 
 DOT_STATES = [59, 60, 61, 62, 65, 66, 67, 71, 72, 73, 83, 89, 90, 91, 92, 95, 98, 99, 100]
 
+# Each line has the same pattern, to get the states and values for the other lines, simply add line number * 3 (counting from 0) to the first value of the tupel.
+# For the first line its 59+(0*3), for the second line its 59+(1*3), for the third its 59+(2*3)... so state + ((n-1) * 3)
+DOT_PATTERN = [(59, 64), (60, 128), (60, 32), (60, 8), (60, 2), (61, 1), (61, 4), (61, 16), (61, 64),
+               (60, 64), (60, 16), (60, 4), (60, 1), (61, 2), (61, 8), (61, 32), (61, 128), (59, 16)]
+
+GRID1 = [
+        [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
+        [1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0],
+        [1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+        [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
+        [0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0],
+        [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
+        [1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+        [0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+        [1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1],
+        [1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1],
+        [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    ]
+
 def make_edible(env, ghost_number,  x_pos, ram_x, y_pos, ram_y):
     ''' A helper function to make a certain ghost edible.
     The position is changed as well to avoid glitches.
@@ -225,27 +247,76 @@ def change_level(self):
         print(f"Selecting Random Level {LVL_NUM}")
     self.set_ram(0, LVL_NUM)
 
+def end_game(self):
+    """
+    Only spawns a small cluster of pills. Simulates the end of a game.
+    """
+    global DOT_STATES, DOT_PATTERN, GRID1
+
+    for i in range(59, 101):
+        self.set_ram(i, 0)
+    self.set_ram(117, 0)
+    self.set_ram(119, 139)
+    self.set_ram(123, LIVES)
+    line = choice(range(0, 14))
+    dot = choice(range(0, 18))
+    if not GRID1[line][dot]:
+        while not GRID1[line][dot]:
+            dot = choice(range(0, 18))
+
+    dots = [(line, dot)]
+    i = 0
+
+    while (len(dots) < 15):
+        for move in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+            pos1 = dots[i][0]+move[0]
+            pos2 = dots[i][1]+move[1]
+            if (0 <= pos1 < 14 and 0 <= pos2 < 18) and GRID1[pos1][pos2] and ((pos1, pos2) not in dots):
+                dots.append((pos1, pos2))
+        i+=1
+
+    for d in range(15):
+        ram = self.get_ram()
+        pill = DOT_PATTERN[dots[d][1]][0] + 3*dots[d][0]
+        value = ram[pill] + DOT_PATTERN[dots[d][1]][1]
+        self.set_ram(pill, value)
+    
 def maze_man(self):
+    """
+    Changes the gameplay. Ghosts are removed and all but one pill have been removed.
+    Points now represent a timer. 
+    The goal of the game is to collect the pill in the maze before the time limit runs out.
+    After a pill has been collected, time will be added and a new pill will spawn.
+    If the player collects 20 pills, the game goes into the next level.
+    """
+    # makes red ghost invisible (is glitchy)
     self.set_ram(47, 0)
     ram = self.get_ram()
 
+    # check if pill was collected
     collected = True
 
+    # checks the pill states, set collected to false if there is one remaining on the map
     for i in range(59, 101):
         if ram[i] != 0:
             collected = False
 
+    # if no pill on the map
     if collected and ram[39] > 70:
+        # increase the timer (inplace of score)
         add = ram[120] + 32
         if add <= 144:
             self.set_ram(120, add)
         else:
             self.set_ram(120, 144)
+        
+        # ramdomly pick a new pill spot/state
         global DOT_STATES
         state = choice(DOT_STATES)
         bit = choice([0, 2])
         self.set_ram(state, 16<<bit)#1<<bit)
     
+    # change or reset level on success/failure
     global LVL_NUM, TIMER, LIVES
     if ram[39] == 69:
         if ram[0] == 0 and ram[119] == 154:
@@ -269,17 +340,23 @@ def maze_man(self):
                     LIVES+=1
                 self.reset()
 
+    # Use ram state and TIMER variable as tick
     if ram[39] == 255 and TIMER == 0:
+        # resets the whole game if no lives remaining
         if ram[120] < 16 and ram[123] <= 0:
             LVL_NUM = 0
             LIVES = 2
             self.reset()
+        # decrease lives if 
         elif ram[120] < 16:
             LIVES-=1
             self.reset()
+        # lower timer
         else:
-            self.set_ram(120, ram[120]-16)
+            pass
+            # self.set_ram(120, ram[120]-16)
 
+    # increase timer
     TIMER = (TIMER+1)%150
 
 def maze_man_reset(self):
@@ -336,6 +413,8 @@ def _modif_funcs(env, modifs):
                 LVL_NUM =  int(mod[-1])
                 assert LVL_NUM < 4, "Invalid Level Number (0, 1, 2 or 3)"
             env.reset_modifs.append(change_level)
+        elif mod == "end_game":
+            env.reset_modifs.append(end_game)
         elif mod == "maze_man":
             env.reset_modifs.append(change_level)
             TOGGLE_CYAN = True
