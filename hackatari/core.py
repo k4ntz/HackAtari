@@ -230,6 +230,7 @@ class HumanPlayable(HackAtari):
         """
         kwargs["render_mode"] = "human"
         kwargs["render_oc_overlay"] = True
+        kwargs["full_action_space"] = True
         super(HumanPlayable, self).__init__(game, modifs, switch_modfis, switch_frame, rewardfunc_path, colorswaps, mode, difficulty, *args, **kwargs)
         self.reset()
         self.render()  # Initialize the pygame video system
