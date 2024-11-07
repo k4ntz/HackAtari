@@ -19,7 +19,7 @@ class HackAtari(OCAtari):
     HackAtari provides variation of Atari Learning Environments. 
     It is built on top of OCAtari, which provides object-centric observations.
     """
-    def __init__(self, env_name: str, modifs=[], switch_modfis=[], switch_frame=1000, rewardfunc_path=None, colorswaps=None, game_mode=0, difficulty=0, *args, **kwargs):
+    def __init__(self, env_name: str, modifs=[], switch_modfis=[], switch_frame=1000, obs_mode="dqn", rewardfunc_path=None, colorswaps=None, game_mode=0, difficulty=0, *args, **kwargs):
         """
         Initialize the game environment.
         """
@@ -36,6 +36,7 @@ class HackAtari(OCAtari):
             self._frameskip = "0"  # correspond to random frameskip
         kwargs["frameskip"] = 1
         kwargs["render_oc_overlay"] = True
+        kwargs["obs_mode"] = obs_mode
         super().__init__(env_name, *args, **kwargs)
         covered = False
         for cgame in GameList:
@@ -76,14 +77,11 @@ class HackAtari(OCAtari):
         self.org_reward = 0
         if rewardfunc_path:
             print(f"Changed reward function to {rewardfunc_path}")
-            module_name = os.path.splitext(os.path.basename(rewardfunc_path))[0]
-            spec = importlib.util.spec_from_file_location(module_name, rewardfunc_path)
-            if spec is None:
+            reward_function = getattr(__import__(rewardfunc_path, fromlist=['']), 'reward_function')
+            if reward_function is None:
                 print(f"Error loading reward function from {rewardfunc_path}, please check the path.")
                 exit(1)
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-            self.new_reward_func = module.reward_function
+            self.new_reward_func = reward_function
             self._hack_step = self.step
             self.step = self._step_with_lm_reward
         
@@ -103,7 +101,7 @@ class HackAtari(OCAtari):
         self.org_reward = game_reward
         self.org_return = self.org_return+game_reward
         try:
-            reward = self.new_reward_func(self)
+            reward = self.new_reward_func(self.objects)
         except Exception as e:
             print("Error in new_reward_func: ", e)
             reward = 0
@@ -135,8 +133,8 @@ class HackAtari(OCAtari):
             func(self)
         # Note that the observation on the done=True frame
         # doesn't matter
-        # obs = self._post_step(obs)
-        self._fill_buffer()
+        obs = self._post_step(obs)
+        #self._fill_buffer()
         return obs, total_reward, terminated, truncated, info
 
     def _alter_reset(self, *args, **kwargs):
