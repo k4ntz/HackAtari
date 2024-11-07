@@ -78,7 +78,7 @@ def _modif_funcs(env, modifs):
     for mod in modifs:
         if mod == "lazy_enemy":
             env.step_modifs.append(lazy_enemy)
-        else:
+        elif mod == "gravity":
             if mod[-1].isdigit():
                 global STRENGTH
                 mod_n = int(mod[-1])
@@ -100,6 +100,6 @@ def _modif_funcs(env, modifs):
         #     env.step_modifs.append(gravity)
         # elif mod == "disable_enemies":
         #     env.step_modifs.append(disable_enemies)
-            else:
-                print('Invalid modification')
+        else:
+            print(f'Invalid modification: {mod}')
     
