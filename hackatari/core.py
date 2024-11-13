@@ -121,7 +121,7 @@ class HackAtari(OCAtari):
         for func in self.step_modifs:
             func(self)
         for i in range(frameskip):
-            obs, reward, terminated, truncated, info = self._env.step(*args, **kwargs)
+            obs, reward, terminated, truncated, info = super().step(*args, **kwargs)
 
             total_reward += float(reward)
             for func in self.step_modifs:
@@ -133,7 +133,8 @@ class HackAtari(OCAtari):
             func(self)
         # Note that the observation on the done=True frame
         # doesn't matter
-        obs = self._post_step(obs)
+        # obs = self._post_step(obs)
+        #import ipdb;ipdb.set_trace()
         #self._fill_buffer()
         return obs, total_reward, terminated, truncated, info
 
