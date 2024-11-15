@@ -1,5 +1,6 @@
 from ocatari.core import OCAtari
 import os
+import sys
 import importlib
 import pygame
 import numpy as np
@@ -77,11 +78,11 @@ class HackAtari(OCAtari):
         self.org_reward = 0
         if rewardfunc_path:
             print(f"Changed reward function to {rewardfunc_path}")
-            reward_function = getattr(__import__(rewardfunc_path, fromlist=['']), 'reward_function')
-            if reward_function is None:
-                print(f"Error loading reward function from {rewardfunc_path}, please check the path.")
-                exit(1)
-            self.new_reward_func = reward_function
+            spec = importlib.util.spec_from_file_location("reward_function", rewardfunc_path)
+            module = importlib.util.module_from_spec(spec)
+            sys.modules["reward_function"] = module
+            spec.loader.exec_module(module)
+            self.new_reward_func = module.reward_function
             self._hack_step = self.step
             self.step = self._step_with_lm_reward
         
@@ -133,7 +134,7 @@ class HackAtari(OCAtari):
             func(self)
         # Note that the observation on the done=True frame
         # doesn't matter
-        # obs = self._post_step(obs)
+        obs = self._post_step(obs)
         #import ipdb;ipdb.set_trace()
         #self._fill_buffer()
         return obs, total_reward, terminated, truncated, info
