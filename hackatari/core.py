@@ -23,17 +23,7 @@ class HackAtari(OCAtari):
         """
         Initialize the game environment.
         """
-        if "frameskip" in kwargs:
-            if kwargs["frameskip"] == -1:
-                self._frameskip = ""
-            else:
-                self._frameskip = kwargs["frameskip"]
-        elif "NoFrameskip" or "v5" in env_name:
-            self._frameskip = 1
-        elif "Determinisitc" or "v5" in env_name:
-            self._frameskip = 4
-        else:
-            self._frameskip = "0"  # correspond to random frameskip
+        self._frameskip = kwargs["frameskip"]
         kwargs["frameskip"] = 1
         kwargs["render_oc_overlay"] = True
         kwargs["obs_mode"] = obs_mode
@@ -114,20 +104,19 @@ class HackAtari(OCAtari):
         Take a step in the game environment after altering the ram.
         """
         frameskip = self._frameskip
-        if frameskip == 0 or not frameskip:
-            frameskip = random.choice((2, 5))
         total_reward = 0.0
         terminated = truncated = False
-        for func in self.step_modifs:
-            func(self)
-        for i in range(frameskip):
-            obs, reward, terminated, truncated, info = super().step(*args, **kwargs)
-
-            total_reward += float(reward)
+        for i in range(frameskip-1):
             for func in self.step_modifs:
                 func(self)
+            obs, reward, terminated, truncated, info = self._env.step(*args, **kwargs)
+            total_reward += float(reward)
             if terminated or truncated:
                 break
+        for func in self.step_modifs:
+                func(self)
+        obs, reward, terminated, truncated, info = super().step(*args, **kwargs)
+        total_reward += float(reward)
         self.detect_objects()
         for func in self.post_detection_modifs:
             func(self)
@@ -139,17 +128,13 @@ class HackAtari(OCAtari):
         return obs, total_reward, terminated, truncated, info
 
     def _alter_reset(self, *args, **kwargs):
-        obs, info = self._env.reset(*args, **kwargs)
+        obs, info = super().reset(*args, **kwargs)
         self.org_reward = 0
         self.org_return = 0
         for func in self.reset_modifs:
             func(self)
-        self.detect_objects()
         for func in self.post_detection_modifs:
             func(self)
-        self._reset_buffer()
-        # obs = self._post_step(obs)
-        self._fill_buffer()
         return obs, info
 
     def _alter_step_with_switch(self, *args, **kwargs):
@@ -184,16 +169,13 @@ class HackAtari(OCAtari):
     def _alter_reset_with_switch(self, *args, **kwargs):
         self.step_modifs, self.reset_modfis = [], []
         self._modif_funcs(self, self.modfis)
-        obs, info = self._env.reset(*args, **kwargs)
+        obs, info = super().reset(*args, **kwargs)
         self.org_reward = 0
         self.org_return = 0
         for func in self.reset_modifs:
             func(self)
-        # self.detect_objects()
         for func in self.post_detection_modifs:
             func(self)
-        self._reset_buffer()
-        # obs = self._post_step(obs)
         return obs, info
 
     # def _colorswap_step(self, *args, **kwargs):
