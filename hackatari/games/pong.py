@@ -15,8 +15,11 @@ def lazy_enemy(self):
         self.set_ram(49, 130)
     if BALL_PREVIOUS_X_POS < ram[49]:
         self.set_ram(21, LAST_ENEMY_Y_POS)
+        tmp = LAST_ENEMY_Y_POS
+    else:
+        tmp = ram[21]
     BALL_PREVIOUS_X_POS = ram[49]
-    LAST_ENEMY_Y_POS = ram[21]
+    LAST_ENEMY_Y_POS = tmp
 
 def up_drift(self):
     """
