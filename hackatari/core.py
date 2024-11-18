@@ -1,3 +1,8 @@
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
+
+
 from ocatari.core import OCAtari
 import os
 import sys
@@ -28,9 +33,9 @@ class HackAtari(OCAtari):
             self._frameskip = kwargs["frameskip"]
         else:
             self._frameskip = 4
+        
         kwargs["frameskip"] = 1
-        # kwargs["render_oc_overlay"] = False
-        #kwargs["obs_mode"] = obs_mode
+        kwargs["obs_mode"] = obs_mode
         super().__init__(env_name, *args, **kwargs)
         covered = False
         for cgame in GameList:
