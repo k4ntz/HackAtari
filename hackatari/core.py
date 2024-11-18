@@ -1,3 +1,8 @@
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
+
+
 from ocatari.core import OCAtari
 import os
 import sys
@@ -24,9 +29,13 @@ class HackAtari(OCAtari):
         """
         Initialize the game environment.
         """
-        self._frameskip = kwargs["frameskip"]
+        if kwargs.get("frameskip", False):
+            self._frameskip = kwargs["frameskip"]
+        else:
+            self._frameskip = 4
+        
         kwargs["frameskip"] = 1
-        kwargs["render_oc_overlay"] = True
+        kwargs["render_oc_overlay"] = False
         kwargs["obs_mode"] = obs_mode
         super().__init__(env_name, *args, **kwargs)
         covered = False
@@ -118,12 +127,11 @@ class HackAtari(OCAtari):
                 func(self)
         obs, reward, terminated, truncated, info = super().step(*args, **kwargs)
         total_reward += float(reward)
-        self.detect_objects()
         for func in self.post_detection_modifs:
             func(self)
         # Note that the observation on the done=True frame
         # doesn't matter
-        obs = self._post_step(obs)
+        #obs = self._post_step(obs)
         #import ipdb;ipdb.set_trace()
         #self._fill_buffer()
         return obs, total_reward, terminated, truncated, info
