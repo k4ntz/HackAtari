@@ -99,7 +99,7 @@ class HackAtari(OCAtari):
         self.org_reward = game_reward
         self.org_return = self.org_return+game_reward
         try:
-            reward = self.new_reward_func(self.objects)
+            reward = self.new_reward_func(self)
         except Exception as e:
             print("Error in new_reward_func: ", e)
             reward = 0
