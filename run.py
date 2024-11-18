@@ -5,7 +5,6 @@ import cv2
 import sys
 import pygame
 
-
 import matplotlib.pyplot as plt
 from hackatari.utils import load_color_swaps
 from ocatari.utils import load_agent
@@ -58,13 +57,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
     obss = []
 
-    color_swaps = load_color_swaps(args.color_swaps)
+    #color_swaps = load_color_swaps(args.color_swaps)
     
     if args.human:
-        env = HumanPlayable(args.game, args.modifs, args.switch_modifs, args.switch_frame, args.reward_function, args.color_swaps, args.game_mode, args.difficulty)
+        env = HumanPlayable(args.game, args.modifs, args.switch_modifs, args.switch_frame, args.reward_function, args.game_mode, args.difficulty, render_mode="human", mode="ram", hud=True, render_oc_overlay=True, frameskip=1)
         env.run()
     else:        
-        env = HackAtari(args.game, args.modifs, args.switch_modifs, args.switch_frame, args.reward_function, color_swaps, args.game_mode, args.difficulty, render_mode="human", obs_mode="dqn")
+        env = HackAtari(args.game, args.modifs, args.switch_modifs, args.switch_frame, args.reward_function, args.game_mode, args.difficulty, render_mode="human", mode="ram", hud=True, render_oc_overlay=True, frameskip=1)
         pygame.init()
         if args.agent:
             agent = load_agent(args.agent, env.action_space.n)
@@ -83,6 +82,7 @@ if __name__ == "__main__":
                 action = agent.draw_action(env.dqn_obs)
             else:    
                 action = env.action_space.sample()
+            #import ipdb; ipdb.set_trace()
             obs, reward, terminated, truncated, _ = env.step(action)
             if reward and args.reward_function:
                 print(reward)

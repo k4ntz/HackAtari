@@ -24,10 +24,13 @@ class HackAtari(OCAtari):
         """
         Initialize the game environment.
         """
-        self._frameskip = kwargs["frameskip"]
+        if kwargs.get("frameskip", False):
+            self._frameskip = kwargs["frameskip"]
+        else:
+            self._frameskip = 4
         kwargs["frameskip"] = 1
-        kwargs["render_oc_overlay"] = True
-        kwargs["obs_mode"] = obs_mode
+        # kwargs["render_oc_overlay"] = False
+        #kwargs["obs_mode"] = obs_mode
         super().__init__(env_name, *args, **kwargs)
         covered = False
         for cgame in GameList:
@@ -118,12 +121,11 @@ class HackAtari(OCAtari):
                 func(self)
         obs, reward, terminated, truncated, info = super().step(*args, **kwargs)
         total_reward += float(reward)
-        self.detect_objects()
         for func in self.post_detection_modifs:
             func(self)
         # Note that the observation on the done=True frame
         # doesn't matter
-        obs = self._post_step(obs)
+        #obs = self._post_step(obs)
         #import ipdb;ipdb.set_trace()
         #self._fill_buffer()
         return obs, total_reward, terminated, truncated, info
@@ -206,14 +208,14 @@ class HumanPlayable(HackAtari):
     HumanPlayable: Enables human play mode for the game.
     """
 
-    def __init__(self, game, modifs=[], switch_modfis=[], switch_frame=1000, rewardfunc_path="", colorswaps={}, mode=0, difficulty=0, *args, **kwargs):
+    def __init__(self, game, modifs=[], switch_modfis=[], switch_frame=1000, rewardfunc_path="", colorswaps={}, game_mode=0, difficulty=0, *args, **kwargs):
         """
         Initializes the HumanPlayable environment with the specified game and modifications.
         """
         kwargs["render_mode"] = "human"
         kwargs["render_oc_overlay"] = True
         kwargs["full_action_space"] = True
-        super(HumanPlayable, self).__init__(game, modifs, switch_modfis, switch_frame, rewardfunc_path, colorswaps, mode, difficulty, *args, **kwargs)
+        super(HumanPlayable, self).__init__(game, modifs, switch_modfis, switch_frame, rewardfunc_path, colorswaps, game_mode, difficulty, *args, **kwargs)
         self.reset()
         self.render()  # Initialize the pygame video system
         self.print_reward = bool(rewardfunc_path)
