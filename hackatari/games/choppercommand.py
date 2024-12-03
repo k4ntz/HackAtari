@@ -3,6 +3,8 @@ count = 100
 COLOR = 0
 
 colors = [38, 40, 23, 86, 48]
+
+
 def delay_shots(self):
     """
     Puts time delay between shots
@@ -11,18 +13,20 @@ def delay_shots(self):
     if count == 100 and (self._get_action() == 1 or self._get_action() >= 10):
         count = 0
     elif 25 < count < 100:
-        for ram_n in [49,52,55,58,61,64]:
+        for ram_n in [49, 52, 55, 58, 61, 64]:
             self.set_ram(ram_n, 0)
         self.set_ram(45, 0)
     if count < 100:
         count += 1
-    
+
+
 def no_enemies(self):
     """
     Removes all Enemies from the game
     """
-    for ram_n in range(6,13):
+    for ram_n in range(6, 13):
         self.set_ram(ram_n, 0)
+
 
 def no_radar(self):
     """
@@ -31,11 +35,13 @@ def no_radar(self):
     # self.set_ram(117, 8)
     self.set_ram(118, 37)
 
+
 def invisible_player(self):
     """
     Makes the player invisible
     """
     self.set_ram(118, 38)
+
 
 def color(self):
     """
@@ -46,7 +52,6 @@ def color(self):
 
 
 def _modif_funcs(env, modifs):
-    
     for mod in modifs:
         if mod == "delay_shots":
             env.step_modifs.append(delay_shots)
@@ -60,10 +65,13 @@ def _modif_funcs(env, modifs):
             if mod[-1].isdigit():
                 mod_n = int(mod[-1])
                 if mod_n < 0 or mod_n > 4:
-                    raise ValueError("Invalid color value, choose value 0-4 [black, white, red, blue, green]")
+                    raise ValueError(
+                        "Invalid color value, choose value 0-4 [black, white, red, blue, green]"
+                    )
             else:
-                raise ValueError("Append value 0-4 [black, white, red, blue, green] to your color mod-argument")
+                raise ValueError(
+                    "Append value 0-4 [black, white, red, blue, green] to your color mod-argument"
+                )
             global COLOR
             COLOR = mod_n
             env.step_modifs.append(color)
-    

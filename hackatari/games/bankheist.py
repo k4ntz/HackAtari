@@ -1,4 +1,4 @@
-import random 
+import random
 
 TOWNS_VISITED = []
 REMAINING_TOWNS = [i for i in range(256)]
@@ -20,8 +20,8 @@ def no_police(self):
     """
     ram = self.get_ram()
     for i in range(3):
-        if ram[24+i] == 254:
-            self.set_ram(24+i, 0)
+        if ram[24 + i] == 254:
+            self.set_ram(24 + i, 0)
 
 
 def only_police(self):
@@ -30,8 +30,8 @@ def only_police(self):
     """
     ram = self.get_ram()
     for i in range(3):
-        if ram[24+i] == 253:
-            self.set_ram(24+i, 254)
+        if ram[24 + i] == 253:
+            self.set_ram(24 + i, 254)
 
 
 def random_city(self):
@@ -41,16 +41,16 @@ def random_city(self):
     global TOWNS_VISITED, REMAINING_TOWNS, CURRENT_TOWN
     ram = self.get_ram()
     city = ram[0]
-    if city == CURRENT_TOWN + 1: # arrived to new city
+    if city == CURRENT_TOWN + 1:  # arrived to new city
         picked_city = REMAINING_TOWNS.pop(0)
         CURRENT_TOWN = picked_city
-        if len(REMAINING_TOWNS) == 0: # reset
+        if len(REMAINING_TOWNS) == 0:  # reset
             REMAINING_TOWNS = [i for i in range(256)]
             random.shuffle(REMAINING_TOWNS)
         TOWNS_VISITED.append(picked_city)
         self.set_ram(0, picked_city)
-    
-    
+
+
 def random_city_res(self):
     """
     Resets the city randomizer.
@@ -63,7 +63,7 @@ def random_city_res(self):
     CURRENT_TOWN = picked_city
     TOWNS_VISITED.append(picked_city)
     self.set_ram(0, picked_city)
-    
+
 
 def revisit_city(self):
     """
@@ -84,7 +84,6 @@ def revisit_city(self):
 
 
 def _modif_funcs(env, modifs):
-    
     for mod in modifs:
         if mod == "unlimited_gas":
             env.step_modifs.append(unlimited_gas)
@@ -97,4 +96,3 @@ def _modif_funcs(env, modifs):
             env.reset_modifs.append(random_city_res)
         elif mod == "revisit_city":
             env.step_modifs.append(revisit_city)
-    

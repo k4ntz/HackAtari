@@ -1,31 +1,71 @@
 import warnings
+
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
 from ocatari.core import OCAtari
-import os
 import sys
 import importlib
 import pygame
 import numpy as np
 import random
-from hackatari.ale_mods import ALEColorSwap, ALEInpainting, colorswappinng, assert_colorswaps
+from hackatari.ale_mods import (
+    ALEColorSwap,
+    ALEInpainting,
+    assert_colorswaps,
+)
 
-GameList = ["Amidar","Atlantis", "Asterix", "BankHeist", "BattleZone",
-            "Boxing", "Breakout", "Carnival", "ChopperCommand", 
-            "DonkeyKong", "DoubleDunk", "FishingDerby", "Freeway", 
-            "Frostbite", "Kangaroo", "KungFuMaster", "MontezumaRevenge",
-            "MsPacman", "NameThisGame","Pong", "Riverraid", "Seaquest",  "Skiing",
-            "SpaceInvaders", "Tennis", "Venture", "YarsRevenge"]
+GameList = [
+    "Amidar",
+    "Atlantis",
+    "Asterix",
+    "BankHeist",
+    "BattleZone",
+    "Boxing",
+    "Breakout",
+    "Carnival",
+    "ChopperCommand",
+    "DonkeyKong",
+    "DoubleDunk",
+    "FishingDerby",
+    "Freeway",
+    "Frostbite",
+    "Kangaroo",
+    "KungFuMaster",
+    "MontezumaRevenge",
+    "MsPacman",
+    "NameThisGame",
+    "Pong",
+    "Riverraid",
+    "Seaquest",
+    "Skiing",
+    "SpaceInvaders",
+    "Tennis",
+    "Venture",
+    "YarsRevenge",
+]
 
 
 class HackAtari(OCAtari):
     """
-    HackAtari provides variation of Atari Learning Environments. 
+    HackAtari provides variation of Atari Learning Environments.
     It is built on top of OCAtari, which provides object-centric observations.
     """
-    def __init__(self, env_name: str, modifs=[], switch_modfis=[], switch_frame=1000, rewardfunc_path=None, colorswaps=None, game_mode=0, difficulty=0, *args, **kwargs):
+
+    def __init__(
+        self,
+        env_name: str,
+        modifs=[],
+        switch_modfis=[],
+        switch_frame=1000,
+        rewardfunc_path=None,
+        colorswaps=None,
+        game_mode=0,
+        difficulty=0,
+        *args,
+        **kwargs,
+    ):
         """
         Initialize the game environment.
         """
@@ -33,7 +73,7 @@ class HackAtari(OCAtari):
             self._frameskip = kwargs["frameskip"]
         else:
             self._frameskip = 4
-        
+
         kwargs["frameskip"] = 1
         super().__init__(env_name, *args, **kwargs)
         covered = False
@@ -48,13 +88,17 @@ class HackAtari(OCAtari):
             # _modif_funcs = lambda x, y: ([], [])
             self._modif_funcs = lambda x, y: ([], [])
         else:
-            self._modif_funcs = importlib.import_module(f"hackatari.games.{game.lower()}")._modif_funcs
+            self._modif_funcs = importlib.import_module(
+                f"hackatari.games.{game.lower()}"
+            )._modif_funcs
 
         self.step_modifs, self.reset_modifs, self.post_detection_modifs = [], [], []
         self.inpaintings, self.place_above = [], []
         self._modif_funcs(self, modifs)
         if self.inpaintings:
-            self.env.env.ale = ALEInpainting(self.env.env.ale, self.inpaintings, self.place_above)
+            self.env.env.ale = ALEInpainting(
+                self.env.env.ale, self.inpaintings, self.place_above
+            )
         self._oc_step = self.step
         self._oc_reset = self.reset
         if colorswaps:
@@ -70,43 +114,49 @@ class HackAtari(OCAtari):
         else:
             self.step = self._alter_step
             self.reset = self._alter_reset
-        
+
         self.org_return = 0
         self.org_reward = 0
         if rewardfunc_path:
             print(f"Changed reward function to {rewardfunc_path}")
-            spec = importlib.util.spec_from_file_location("reward_function", rewardfunc_path)
+            spec = importlib.util.spec_from_file_location(
+                "reward_function", rewardfunc_path
+            )
             module = importlib.util.module_from_spec(spec)
             sys.modules["reward_function"] = module
             spec.loader.exec_module(module)
             self.new_reward_func = module.reward_function
             self._hack_step = self.step
             self.step = self._step_with_lm_reward
-        
+
         try:
             self.env.env.ale.setMode(game_mode)
         except RuntimeError:
-            print(f"Oops!  That was no valid number. The available modes are {self.env.env.ale.getAvailableModes()}")
+            print(
+                f"Oops!  That was no valid number. The available modes are {self.env.env.ale.getAvailableModes()}"
+            )
             exit()
         try:
             self.env.env.ale.setDifficulty(difficulty)
         except RuntimeError:
-            print(f"Oops!  That was no valid number. The available difficulties are {self.env.env.ale.getAvailableDifficulties()}")
+            print(
+                f"Oops!  That was no valid number. The available difficulties are {self.env.env.ale.getAvailableDifficulties()}"
+            )
             exit()
-    
+
     def _step_with_lm_reward(self, action):
         obs, game_reward, truncated, terminated, info = self._hack_step(action)
         self.org_reward = game_reward
-        self.org_return = self.org_return+game_reward
+        self.org_return = self.org_return + game_reward
         try:
             reward = self.new_reward_func(self)
         except Exception as e:
             print("Error in new_reward_func: ", e)
             reward = 0
-        
+
         info["org_return"] = self.org_return
         return obs, reward, truncated, terminated, info
-    
+
     def _alter_step(self, *args, **kwargs):
         """
         Take a step in the game environment after altering the ram.
@@ -114,7 +164,7 @@ class HackAtari(OCAtari):
         frameskip = self._frameskip
         total_reward = 0.0
         terminated = truncated = False
-        for i in range(frameskip-1):
+        for i in range(frameskip - 1):
             for func in self.step_modifs:
                 func(self)
             obs, reward, terminated, truncated, info = self._env.step(*args, **kwargs)
@@ -122,16 +172,16 @@ class HackAtari(OCAtari):
             if terminated or truncated:
                 break
         for func in self.step_modifs:
-                func(self)
+            func(self)
         obs, reward, terminated, truncated, info = super().step(*args, **kwargs)
         total_reward += float(reward)
         for func in self.post_detection_modifs:
             func(self)
         # Note that the observation on the done=True frame
         # doesn't matter
-        #obs = self._post_step(obs)
-        #import ipdb;ipdb.set_trace()
-        #self._fill_buffer()
+        # obs = self._post_step(obs)
+        # import ipdb;ipdb.set_trace()
+        # self._fill_buffer()
         return obs, total_reward, terminated, truncated, info
 
     def _alter_reset(self, *args, **kwargs):
@@ -164,7 +214,11 @@ class HackAtari(OCAtari):
             if terminated or truncated:
                 break
         # self.detect_objects()
-        if self.switch_frame - frameskip <= info['episode_frame_number'] < self.switch_frame:
+        if (
+            self.switch_frame - frameskip
+            <= info["episode_frame_number"]
+            < self.switch_frame
+        ):
             self._modif_funcs(self, self.switch_modfis)
         for func in self.post_detection_modifs:
             func(self)
@@ -200,7 +254,7 @@ class HackAtari(OCAtari):
     #     ret = self._alter_reset(*args, **kwargs)
     #     colorswappinng(ret[0], self.colorswaps)
     #     return ret
-    
+
     # def _altered_screen_RGB(self, colorswaps):
     #     ret = self.getScreenRGB()
     #     colorswappinng(ret, colorswaps)
@@ -212,14 +266,37 @@ class HumanPlayable(HackAtari):
     HumanPlayable: Enables human play mode for the game.
     """
 
-    def __init__(self, game, modifs=[], switch_modfis=[], switch_frame=1000, rewardfunc_path="", colorswaps={}, game_mode=0, difficulty=0, *args, **kwargs):
+    def __init__(
+        self,
+        game,
+        modifs=[],
+        switch_modfis=[],
+        switch_frame=1000,
+        rewardfunc_path="",
+        colorswaps={},
+        game_mode=0,
+        difficulty=0,
+        *args,
+        **kwargs,
+    ):
         """
         Initializes the HumanPlayable environment with the specified game and modifications.
         """
         kwargs["render_mode"] = "human"
         kwargs["render_oc_overlay"] = True
         kwargs["full_action_space"] = True
-        super(HumanPlayable, self).__init__(game, modifs, switch_modfis, switch_frame, rewardfunc_path, colorswaps, game_mode, difficulty, *args, **kwargs)
+        super(HumanPlayable, self).__init__(
+            game,
+            modifs,
+            switch_modfis,
+            switch_frame,
+            rewardfunc_path,
+            colorswaps,
+            game_mode,
+            difficulty,
+            *args,
+            **kwargs,
+        )
         self.reset()
         self.render()  # Initialize the pygame video system
         self.print_reward = bool(rewardfunc_path)
@@ -227,28 +304,26 @@ class HumanPlayable(HackAtari):
         self.current_keys_down = set()
         self.keys2actions = self.env.unwrapped.get_keys_to_action()
 
-
-
     def run(self):
-        '''
+        """
         run: Runs the ExtendedHuman environment, allowing human interaction with the game.
-        '''
+        """
         pygame.init()
         self.running = True
         while self.running:
             self._handle_user_input()
             if not self.paused:
                 action = self._get_action()
-                _, reward, _, _, _ =self.step(action)
+                _, reward, _, _, _ = self.step(action)
                 if self.print_reward and reward:
                     print(reward)
                 self.render()
         pygame.quit()
 
     def _get_action(self):
-        '''
+        """
         _get_action: Gets the action corresponding to the current key press.
-        '''
+        """
         pressed_keys = list(self.current_keys_down)
         pressed_keys.sort()
         pressed_keys = tuple(pressed_keys)
@@ -258,9 +333,9 @@ class HumanPlayable(HackAtari):
             return 0  # NOOP
 
     def _handle_user_input(self):
-        '''
+        """
         _handle_user_input: Handles user input for the BoxingExtendedHuman environment.
-        '''
+        """
         self.current_mouse_pos = np.asarray(pygame.mouse.get_pos())
 
         events = pygame.event.get()

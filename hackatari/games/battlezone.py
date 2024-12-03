@@ -7,8 +7,6 @@ def no_radar(self):
 
 
 def _modif_funcs(env, modifs):
-    
     for mod in modifs:
-        if  mod == "no_radar":
+        if mod == "no_radar":
             env.step_modifs.append(no_radar)
-    

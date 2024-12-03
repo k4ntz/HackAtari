@@ -1,2 +1,5 @@
 *.pyc
+*.pkl
+.idea
+hackatari.egg-info
 docs/_build

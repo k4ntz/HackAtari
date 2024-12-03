@@ -5,6 +5,7 @@ DIVERS = 0
 COLLISION = False
 COLLECTED = 0
 
+
 def check_collision(obj1, obj2):
     """
     Check if two GameObjects collide based on their bounding boxes.
@@ -23,9 +24,9 @@ def check_collision(obj1, obj2):
     # Check for overlap on the y-axis
     collision_y = obj1.y < bottom2 and bottom1 > obj2.y
 
-
     # Return True if both conditions are met, otherwise False
     return collision_x and collision_y
+
 
 def reward_function(self) -> float:
     global LOW_OXYGEN
@@ -35,7 +36,7 @@ def reward_function(self) -> float:
 
     game_objects = self.objects
     reward = 0.0
-    
+
     # Define categories for easy identification
     player = None
     divers = []
@@ -43,7 +44,7 @@ def reward_function(self) -> float:
     player_missiles = []
     enemy_missiles = []
     oxygen_bar = None
-    
+
     # Classify objects
     for obj in game_objects:
         if isinstance(obj, Player):
@@ -62,13 +63,12 @@ def reward_function(self) -> float:
     if player:
         for diver in divers:
             if check_collision(player, diver) and COLLECTED != 6:
-                COLLISION=True  
-                
+                COLLISION = True
+
     if DIVERS > len(divers) and COLLISION:
         reward += 1  # Scaled down reward for collecting a diver
         COLLECTED += 1
-        COLLISION=False
-        
+        COLLISION = False
 
     DIVERS = len(divers)
 
@@ -83,10 +83,8 @@ def reward_function(self) -> float:
                 reward += 5
             else:
                 reward += 0
-        
+
     if oxygen_bar and oxygen_bar.value <= 20 and player.y != 45:
         LOW_OXYGEN = True
-    
-    return reward
 
-    
+    return reward
