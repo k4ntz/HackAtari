@@ -26,9 +26,35 @@ class Renderer:
     clock: pygame.time.Clock
     env: OCAtari
 
-    def __init__(self, env_name: str, modifs: list, switch_modifs: list, switch_frame: int,  reward_function: str, color_swaps: dict, no_render: list = [], variant: int = 0, difficulty: int = 0):
-        self.env = HackAtari(env_name, modifs, switch_modifs, switch_frame, reward_function, colorswaps=color_swaps, game_mode=variant, difficulty=difficulty, mode="ram", hud=True, render_mode="rgb_array",
-                             render_oc_overlay=True, frameskip=1, obs_mode="obj", full_action_space=True)
+    def __init__(
+        self,
+        env_name: str,
+        modifs: list,
+        switch_modifs: list,
+        switch_frame: int,
+        reward_function: str,
+        color_swaps: dict,
+        no_render: list = [],
+        variant: int = 0,
+        difficulty: int = 0,
+    ):
+        self.env = HackAtari(
+            env_name,
+            modifs,
+            switch_modifs,
+            switch_frame,
+            reward_function,
+            colorswaps=color_swaps,
+            game_mode=variant,
+            difficulty=difficulty,
+            mode="ram",
+            hud=True,
+            render_mode="rgb_array",
+            render_oc_overlay=True,
+            frameskip=1,
+            obs_mode="obj",
+            full_action_space=True,
+        )
 
         self.env.reset(seed=42)
         self.current_frame = self.env.render()
@@ -44,18 +70,21 @@ class Renderer:
 
         self.active_cell_idx = None
         self.candidate_cell_ids = []
-        self.current_active_cell_input : str = ""
+        self.current_active_cell_input: str = ""
         self.no_render = no_render
 
     def _init_pygame(self, sample_image):
         pygame.init()
         pygame.display.set_caption("OCAtari Environment")
         self.env_render_shape = sample_image.shape[:2]
-        window_size = (self.env_render_shape[0] + RAM_RENDER_WIDTH, self.env_render_shape[1])
+        window_size = (
+            self.env_render_shape[0] + RAM_RENDER_WIDTH,
+            self.env_render_shape[1],
+        )
         self.window = pygame.display.set_mode(window_size)
         self.clock = pygame.time.Clock()
-        self.ram_cell_id_font = pygame.font.SysFont('Pixel12x10', 25)
-        self.ram_cell_value_font = pygame.font.SysFont('Pixel12x10', 30)
+        self.ram_cell_id_font = pygame.font.SysFont("Pixel12x10", 25)
+        self.ram_cell_value_font = pygame.font.SysFont("Pixel12x10", 30)
 
     def run(self):
         self.running = True
@@ -115,7 +144,7 @@ class Renderer:
             elif event.type == pygame.KEYDOWN:  # keyboard key pressed
                 if event.key == pygame.K_p:  # 'P': pause/resume
                     self.paused = not self.paused
-                
+
                 if event.key == pygame.K_s:  # 'S': save
                     if self.paused:
                         statepkl = self.env._ale.cloneState()
@@ -129,7 +158,9 @@ class Renderer:
                 elif event.key == pygame.K_ESCAPE and self.active_cell_idx is not None:
                     self._unselect_active_cell()
 
-                elif [x for x in self.keys2actions.keys() if event.key in x]: #(event.key,) in self.keys2actions.keys() or [x for x in self.keys2actions.keys() if event.key in x]:  # env action
+                elif [
+                    x for x in self.keys2actions.keys() if event.key in x
+                ]:  # (event.key,) in self.keys2actions.keys() or [x for x in self.keys2actions.keys() if event.key in x]:  # env action
                     self.current_keys_down.add(event.key)
 
                 elif pygame.K_0 <= event.key <= pygame.K_9:  # enter digit
@@ -144,18 +175,24 @@ class Renderer:
 
                 elif event.key == pygame.K_BACKSPACE:  # remove character
                     if self.active_cell_idx is not None:
-                        self.current_active_cell_input = self.current_active_cell_input[:-1]
+                        self.current_active_cell_input = self.current_active_cell_input[
+                            :-1
+                        ]
 
                 elif event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER:
                     if self.active_cell_idx is not None:
                         if len(self.current_active_cell_input) > 0:
                             new_cell_value = int(self.current_active_cell_input)
                             if new_cell_value < 256:
-                                self._set_ram_value_at(self.active_cell_idx, new_cell_value)
+                                self._set_ram_value_at(
+                                    self.active_cell_idx, new_cell_value
+                                )
                         self._unselect_active_cell()
 
             elif event.type == pygame.KEYUP:  # keyboard key released
-                if [x for x in self.keys2actions.keys() if event.key in x]: #(event.key,) in self.keys2actions.keys():
+                if [
+                    x for x in self.keys2actions.keys() if event.key in x
+                ]:  # (event.key,) in self.keys2actions.keys():
                     self.current_keys_down.remove(event.key)
 
     def _render(self, frame=None):
@@ -174,7 +211,7 @@ class Renderer:
         self.window.blit(frame_surface, (0, 0))
         self.clock.tick(60)
 
-    def _render_ram(self):        
+    def _render_ram(self):
         ale = self.env.unwrapped.ale
         ram = ale.getRAM()
 
@@ -267,7 +304,7 @@ class Renderer:
             self.window.blit(hover_surface, (x, y))
 
     def _get_cell_under_mouse(self):
-        x, y = self.current_mouse_pos   
+        x, y = self.current_mouse_pos
         if x > self.ram_grid_anchor_left and y > self.ram_grid_anchor_top:
             col = (x - self.ram_grid_anchor_left) // 120
             row = (y - self.ram_grid_anchor_top) // 50
@@ -314,47 +351,104 @@ class Renderer:
 if __name__ == "__main__":
     from argparse import ArgumentParser
 
-    parser = ArgumentParser(description='HackAtari remgui.py Argument Setter')
+    parser = ArgumentParser(description="HackAtari remgui.py Argument Setter")
 
-    parser.add_argument('-g', '--game', type=str, default="Seaquest",
-                        help='Game to be run')
+    parser.add_argument(
+        "-g", "--game", type=str, default="Seaquest", help="Game to be run"
+    )
 
     # Argument to enable gravity for the player.
-    parser.add_argument('-m', '--modifs', nargs='+', default=[],
-                        help='List of the modifications to be brought to the game')
-    parser.add_argument('-ls', '--load_state', type=str, default="")
-    parser.add_argument('-hu', '--human', action='store_true',
-                        help='Let user play the game.')
-    
-    parser.add_argument('-sm', '--switch_modifs', nargs='+', default=[],
-                        help='List of the modifications to be brought to the game after a certain frame')
-    parser.add_argument('-sf', '--switch_frame', type=int, default=0,
-                        help='Swicht_modfis are applied to the game after this frame-threshold')
-    parser.add_argument('-p', '--picture', type=int, default=0,
-                        help='Takes a picture after the number of steps provided.')
-    parser.add_argument('-cs', '--color_swaps', default='',
-                        help='Colorswaps to be applied to the images.')
-    parser.add_argument('-rf','--reward_function', type=str, default='', 
-                        help="Replace the default reward fuction with new one in path rf")
-    parser.add_argument('-a','--agent', type=str, default='', 
-                        help="Path to the cleanrl trained agent to be loaded.")
-    parser.add_argument('-mo','--game_mode', type=int, default=0, 
-                        help="Use an alternative ALE game mode")
-    parser.add_argument('-d','--difficulty', type=int, default=0, 
-                        help="Use an alternative ALE difficulty for the game.")
-    parser.add_argument('-nr', '--no_render', type=int, default=[],
-                        help='Cells to not render.', nargs='+')
+    parser.add_argument(
+        "-m",
+        "--modifs",
+        nargs="+",
+        default=[],
+        help="List of the modifications to be brought to the game",
+    )
+    parser.add_argument("-ls", "--load_state", type=str, default="")
+    parser.add_argument(
+        "-hu", "--human", action="store_true", help="Let user play the game."
+    )
 
-
+    parser.add_argument(
+        "-sm",
+        "--switch_modifs",
+        nargs="+",
+        default=[],
+        help="List of the modifications to be brought to the game after a certain frame",
+    )
+    parser.add_argument(
+        "-sf",
+        "--switch_frame",
+        type=int,
+        default=0,
+        help="Swicht_modfis are applied to the game after this frame-threshold",
+    )
+    parser.add_argument(
+        "-p",
+        "--picture",
+        type=int,
+        default=0,
+        help="Takes a picture after the number of steps provided.",
+    )
+    parser.add_argument(
+        "-cs",
+        "--color_swaps",
+        default="",
+        help="Colorswaps to be applied to the images.",
+    )
+    parser.add_argument(
+        "-rf",
+        "--reward_function",
+        type=str,
+        default="",
+        help="Replace the default reward fuction with new one in path rf",
+    )
+    parser.add_argument(
+        "-a",
+        "--agent",
+        type=str,
+        default="",
+        help="Path to the cleanrl trained agent to be loaded.",
+    )
+    parser.add_argument(
+        "-mo",
+        "--game_mode",
+        type=int,
+        default=0,
+        help="Use an alternative ALE game mode",
+    )
+    parser.add_argument(
+        "-d",
+        "--difficulty",
+        type=int,
+        default=0,
+        help="Use an alternative ALE difficulty for the game.",
+    )
+    parser.add_argument(
+        "-nr",
+        "--no_render",
+        type=int,
+        default=[],
+        help="Cells to not render.",
+        nargs="+",
+    )
 
     args = parser.parse_args()
 
     color_swaps = load_color_swaps(args.color_swaps)
 
-
-    renderer = Renderer(args.game, args.modifs, args.switch_modifs, 
-                        args.switch_frame, args.reward_function, color_swaps, 
-                        args.no_render, args.game_mode, args.difficulty )
+    renderer = Renderer(
+        args.game,
+        args.modifs,
+        args.switch_modifs,
+        args.switch_frame,
+        args.reward_function,
+        color_swaps,
+        args.no_render,
+        args.game_mode,
+        args.difficulty,
+    )
     if args.load_state:
         with open(args.load_state, "rb") as f:
             state = pkl.load(f)
@@ -367,6 +461,7 @@ if __name__ == "__main__":
             for i in sorted(renderer.no_render):
                 print(i, end=" ")
             print("")
+
     atexit.register(exit_handler)
 
     renderer.run()

@@ -4,6 +4,7 @@ BALL_PREVIOUS_X_POS = 130
 STRENGTH = 6
 TIMER = 0
 
+
 def lazy_enemy(self):
     """
     Enemy does not move after returning the shot.
@@ -21,6 +22,7 @@ def lazy_enemy(self):
     BALL_PREVIOUS_X_POS = ram[49]
     LAST_ENEMY_Y_POS = tmp
 
+
 def up_drift(self):
     """
     Makes the ball drift upwards by changing the corresponding ram positions
@@ -30,10 +32,13 @@ def up_drift(self):
     new_ball_pos = ball_y - 1
 
     global TIMER
-    #else the ball isnt there at all or outside of the walls
-    if ball_y != 0 and not TIMER%STRENGTH: # if (ball_y + 9 <= 196 and new_ball_pos != 0) and 57 <= new_ball_pos <= 199 and not TIMER%10:
+    # else the ball isnt there at all or outside of the walls
+    if (
+        ball_y != 0 and not TIMER % STRENGTH
+    ):  # if (ball_y + 9 <= 196 and new_ball_pos != 0) and 57 <= new_ball_pos <= 199 and not TIMER%10:
         self.set_ram(54, new_ball_pos)
-    TIMER +=1
+    TIMER += 1
+
 
 def down_drift(self):
     """
@@ -44,10 +49,13 @@ def down_drift(self):
     new_ball_pos = ball_y + 1
 
     global TIMER
-    #else the ball isnt there at all or outside of the walls
-    if ball_y != 0 and not TIMER%STRENGTH: # if (ball_y + 9 <= 196 and new_ball_pos != 0) and 57 <= new_ball_pos <= 199 and not TIMER%10:
+    # else the ball isnt there at all or outside of the walls
+    if (
+        ball_y != 0 and not TIMER % STRENGTH
+    ):  # if (ball_y + 9 <= 196 and new_ball_pos != 0) and 57 <= new_ball_pos <= 199 and not TIMER%10:
         self.set_ram(54, new_ball_pos)
-    TIMER +=1
+    TIMER += 1
+
 
 def right_drift(self):
     """
@@ -58,10 +66,13 @@ def right_drift(self):
     new_ball_pos = ball_x + 1
 
     global TIMER
-    #else the ball isnt there at all or outside of the walls
-    if ball_x != 0 and not TIMER%STRENGTH: # if (ball_y + 9 <= 196 and new_ball_pos != 0) and 57 <= new_ball_pos <= 199 and not TIMER%10:
+    # else the ball isnt there at all or outside of the walls
+    if (
+        ball_x != 0 and not TIMER % STRENGTH
+    ):  # if (ball_y + 9 <= 196 and new_ball_pos != 0) and 57 <= new_ball_pos <= 199 and not TIMER%10:
         self.set_ram(49, new_ball_pos)
-    TIMER +=1
+    TIMER += 1
+
 
 def left_drift(self):
     """
@@ -72,10 +83,13 @@ def left_drift(self):
     new_ball_pos = ball_x - 1
 
     global TIMER
-    #else the ball isnt there at all or outside of the walls
-    if ball_x != 0 and not TIMER%STRENGTH: # if (ball_y + 9 <= 196 and new_ball_pos != 0) and 57 <= new_ball_pos <= 199 and not TIMER%10:
+    # else the ball isnt there at all or outside of the walls
+    if (
+        ball_x != 0 and not TIMER % STRENGTH
+    ):  # if (ball_y + 9 <= 196 and new_ball_pos != 0) and 57 <= new_ball_pos <= 199 and not TIMER%10:
         self.set_ram(49, new_ball_pos)
-    TIMER +=1
+    TIMER += 1
+
 
 def _modif_funcs(env, modifs):
     for mod in modifs:
@@ -90,7 +104,7 @@ def _modif_funcs(env, modifs):
                 if mod_n == 1:
                     STRENGTH = 3
                 else:
-                    STRENGTH = mod_n*2
+                    STRENGTH = mod_n * 2
             if mod.startswith("up_drift"):
                 env.step_modifs.append(up_drift)
             elif mod.startswith("down_drift"):
@@ -104,5 +118,4 @@ def _modif_funcs(env, modifs):
         # elif mod == "disable_enemies":
         #     env.step_modifs.append(disable_enemies)
         else:
-            print(f'Invalid modification: {mod}')
-    
+            print(f"Invalid modification: {mod}")

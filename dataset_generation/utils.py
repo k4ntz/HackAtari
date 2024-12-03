@@ -1,10 +1,18 @@
-import pandas as pd
 import torch
 import numpy as np
 from tqdm import tqdm
 
+
 def classname(classstring):
-    return str(type(classstring)).replace("<class '", "",).replace("'>", "")
+    return (
+        str(type(classstring))
+        .replace(
+            "<class '",
+            "",
+        )
+        .replace("'>", "")
+    )
+
 
 def get_dtypes(df):
     dtypes = {}
@@ -16,8 +24,10 @@ def get_dtypes(df):
             dtypes[col] = classname(df[col][0])
     return dtypes
 
+
 def get_props(objects_list):
     return
+
 
 def get_obj_props(objects_serie):
     samples = {}
@@ -31,8 +41,10 @@ def get_obj_props(objects_serie):
         props[obj.category] = obj.properties
     return props
 
+
 def distance(obj1, obj2):
     return abs(obj1.x - obj2.x) + abs(obj1.y - obj2.y)
+
 
 def get_closest_obj(obj, obj_list):
     candidates = [o for o in obj_list if o.category == obj.category]
@@ -43,7 +55,13 @@ def get_closest_obj(obj, obj_list):
 def same_object_list(obj1, obj2):
     if len(obj1) != len(obj2):
         return False
-    for o1, o2 in zip(sorted(obj1, key=lambda x: str(x),), sorted(obj2, key=lambda x: str(x))):
+    for o1, o2 in zip(
+        sorted(
+            obj1,
+            key=lambda x: str(x),
+        ),
+        sorted(obj2, key=lambda x: str(x)),
+    ):
         if o1.category != o2.category or o1.manathan_distance(o2) > 8:
             return False
     return True

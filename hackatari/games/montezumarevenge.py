@@ -1,5 +1,4 @@
 import random
-import numpy as np
 
 NB_LIFES = 5
 poses = ((77, 235), (88, 192), (128, 192), (133, 148), (33, 148), (22, 192))
@@ -14,10 +13,32 @@ LEVEL = 0
 
 # First list entey are is the item type (ram[49] for type, ram[50] for color), second list entry is the amount and space between items of the same type (ram[84])
 
-ITEMS = [           [1, 0], None, None,
-                None, None, [6, 0], [2, 0], [4, 0],
-            [4, 0], None, [1, 0], None, None, None, [4, 0],
-         None, None, None, None, [4, 0], [1, 4], None, None, [1, 3]]
+ITEMS = [
+    [1, 0],
+    None,
+    None,
+    None,
+    None,
+    [6, 0],
+    [2, 0],
+    [4, 0],
+    [4, 0],
+    None,
+    [1, 0],
+    None,
+    None,
+    None,
+    [4, 0],
+    None,
+    None,
+    None,
+    None,
+    [4, 0],
+    [1, 4],
+    None,
+    None,
+    [1, 3],
+]
 
 
 # MAP = [             [0, 1, 2],
@@ -46,7 +67,7 @@ def random_position_start(self):
     if ram[3] == 1:
         global NB_LIFES, DEAD
         ram = self.get_ram()
-        if ram[58] == NB_LIFES - 1 or DEAD: # life lost
+        if ram[58] == NB_LIFES - 1 or DEAD:  # life lost
             DEAD = True
         if DEAD:
             if ram[2] == 4:
@@ -56,12 +77,14 @@ def random_position_start(self):
                     self.set_ram(ram_n, pos[i])
                 DEAD = False
 
+
 def set_level(self):
     """
     Changes the level to a more difficult version. Level 0, 1, 2 are different versions, afterwards level%3 determines map layout.
     """
     global LEVEL
     self.set_ram(57, LEVEL)
+
 
 def randomize_items(self):
     """
@@ -77,8 +100,9 @@ def randomize_items(self):
     j = 0
     for i in item_rooms:
         new_items[i] = ITEMS[randomized[j]]
-        j+=1
+        j += 1
     ITEMS = new_items
+
 
 def change_items(self):
     # ram[49] for type, ram[50] for color, space between items of the same type ram[84]
@@ -95,11 +119,13 @@ def change_items(self):
         self.set_ram(50, color)
         self.set_ram(84, ITEMS[ram[3]][1])
 
+
 def full_inventory(self):
     """
     Adds all items to inventory.
     """
     self.set_ram(65, 249)
+
 
 def unify_item_color(self):
     """
@@ -110,7 +136,6 @@ def unify_item_color(self):
 
 
 def _modif_funcs(env, modifs):
-    
     for mod in modifs:
         if mod == "random_position_start":
             env.step_modifs.append(random_position_start)
@@ -120,7 +145,9 @@ def _modif_funcs(env, modifs):
             try:
                 LEVEL = int(mod[-1])
             except:
-                raise("Append a number 0-9 to the end of the mod-argument to choose the level")
+                raise (
+                    "Append a number 0-9 to the end of the mod-argument to choose the level"
+                )
             env.reset_modifs.append(set_level)
         elif mod == "randomize_items":
             env.step_modifs.append(change_items)
@@ -131,12 +158,15 @@ def _modif_funcs(env, modifs):
             if mod[-1].isdigit():
                 mod_n = int(mod[-1])
                 if mod_n < 0 or mod_n > 4:
-                    raise ValueError("Invalid color value, choose value 0-4 [Black (Invisible), Orang (Ruby), White (Sword), Yellow (Key), Green (Snake)]")
+                    raise ValueError(
+                        "Invalid color value, choose value 0-4 [Black (Invisible), Orang (Ruby), White (Sword), Yellow (Key), Green (Snake)]"
+                    )
             else:
-                raise ValueError("Append value 0-4 [Black (Invisible), Orang (Ruby), White (Sword), Yellow (Key), Green (Snake)] to your color mod-argument")
+                raise ValueError(
+                    "Append value 0-4 [Black (Invisible), Orang (Ruby), White (Sword), Yellow (Key), Green (Snake)] to your color mod-argument"
+                )
             global COLOR_INDEX
             COLOR_INDEX = mod_n
             env.step_modifs.append(unify_item_color)
         else:
-            print('Invalid modification')
-    
+            print("Invalid modification")

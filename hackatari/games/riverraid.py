@@ -10,15 +10,13 @@ def no_fuel(self):
     self.set_ram(55, 255)
     for i in range(6):
         type = ram[32 + i]
-        if type == 10: # fuel deposit
-            self.set_ram(32+i, 0)
+        if type == 10:  # fuel deposit
+            self.set_ram(32 + i, 0)
 
 
 def _modif_funcs(env, modifs):
-    
     for mod in modifs:
         if mod == "no_fuel":
             env.step_modifs.append(no_fuel)
         else:
-            print('Invalid modification')
-    
+            print("Invalid modification")
