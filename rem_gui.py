@@ -28,7 +28,7 @@ class Renderer:
 
     def __init__(self, env_name: str, modifs: list, switch_modifs: list, switch_frame: int,  reward_function: str, color_swaps: dict, no_render: list = [], variant: int = 0, difficulty: int = 0):
         self.env = HackAtari(env_name, modifs, switch_modifs, switch_frame, reward_function, colorswaps=color_swaps, game_mode=variant, difficulty=difficulty, mode="ram", hud=True, render_mode="rgb_array",
-                             render_oc_overlay=True, frameskip=1, obs_mode="obj")
+                             render_oc_overlay=True, frameskip=1, obs_mode="obj", full_action_space=True)
 
         self.env.reset(seed=42)
         self.current_frame = self.env.render()
