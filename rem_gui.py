@@ -36,7 +36,7 @@ class Renderer:
         color_swaps: dict,
         no_render: list = [],
         variant: int = 0,
-        difficulty: int = 0,
+        difficulty: int = 0
     ):
         self.env = HackAtari(
             env_name,
@@ -188,6 +188,9 @@ class Renderer:
                                     self.active_cell_idx, new_cell_value
                                 )
                         self._unselect_active_cell()
+
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_q: # Quit
+                    self.running = False
 
             elif event.type == pygame.KEYUP:  # keyboard key released
                 if [
