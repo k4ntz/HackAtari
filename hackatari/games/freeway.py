@@ -86,8 +86,8 @@ def handle_car_stop_mode_3(self):
 
 def _modif_funcs(env, modifs):
     for mod in modifs:
-        mod_n = int(mod[-1])
         if mod.startswith("s"):
+            mod_n = int(mod[-1])
             if mod_n == 1:
                 env.step_modifs.append(handle_car_stop_mode_1)
             elif mod_n == 2:
@@ -97,6 +97,7 @@ def _modif_funcs(env, modifs):
             else:
                 raise ValueError("Invalid modification number")
         elif mod.startswith("c"):
+            mod_n = int(mod[-1])
             global CARS_COLOR
             CARS_COLOR = color_map.get(mod_n, 256)
             env.step_modifs.append(modify_ram_for_color)

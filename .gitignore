@@ -1,5 +1,7 @@
 *.pyc
 *.pkl
+*.pickle
 .idea
 hackatari.egg-info
 docs/_build
+build

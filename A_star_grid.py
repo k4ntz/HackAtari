@@ -1,6 +1,7 @@
 # Python program for A* Search Algorithm
 import heapq
 from hackatari import HackAtari
+import pygame
 
 # Define the Cell class
 
@@ -223,8 +224,11 @@ def main():
         [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
     ]
 
-    env = HackAtari("MsPacman", ["maze_man"], "", "", render_mode="human")
-    env.reset()
+
+
+    env = HackAtari("MsPacman", ["mini_maze_man20"], "", "", render_mode="human", mode="ram", hud=True, render_oc_overlay=True, frameskip=1)
+    pygame.init()
+    obs, _ = env.reset()
     done = False
     nstep = 1
     # src = None
@@ -233,59 +237,81 @@ def main():
     path = None
     path_i = 0
     reset = True
+    j_prev = 0
+    go = False
     while not done:
-        action = 0
-        # action = env.action_space.sample()
-        x, y = env.objects[0].xy
-        i, j = 0, 0
-        if x < 80:
-            i = x >> 3
-        else:
-            x -= 84
-            i = 9 + (x >> 3) + 1
-        j = int((y - 3) / 12)
-        pos = [j, i]
-        if path is not None:
-            try:
-                if path[path_i] is None:
+        if go:
+            # action = env.action_space.sample()
+            x, y = env.objects[0].xy
+            i, j = 0, 0
+            if x < 80:
+                i = int((x-3)/8)
+            else:
+                x-=80
+                i = 9 + int(x/8)
+            j = int((y-2)/12)
+            if j!=j_prev:
+                print(j, y, i, x)
+                j_prev =j
+            pos = [j, i]
+            if path is not None:
+                try:
+                    if path[path_i] is None:
+                        action = 0
+                        path_i+=1
+                    elif pos[0] < path[path_i][0]:
+                        if pos[1] < path[path_i][1] and action != 7:
+                            action = 7
+                        elif pos[1] > path[path_i][1] and action != 8:
+                            action = 8
+                        else:
+                            action = 4
+                    elif pos[0] > path[path_i][0]:
+                        if pos[1] < path[path_i][1]:
+                            action = 5
+                        elif pos[1] > path[path_i][1]:
+                            action = 6
+                        else:
+                            action = 1
+                    elif pos[1] < path[path_i][1]:
+                        action = 2
+                    elif pos[1] > path[path_i][1]:
+                        action = 3
+                    else:
+                        action = 0
+                        path_i+=1
+                except:
+                    # import ipdb; ipdb.set_trace()
+                    reset = True
+                    path = None
                     action = 0
-                    path_i += 1
-                elif pos[0] < path[path_i][0]:
-                    action = 4
-                elif pos[0] > path[path_i][0]:
-                    action = 1
-                elif pos[1] < path[path_i][1]:
-                    action = 2
-                elif pos[1] > path[path_i][1]:
-                    action = 3
-                else:
-                    path_i += 1
-            except:
-                # import ipdb; ipdb.set_trace()
-                reset = True
-                path = None
-        elif reset and len(env.objects) > 1:
-            op = 0
-            for i in range(len(env.objects)):
-                try:
-                    new_dest = list(env.objects[i].grid_ij)
-                    op = i
-                    break
-                except:
-                    new_dest = None
-            # new_dest = list(env.objects[1].grid_ij)
-            if new_dest != dest:
-                print(env.objects[op].grid_ij)
-                dest = new_dest
-                path = a_star_search(grid1, pos, dest)
-                try:
-                    path.extend([None] * 5)
-                except:
-                    pass
-                print(pos, dest)
-                print(path)
-                path_i = 1
-                reset = False
+            elif reset and 1 < len(env.objects):
+                action = 0
+                op = None
+                new_dest = dest
+                for i in range(len(env.objects)):
+                    if env.objects[i].category is "Pill":
+                        new_dest = list(env.objects[i].grid_ij)
+                        op = i
+                        break
+                # new_dest = list(env.objects[1].grid_ij)
+                if new_dest != dest:
+                    print(env.objects[op].grid_ij)
+                    dest = new_dest
+                    path = a_star_search(grid1, pos, dest)
+                    try:
+                        path.extend([None]*5)
+                    except:
+                        pass
+                    print(pos, dest)
+                    print(path)
+                    path_i = 1
+                    reset = False
+            # if env.get_ram()[0]:
+            #     grid1 = grid2
+        else:
+            action = 0
+            go=True
         # print(action, pos, path_i)
         obs, reward, terminated, truncated, _ = env.step(action)
         if terminated or truncated:
@@ -297,11 +323,11 @@ def main():
     env.close()
 
     # Define the source and destination
-    src = [7, 3]
-    dest = [0, 0]
+    # src = [7, 3]
+    # dest = [0, 0]
 
     # Run the A* search algorithm
-    a_star_search(grid1, src, dest)
+    # a_star_search(grid1, src, dest)
 
 
 if __name__ == "__main__":
