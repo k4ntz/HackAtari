@@ -43,6 +43,15 @@ def disable_coconut(self):
     self.set_ram(33, 255)
     self.set_ram(35, 255)
 
+def disable_thrown_coconut(self):
+    """
+    Disables the falling coconut in the game,
+    by changing the corresponding ram positions
+    """
+    self.set_ram(25, 255)
+    self.set_ram(28, 255)
+    self.set_ram(31, 0)
+
 
 def set_ram_kang_pos(self, pos_x, pos_y):
     """
@@ -293,6 +302,8 @@ def _modif_funcs(env, modifs):
             env.step_modifs.append(disable_monkeys)
         elif mod == "disable_coconut":
             env.step_modifs.append(disable_coconut)
+        elif mod == "disable_thrown_coconut":
+            env.step_modifs.append(disable_thrown_coconut)
         elif mod == "unlimited_time":
             env.step_modifs.append(unlimited_time)
         elif mod == "random_init":
