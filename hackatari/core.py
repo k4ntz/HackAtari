@@ -194,7 +194,6 @@ class HackAtari(OCAtari):
                 last_two_obs.append(obs[-1])
             
 
-        import ipdb; ipdb.set_trace()
         merged_obs = np.maximum.reduce(last_two_obs)
         obs[-1] = merged_obs
 
