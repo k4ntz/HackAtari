@@ -61,6 +61,7 @@ class HackAtari(OCAtari):
         switch_frame=1000,
         rewardfunc_path=None,
         colorswaps=None,
+        dopamine_pooling=True,
         game_mode=0,
         difficulty=0,
         *args,
@@ -73,8 +74,8 @@ class HackAtari(OCAtari):
             self._frameskip = kwargs["frameskip"]
         else:
             self._frameskip = 4
-
         kwargs["frameskip"] = 1
+
         super().__init__(env_name, *args, **kwargs)
         covered = False
         for cgame in GameList:
@@ -95,6 +96,10 @@ class HackAtari(OCAtari):
         self.step_modifs, self.reset_modifs, self.post_detection_modifs = [], [], []
         self.inpaintings, self.place_above = [], []
         self._modif_funcs(self, modifs)
+        if dopamine_pooling and self._frameskip > 1:
+            self.dopamine_pooling = dopamine_pooling
+        else:
+            self.dopamine_pooling = False
         if self.inpaintings:
             self.env.env.ale = ALEInpainting(
                 self.env.env.ale, self.inpaintings, self.place_above
@@ -164,24 +169,32 @@ class HackAtari(OCAtari):
         frameskip = self._frameskip
         total_reward = 0.0
         terminated = truncated = False
-        for i in range(frameskip - 1):
+        if self.dopamine_pooling:
+            last_two_obs = []
+            nr_super_steps = 2
+        else:
+            nr_super_steps = 1
+        
+        for i in range(frameskip-nr_super_steps):
             for func in self.step_modifs:
                 func(self)
             obs, reward, terminated, truncated, info = self._env.step(*args, **kwargs)
             total_reward += float(reward)
             if terminated or truncated:
                 break
-        for func in self.step_modifs:
-            func(self)
-        obs, reward, terminated, truncated, info = super().step(*args, **kwargs)
-        total_reward += float(reward)
-        for func in self.post_detection_modifs:
-            func(self)
-        # Note that the observation on the done=True frame
-        # doesn't matter
-        # obs = self._post_step(obs)
-        # import ipdb;ipdb.set_trace()
-        # self._fill_buffer()
+
+        for i in range(nr_super_steps):
+            for func in self.step_modifs:
+                func(self)
+            obs, reward, terminated, truncated, info = super().step(*args, **kwargs)
+            total_reward += float(reward)
+            for func in self.post_detection_modifs:
+                func(self)
+            if self.dopamine_pooling:
+                last_two_obs.append(obs)
+            
+
+        obs = np.maximum.reduce(last_two_obs)
         return obs, total_reward, terminated, truncated, info
 
     def _alter_reset(self, *args, **kwargs):
@@ -259,7 +272,6 @@ class HackAtari(OCAtari):
     #     ret = self.getScreenRGB()
     #     colorswappinng(ret, colorswaps)
     #     return ret
-
 
 class HumanPlayable(HackAtari):
     """
