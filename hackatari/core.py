@@ -193,9 +193,9 @@ class HackAtari(OCAtari):
             if self.dopamine_pooling:
                 last_two_obs.append(obs[-1])
             
-
-        merged_obs = np.maximum.reduce(last_two_obs)
-        obs[-1] = merged_obs
+        if self.dopamine_pooling:
+            merged_obs = np.maximum.reduce(last_two_obs)
+            obs[-1] = merged_obs
 
         return obs, total_reward, terminated, truncated, info
 
