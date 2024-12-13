@@ -191,10 +191,13 @@ class HackAtari(OCAtari):
             for func in self.post_detection_modifs:
                 func(self)
             if self.dopamine_pooling:
-                last_two_obs.append(obs)
+                last_two_obs.append(obs[-1])
             
 
-        obs = np.maximum.reduce(last_two_obs)
+        import ipdb; ipdb.set_trace()
+        merged_obs = np.maximum.reduce(last_two_obs)
+        obs[-1] = merged_obs
+
         return obs, total_reward, terminated, truncated, info
 
     def _alter_reset(self, *args, **kwargs):
