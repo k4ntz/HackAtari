@@ -31,6 +31,30 @@ if __name__ == "__main__":
         "-g", "--game", type=str, default="Seaquest", help="Game to be run"
     )
 
+    parser.add_argument(
+        "-obs",
+        "--obs_mode",
+        type=str,
+        default="obj",
+        help="The observation mode (ori, dqn, obj)",
+    )
+
+    parser.add_argument(
+        "-w",
+        "--window",
+        type=int,
+        default=4,
+        help="The buffer window size (default = 4)",
+    )
+
+    parser.add_argument(
+        "-f",
+        "--frameskip",
+        type=int,
+        default=4,
+        help="The frames skipped after each action + 1 (default = 4)",
+    )
+
     # Argument to enable gravity for the player.
     parser.add_argument(
         "-m",
@@ -112,15 +136,16 @@ if __name__ == "__main__":
             args.switch_modifs,
             args.switch_frame,
             args.reward_function,
-            None,
-            True,
-            args.game_mode,
-            args.difficulty,
+            dopamine_pooling=False,
+            game_mode=args.game_mode,
+            difficulty=args.difficulty,
             render_mode="human",
+            obs_mode=args.obs_mode,
             mode="ram",
-            hud=True,
+            hud=False,
             render_oc_overlay=True,
-            frameskip=1,
+            buffer_window_size=args.window,
+            frameskip=args.frameskip,
         )
         env.run()
     else:
@@ -130,17 +155,16 @@ if __name__ == "__main__":
             args.switch_modifs,
             args.switch_frame,
             args.reward_function,
-            None,
-            True,
-            args.game_mode,
-            args.difficulty,
+            dopamine_pooling=False,
+            game_mode=args.game_mode,
+            difficulty=args.difficulty,
             render_mode="human",
-            obs_mode="obj",
+            obs_mode=args.obs_mode,
             mode="ram",
             hud=False,
             render_oc_overlay=True,
-            buffer_window_size=2,
-            frameskip=4,
+            buffer_window_size=args.window,
+            frameskip=args.frameskip,
         )
 
         # env = gym.make(args.game, render_mode="rgb_array",frameskip=4)
@@ -150,9 +174,9 @@ if __name__ == "__main__":
 
         pygame.init()
         if args.agent:
-            agent = load_agent(args.agent, env.action_space.n, env, "cpu")
+            agent, policy = load_agent(
+                args.agent, env, "cpu")
             print(f"Loaded agents from {args.agent}")
-
         obs, _ = env.reset()
         done = False
         nstep = 1
@@ -166,8 +190,7 @@ if __name__ == "__main__":
                     done = True
             if args.agent:
                 dqn_obs = torch.Tensor(obs).unsqueeze(0)
-                action, _, _, _ = agent.get_action_and_value(dqn_obs)
-                action = action[0]
+                action = policy(dqn_obs)[0]
             else:
                 action = env.action_space.sample()
             obs, reward, terminated, truncated, _ = env.step(action)
