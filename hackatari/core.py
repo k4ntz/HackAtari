@@ -1,20 +1,19 @@
-import warnings
-
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-warnings.filterwarnings("ignore", category=UserWarning)
-
-
-from ocatari.core import OCAtari
-import sys
-import importlib
-import pygame
-import numpy as np
-import random
 from hackatari.ale_mods import (
     ALEColorSwap,
     ALEInpainting,
     assert_colorswaps,
 )
+import random
+import numpy as np
+import pygame
+import importlib
+import sys
+from ocatari.core import OCAtari
+import warnings
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
+
 
 GameList = [
     "Amidar",
@@ -174,11 +173,12 @@ class HackAtari(OCAtari):
             nr_super_steps = 2
         else:
             nr_super_steps = 1
-        
+
         for i in range(frameskip-nr_super_steps):
             for func in self.step_modifs:
                 func(self)
-            obs, reward, terminated, truncated, info = self._env.step(*args, **kwargs)
+            obs, reward, terminated, truncated, info = self._env.step(
+                *args, **kwargs)
             total_reward += float(reward)
             if terminated or truncated:
                 break
@@ -192,7 +192,7 @@ class HackAtari(OCAtari):
                 func(self)
             if self.dopamine_pooling:
                 last_two_obs.append(obs[-1])
-            
+
         if self.dopamine_pooling:
             merged_obs = np.maximum.reduce(last_two_obs)
             obs[-1] = merged_obs
@@ -222,7 +222,8 @@ class HackAtari(OCAtari):
         for func in self.step_modifs:
             func(self)
         for i in range(frameskip):
-            obs, reward, terminated, truncated, info = self._env.step(*args, **kwargs)
+            obs, reward, terminated, truncated, info = self._env.step(
+                *args, **kwargs)
             total_reward += float(reward)
             for func in self.step_modifs:
                 func(self)
@@ -274,6 +275,7 @@ class HackAtari(OCAtari):
     #     ret = self.getScreenRGB()
     #     colorswappinng(ret, colorswaps)
     #     return ret
+
 
 class HumanPlayable(HackAtari):
     """

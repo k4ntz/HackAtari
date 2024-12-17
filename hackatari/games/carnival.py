@@ -40,9 +40,11 @@ def _modif_funcs(env, modifs):
             if mod[-1].isdigit():
                 mod_n = int(mod[-1])
                 if mod_n < 1 or mod_n > 3:
-                    raise ValueError("Invalid speed increase, choose value 1-3")
+                    raise ValueError(
+                        "Invalid speed increase, choose value 1-3")
             else:
-                raise ValueError("Append value 1-3 to your fast_missiles mod-argument")
+                raise ValueError(
+                    "Append value 1-3 to your fast_missiles mod-argument")
             global MISSILE_SPEED_INCREASE
             MISSILE_SPEED_INCREASE = mod_n
             env.step_modifs.append(fast_missiles)

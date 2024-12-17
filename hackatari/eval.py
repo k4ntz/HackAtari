@@ -21,7 +21,6 @@ parser.add_argument("-t", "--track", type=bool, required=False, default=True)
 
 opts = parser.parse_args()
 
-# env_org = HackAtari(opts.game, render_mode='rgb_array', obs_mode='dqn')
 env_hacked = HackAtari(
     opts.game,
     modifs=opts.modifs,

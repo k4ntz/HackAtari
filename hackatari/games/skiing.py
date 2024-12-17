@@ -160,7 +160,8 @@ def wall_inpaintings():
     wall_rgb = np.stack((wall,) * 3, axis=-1)
     w, h = wall.shape[1], wall.shape[0]
     ladder_poses = [(0, 0)]
-    return [(y, x, h, w, wall_rgb) for x, y in ladder_poses]  # needs swapped positions
+    # needs swapped positions
+    return [(y, x, h, w, wall_rgb) for x, y in ladder_poses]
 
 
 def wall_updates(self):

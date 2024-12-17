@@ -20,7 +20,7 @@ def infinte_lives(self):
     Always sets the player health to max, making them invincible
     '''
     self.set_ram(29, 3)
-    
+
 
 def _modif_funcs(env, modifs):
     for mod in modifs:
@@ -32,4 +32,3 @@ def _modif_funcs(env, modifs):
             env.step_modifs.append(infinte_lives)
         else:
             print('Invalid or unknown modification')
-

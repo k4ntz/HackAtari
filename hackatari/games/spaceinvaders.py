@@ -110,7 +110,8 @@ def _modif_funcs(env, modifs):
         elif mod.startswith("relocate"):
             mod_n = int(mod[-2:])
             if mod_n < 35 or mod_n > 53:
-                raise ValueError("Invalid position for shields, choose value 35-53")
+                raise ValueError(
+                    "Invalid position for shields, choose value 35-53")
             global NEW_POSITION
             NEW_POSITION = mod_n
             env.reset_modifs.append(relocate_shields)

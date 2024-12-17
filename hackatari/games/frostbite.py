@@ -6,7 +6,8 @@ LINE = [
     False,
     False,
 ]  # Which lines are recolored, multiple line commands are possible (Int: 0-3)
-ENEMIES_NUMBER = 0  # Define the numbers of enemies to occur per line (Int: 0-3)
+# Define the numbers of enemies to occur per line (Int: 0-3)
+ENEMIES_NUMBER = 0
 NEW_X_POS = 0  # New startposition of ice shelves (Int: 0-255)
 
 colors = [0, 48, 113, 200]
@@ -113,17 +114,19 @@ def _modif_funcs(env, modifs):
         elif mod.startswith("e"):
             mod_n = int(mod[-1])
             if mod_n < 0 or mod_n > 3:
-                raise ValueError("Invalid number of enenmies, choose number 0-3")
+                raise ValueError(
+                    "Invalid number of enenmies, choose number 0-3")
             global ENEMIES_NUMBER
             ENEMIES_NUMBER = mod_n
             env.step_modifs.append(modify_ram_for_enemy_amount)
         elif mod.startswith("f"):
             for i in range(3):
-                if mod[-3 + i :].isdigit():
-                    mod_n = int(mod[-3 + i :])
+                if mod[-3 + i:].isdigit():
+                    mod_n = int(mod[-3 + i:])
                     break
             if mod_n < 0 or mod_n > 160:
-                raise ValueError("Invalid position for floes, max. value is 160")
+                raise ValueError(
+                    "Invalid position for floes, max. value is 160")
             global NEW_X_POS
             NEW_X_POS = mod_n
             env.step_modifs.append(modify_ram_for_floes_position)

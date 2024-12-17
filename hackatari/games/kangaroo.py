@@ -43,6 +43,7 @@ def disable_coconut(self):
     self.set_ram(33, 255)
     self.set_ram(35, 255)
 
+
 def disable_thrown_coconut(self):
     """
     Disables the falling coconut in the game,
@@ -167,7 +168,8 @@ def remove_original_ladder_inpaintings():
     w, h = 8, 36
     patch = (np.ones((h, w, 3)) * background_color).astype(np.uint8)
     ladder_poses = [(132, 36), (132, 132), (20, 84)]
-    return [(y, x, h, w, patch) for x, y in ladder_poses]  # needs swapped positions
+    # needs swapped positions
+    return [(y, x, h, w, patch) for x, y in ladder_poses]
 
 
 def _on_ladder(px, py, ladders):
@@ -278,7 +280,8 @@ def add_ladders_inpaintings(ladder_poses):
     patch = np.array(rung + bg + rung + bg + rung + bg + rung + bg + rung).astype(
         np.uint8
     )
-    return [(y, x, h, w, patch) for x, y in ladder_poses]  # needs swapped positions
+    # needs swapped positions
+    return [(y, x, h, w, patch) for x, y in ladder_poses]
 
 
 def bs(self):
@@ -329,7 +332,8 @@ def _modif_funcs(env, modifs):
             ), "Change level can't be used with no_ladder"
             env.inpaintings = remove_original_ladder_inpaintings()
             env.step_modifs.append(removed_ladder_step)
-            env.place_above.extend(((223, 183, 85), (227, 151, 89)))  # Player, Monkey
+            env.place_above.extend(
+                ((223, 183, 85), (227, 151, 89)))  # Player, Monkey
             env.post_detection_modifs.append(remove_ladders)
         elif mod == "invert_ladders":
             assert (
@@ -343,7 +347,8 @@ def _modif_funcs(env, modifs):
                 + add_ladders_inpaintings(ADDED_LADDERS_POSES)
             )
             env.step_modifs.extend((removed_ladder_step, added_ladder_step))
-            env.place_above.extend(((223, 183, 85), (227, 151, 89)))  # Player, Monkey
+            env.place_above.extend(
+                ((223, 183, 85), (227, 151, 89)))  # Player, Monkey
             env.post_detection_modifs.append(moved_ladders)
         # elif mod == "skip_start":
         #     env.reset_modifs.append(skip_start)

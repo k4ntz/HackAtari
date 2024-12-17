@@ -330,10 +330,12 @@ def end_game(self):
         value = ram[pill] + DOT_PATTERN[dots[d][1]][1]
         self.set_ram(pill, value)
 
+
 def check_reset(self):
     ram = self.get_ram()
     if ram[119] == 154:
         self.reset()
+
 
 def maze_man(self):
     """
@@ -363,13 +365,13 @@ def maze_man(self):
     #         self.set_ram(120, add)
     #     else:
     #         self.set_ram(120, 144)
-        
+
     #     # ramdomly pick a new pill spot/state
     #     global DOT_STATES
     #     state = choice(DOT_STATES)
     #     bit = choice([0, 2])
     #     self.set_ram(state, 16<<bit)#1<<bit)
-    
+
     # # change or reset level on success/failure
     # global LVL_NUM, TIMER, LIVES
     # if ram[39] == 69:
@@ -401,7 +403,7 @@ def maze_man(self):
     #         LVL_NUM = 0
     #         LIVES = 2
     #         self.reset()
-    #     # decrease lives if 
+    #     # decrease lives if
     #     elif ram[120] < 16:
     #         LIVES-=1
     #         self.reset()
@@ -501,6 +503,7 @@ def maze_man_reset(self):
     self.set_ram(120, 144)
     self.set_ram(123, LIVES)
 
+
 def mini_maze_man(self):
     ram = self.get_ram()
 
@@ -537,25 +540,25 @@ def mini_maze_man(self):
     global LVL_NUM, TIMER, LIVES
     if ram[39] == 69:
         if ram[0] == 0 and ram[119] == 154:
-                LVL_NUM = 1
-                if LIVES < 3:
-                    LIVES+=1
-                self.reset()
+            LVL_NUM = 1
+            if LIVES < 3:
+                LIVES += 1
+            self.reset()
         elif ram[0] == 1 and ram[119] == 150:
-                LVL_NUM = 2
-                if LIVES < 3:
-                    LIVES+=1
-                self.reset()
+            LVL_NUM = 2
+            if LIVES < 3:
+                LIVES += 1
+            self.reset()
         elif ram[0] == 2 and ram[119] == 158:
-                LVL_NUM = 3
-                if LIVES < 3:
-                    LIVES+=1
-                self.reset()
+            LVL_NUM = 3
+            if LIVES < 3:
+                LIVES += 1
+            self.reset()
         elif ram[0] == 3 and ram[119] == 154:
-                LVL_NUM = 0
-                if LIVES < 3:
-                    LIVES+=1
-                self.reset()
+            LVL_NUM = 0
+            if LIVES < 3:
+                LIVES += 1
+            self.reset()
 
     # Use ram state and TIMER variable as tick
     x, y = ram[10] - 13, ram[16]+1
@@ -567,9 +570,9 @@ def mini_maze_man(self):
             LVL_NUM = 0
             LIVES = 2
             self.reset()
-        # decrease lives if 
+        # decrease lives if
         elif ram[120] < 16:
-            LIVES-=1
+            LIVES -= 1
             self.reset()
         # lower timer
         else:
@@ -577,7 +580,7 @@ def mini_maze_man(self):
             self.set_ram(120, ram[120]-16)
 
     # increase timer
-    TIMER = (TIMER+1)%150
+    TIMER = (TIMER+1) % 150
 
 
 def _modif_funcs(env, modifs):
@@ -609,7 +612,8 @@ def _modif_funcs(env, modifs):
         elif mod.startswith("power"):
             mod_n = int(mod[-1])
             if mod_n < 0 or mod_n > 4:
-                raise ValueError("Invalid Number of Power Pills, choose number 0-4")
+                raise ValueError(
+                    "Invalid Number of Power Pills, choose number 0-4")
             global NUMBER_POWER_PILLS
             NUMBER_POWER_PILLS = mod_n
             env.reset_modifs.append(number_power_pills)

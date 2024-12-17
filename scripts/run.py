@@ -2,6 +2,8 @@ from hackatari import HackAtari, HumanPlayable
 import numpy as np
 import cv2
 import pygame
+import torch
+import gymnasium as gym
 
 from ocatari.utils import load_agent
 
@@ -9,7 +11,8 @@ from ocatari.utils import load_agent
 def save_upsampled(rgb_arrays, k=4, l=4):
     augs = []
     for rgb_array in rgb_arrays:
-        aug = np.repeat(np.repeat(rgb_array, k, axis=0), l, axis=1)[:, :, [2, 1, 0]]
+        aug = np.repeat(np.repeat(rgb_array, k, axis=0),
+                        l, axis=1)[:, :, [2, 1, 0]]
         augs.append(aug)
     aug = np.average(augs, 0).astype(int)
     # plt.imshow(aug)
@@ -21,7 +24,8 @@ def save_upsampled(rgb_arrays, k=4, l=4):
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="HackAtari run.py Argument Setter")
+    parser = argparse.ArgumentParser(
+        description="HackAtari run.py Argument Setter")
 
     parser.add_argument(
         "-g", "--game", type=str, default="Seaquest", help="Game to be run"
@@ -108,6 +112,8 @@ if __name__ == "__main__":
             args.switch_modifs,
             args.switch_frame,
             args.reward_function,
+            None,
+            True,
             args.game_mode,
             args.difficulty,
             render_mode="human",
@@ -124,18 +130,29 @@ if __name__ == "__main__":
             args.switch_modifs,
             args.switch_frame,
             args.reward_function,
+            None,
+            True,
             args.game_mode,
             args.difficulty,
             render_mode="human",
+            obs_mode="obj",
             mode="ram",
-            hud=True,
+            hud=False,
             render_oc_overlay=True,
-            frameskip=1,
+            buffer_window_size=2,
+            frameskip=4,
         )
+
+        # env = gym.make(args.game, render_mode="rgb_array",frameskip=4)
+        # env = gym.wrappers.ResizeObservation(env, (84, 84))
+        # env = gym.wrappers.GraSscaleObservation(env)
+        # env = gym.wrappers.FrameStackObservation(env, 4)
+
         pygame.init()
         if args.agent:
-            agent = load_agent(args.agent, env.action_space.n)
+            agent = load_agent(args.agent, env.action_space.n, env, "cpu")
             print(f"Loaded agents from {args.agent}")
+
         obs, _ = env.reset()
         done = False
         nstep = 1
@@ -147,12 +164,12 @@ if __name__ == "__main__":
                     event.type == pygame.KEYDOWN and event.key == pygame.K_q
                 ):  # 'Q': Quit
                     done = True
-            [print(x) for x in env.objects]
             if args.agent:
-                action = agent.draw_action(env.dqn_obs)
+                dqn_obs = torch.Tensor(obs).unsqueeze(0)
+                action, _, _, _ = agent.get_action_and_value(dqn_obs)
+                action = action[0]
             else:
                 action = env.action_space.sample()
-            # import ipdb; ipdb.set_trace()
             obs, reward, terminated, truncated, _ = env.step(action)
             if reward and args.reward_function:
                 print(reward)
@@ -164,8 +181,6 @@ if __name__ == "__main__":
                 exit()
             elif args.picture - nstep < 4:
                 obss.append(obs)
-            # if nstep % 100 == 0:
-            #     print(".", end="", flush=True)
             nstep += 1
             env.render()
 
