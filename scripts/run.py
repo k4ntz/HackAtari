@@ -55,6 +55,14 @@ if __name__ == "__main__":
         help="The frames skipped after each action + 1 (default = 4)",
     )
 
+    parser.add_argument(
+        "-dp",
+        "--dopamine_pooling",
+        type=bool,
+        default=False,
+        help="Use dopamine like frameskipping (default = False)",
+    )
+
     # Argument to enable gravity for the player.
     parser.add_argument(
         "-m",
@@ -155,31 +163,30 @@ if __name__ == "__main__":
             args.switch_modifs,
             args.switch_frame,
             args.reward_function,
-            dopamine_pooling=False,
+            dopamine_pooling=args.dopamine_pooling,
             game_mode=args.game_mode,
             difficulty=args.difficulty,
-            render_mode="human",
+            render_mode="None",
             obs_mode=args.obs_mode,
             mode="ram",
             hud=False,
             render_oc_overlay=True,
             buffer_window_size=args.window,
             frameskip=args.frameskip,
+            repeat_action_probability=0.25,
+            full_action_space=False,
         )
-
-        # env = gym.make(args.game, render_mode="rgb_array",frameskip=4)
-        # env = gym.wrappers.ResizeObservation(env, (84, 84))
-        # env = gym.wrappers.GraSscaleObservation(env)
-        # env = gym.wrappers.FrameStackObservation(env, 4)
 
         pygame.init()
         if args.agent:
             agent, policy = load_agent(
                 args.agent, env, "cpu")
             print(f"Loaded agents from {args.agent}")
+
         obs, _ = env.reset()
         done = False
         nstep = 1
+        tr = 0
         while not done:
             # Human intervention to end the run
             events = pygame.event.get()
@@ -193,10 +200,14 @@ if __name__ == "__main__":
                 action = policy(dqn_obs)[0]
             else:
                 action = env.action_space.sample()
-            obs, reward, terminated, truncated, _ = env.step(action)
+            obs, reward, terminated, truncated, info = env.step(action)
+            tr += reward
             if reward and args.reward_function:
                 print(reward)
             if terminated or truncated:
+                print(info)
+                print(tr)
+                tr = 0
                 env.reset()
             if nstep == args.picture:
                 obss.append(obs)

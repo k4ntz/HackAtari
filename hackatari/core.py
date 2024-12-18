@@ -10,6 +10,7 @@ import importlib
 import sys
 from ocatari.core import OCAtari
 import warnings
+import cv2
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -170,11 +171,8 @@ class HackAtari(OCAtari):
         terminated = truncated = False
         if self.dopamine_pooling:
             last_two_obs = []
-            nr_super_steps = 2
-        else:
-            nr_super_steps = 1
 
-        for i in range(frameskip-nr_super_steps):
+        for i in range(frameskip-1):
             for func in self.step_modifs:
                 func(self)
             obs, reward, terminated, truncated, info = self._env.step(
@@ -183,18 +181,24 @@ class HackAtari(OCAtari):
             if terminated or truncated:
                 break
 
-        for i in range(nr_super_steps):
-            for func in self.step_modifs:
-                func(self)
-            obs, reward, terminated, truncated, info = super().step(*args, **kwargs)
-            total_reward += float(reward)
-            for func in self.post_detection_modifs:
-                func(self)
-            if self.dopamine_pooling:
-                last_two_obs.append(obs[-1])
+        if self.dopamine_pooling:
+            last_two_obs.append(cv2.resize(cv2.cvtColor(self.getScreenRGB(
+            ), cv2.COLOR_RGB2GRAY), (84, 84), interpolation=cv2.INTER_AREA))
+
+        for func in self.step_modifs:
+            func(self)
+        obs, reward, terminated, truncated, info = super().step(
+            *args, **kwargs)
+        total_reward += float(reward)
+        for func in self.post_detection_modifs:
+            func(self)
+        if self.dopamine_pooling:
+            last_two_obs.append(cv2.resize(cv2.cvtColor(self.getScreenRGB(
+            ), cv2.COLOR_RGB2GRAY), (84, 84), interpolation=cv2.INTER_AREA))
 
         if self.dopamine_pooling:
             merged_obs = np.maximum.reduce(last_two_obs)
+            self._state_buffer_dqn[-1] = merged_obs
             obs[-1] = merged_obs
 
         return obs, total_reward, terminated, truncated, info
