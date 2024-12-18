@@ -516,16 +516,18 @@ def mini_maze_man(self):
             collected = False
 
     # if no pill on the map
+    global COL, LINE
     if collected and ram[39] > 70:
         # increase the timer (inplace of score)
-        add = ram[120] + 32
+        add = ram[120] + 16
         if add <= 144:
             self.set_ram(120, add)
         else:
-            self.set_ram(120, 144)
+            self.set_ram(121, ram[121]+1)
+            self.set_ram(120, 0)
 
         # better choice alogorithm from endgame
-        global COL, LINE, DOT_POS
+        global  DOT_POS
         line = choice(range(LINE*5, ((LINE+1)*5)-1))
         dot = choice(range(DOT_POS[COL][0], DOT_POS[COL][1]))
         if not GRID1[line][dot]:
@@ -562,22 +564,37 @@ def mini_maze_man(self):
 
     # Use ram state and TIMER variable as tick
     x, y = ram[10] - 13, ram[16]+1
-    boundry_x = [60, 100, 160]
-    boundry_y = [50, ]
+    boundry_x = [0, 60, 100, 160]
+    boundry_y = [0, 50, 120, 170]
     if ram[39] == 255 and TIMER == 0:
         # resets the whole game if no lives remaining
-        if ram[120] < 16 and ram[123] <= 0:
+        if ram[120] < 16 and ram[121] == 0 and ram[123] <= 0:
             LVL_NUM = 0
             LIVES = 2
             self.reset()
-        # decrease lives if
-        elif ram[120] < 16:
-            LIVES -= 1
+        # decrease lives if 
+        elif ram[120] < 16 and ram[121] == 0:
+            LIVES-=1
             self.reset()
         # lower timer
+        elif not (boundry_x[COL] < x < boundry_x[COL+1] and boundry_y[LINE] < y < boundry_y[LINE+1]):
+            if ram[120]-32 < 1:
+                self.set_ram(121, ram[121]-1)
+                if ram[120]:
+                    self.set_ram(120, 144)
+                else:
+                    self.set_ram(120, 128)
+            else:
+                self.set_ram(120, ram[120]-32)
         else:
             # pass
-            self.set_ram(120, ram[120]-16)
+            print(not (boundry_x[COL] < x < boundry_x[COL+1] or boundry_y[LINE] < y < boundry_y[LINE+1]))
+            if ram[120] == 0:
+                self.set_ram(121, ram[121]-1)
+                self.set_ram(120, 144)
+            else:
+                self.set_ram(120, ram[120]-16)
+            
 
     # increase timer
     TIMER = (TIMER+1) % 150
