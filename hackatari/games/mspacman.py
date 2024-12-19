@@ -533,7 +533,6 @@ def mini_maze_man(self):
         if not GRID1[line][dot]:
             while not GRID1[line][dot]:
                 dot = choice(range(DOT_POS[COL][0], DOT_POS[COL][1]))
-                print(dot)
         pill = DOT_PATTERN[dot][0] + 3*line
         value = ram[pill] + DOT_PATTERN[dot][1]
         self.set_ram(pill, value)
@@ -588,7 +587,6 @@ def mini_maze_man(self):
                 self.set_ram(120, ram[120]-32)
         else:
             # pass
-            print(not (boundry_x[COL] < x < boundry_x[COL+1] or boundry_y[LINE] < y < boundry_y[LINE+1]))
             if ram[120] == 0:
                 self.set_ram(121, ram[121]-1)
                 self.set_ram(120, 144)
@@ -598,6 +596,8 @@ def mini_maze_man(self):
 
     # increase timer
     TIMER = (TIMER+1) % 150
+    #remove ghosts
+    self.set_ram(47, 0)
 
 
 def _modif_funcs(env, modifs):
