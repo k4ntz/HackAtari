@@ -118,6 +118,13 @@ if __name__ == "__main__":
         help="Path to the cleanrl trained agent to be loaded.",
     )
     parser.add_argument(
+        "-r",
+        "--render",
+        type=str,
+        default="human",
+        help="Should the video be displayed (human) or not (rbg_array, None)",
+    )
+    parser.add_argument(
         "-mo",
         "--game_mode",
         type=int,
@@ -144,16 +151,14 @@ if __name__ == "__main__":
             args.switch_modifs,
             args.switch_frame,
             args.reward_function,
-            dopamine_pooling=False,
             game_mode=args.game_mode,
             difficulty=args.difficulty,
-            render_mode="human",
+            render_mode=args.render,
             obs_mode=args.obs_mode,
             mode="ram",
             hud=False,
             render_oc_overlay=True,
-            buffer_window_size=args.window,
-            frameskip=args.frameskip,
+            frameskip=1,
         )
         env.run()
     else:
@@ -166,7 +171,7 @@ if __name__ == "__main__":
             dopamine_pooling=args.dopamine_pooling,
             game_mode=args.game_mode,
             difficulty=args.difficulty,
-            render_mode="None",
+            render_mode=args.render,
             obs_mode=args.obs_mode,
             mode="ram",
             hud=False,
