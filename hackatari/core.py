@@ -61,7 +61,7 @@ class HackAtari(OCAtari):
         switch_frame=1000,
         rewardfunc_path=None,
         colorswaps=None,
-        dopamine_pooling=False,
+        dopamine_pooling=True,
         game_mode=0,
         difficulty=0,
         *args,
@@ -171,6 +171,7 @@ class HackAtari(OCAtari):
         terminated = truncated = False
         if self.dopamine_pooling:
             last_two_obs = []
+            last_two_org = []
 
         for i in range(frameskip-1):
             for func in self.step_modifs:
@@ -184,6 +185,7 @@ class HackAtari(OCAtari):
         if self.dopamine_pooling:
             last_two_obs.append(cv2.resize(cv2.cvtColor(self.getScreenRGB(
             ), cv2.COLOR_RGB2GRAY), (84, 84), interpolation=cv2.INTER_AREA))
+            last_two_org.append(self.getScreenRGB())
 
         for func in self.step_modifs:
             func(self)
@@ -195,10 +197,13 @@ class HackAtari(OCAtari):
         if self.dopamine_pooling:
             last_two_obs.append(cv2.resize(cv2.cvtColor(self.getScreenRGB(
             ), cv2.COLOR_RGB2GRAY), (84, 84), interpolation=cv2.INTER_AREA))
+            last_two_org.append(self.getScreenRGB())
 
         if self.dopamine_pooling:
             merged_obs = np.maximum.reduce(last_two_obs)
+            merged_org = np.maximum.reduce(last_two_org)
             self._state_buffer_dqn[-1] = merged_obs
+            self._state_buffer_rgb[-1] = merged_org
             obs[-1] = merged_obs
 
         return obs, total_reward, terminated, truncated, info
@@ -259,6 +264,13 @@ class HackAtari(OCAtari):
             func(self)
         return obs, info
 
+    def render(self, image=None):
+
+        if self.dopamine_pooling:
+            super().render(self._state_buffer_rgb[-1])
+        else:
+            super().render()
+
     # def _colorswap_step(self, *args, **kwargs):
     #     """
     #     Alter the color according to the colorswaps dictionary while also altering the steps.
@@ -314,7 +326,7 @@ class HumanPlayable(HackAtari):
             colorswaps,
             game_mode,
             difficulty,
-            *args,
+            * args,
             **kwargs,
         )
         self.reset()
