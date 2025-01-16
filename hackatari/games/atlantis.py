@@ -1,14 +1,17 @@
 import random
+
 TYPES = [32, 64, 80]
 TYPE_STATE = [0, 0, 0, 0]
 
 SPEED = 2
 
+
 def no_last_line(self):
-    '''
+    """
     Removes enemies from the last (lowest) line.
-    '''
+    """
     self.set_ram(36, 0)
+
 
 def jets_only(self):
     """
@@ -16,12 +19,13 @@ def jets_only(self):
     """
     ram = self.get_ram()
     for i in range(4):
-        if ram[82-i] and ram[82-i] < 80:
-            self.set_ram(82-i, 80)
-            if ram[78-i] == 1:
-                self.set_ram(78-i, 2)
-            elif ram[78-i] == 255:
-                self.set_ram(78-i, 254)
+        if ram[82 - i] and ram[82 - i] < 80:
+            self.set_ram(82 - i, 80)
+            if ram[78 - i] == 1:
+                self.set_ram(78 - i, 2)
+            elif ram[78 - i] == 255:
+                self.set_ram(78 - i, 254)
+
 
 def random_enemies(self):
     """
@@ -30,20 +34,21 @@ def random_enemies(self):
     ram = self.get_ram()
     global TYPES, TYPE_STATE
     for i in range(4):
-        if ram[79+i] and ram[79+i] < 81 and ram[79+i] != TYPE_STATE[i]:
+        if ram[79 + i] and ram[79 + i] < 81 and ram[79 + i] != TYPE_STATE[i]:
             enemy = random.choice(TYPES)
-            self.set_ram(79+i, enemy)
+            self.set_ram(79 + i, enemy)
             if enemy < 80:
-                if ram[75+i] == 2:
-                    self.set_ram(75+i, 1)
-                elif ram[75+i] == 254:
-                    self.set_ram(75+i, 255)
+                if ram[75 + i] == 2:
+                    self.set_ram(75 + i, 1)
+                elif ram[75 + i] == 254:
+                    self.set_ram(75 + i, 255)
             else:
-                if ram[75+i] == 1:
-                    self.set_ram(75+i, 2)
-                elif ram[75+i] == 255:
-                    self.set_ram(75+i, 254)
+                if ram[75 + i] == 1:
+                    self.set_ram(75 + i, 2)
+                elif ram[75 + i] == 255:
+                    self.set_ram(75 + i, 254)
     TYPE_STATE = ram[79:83]
+
 
 def speed_mode(self):
     """
@@ -52,20 +57,19 @@ def speed_mode(self):
     ram = self.get_ram()
     global SPEED
     for i in range(4):
-        if ram[79+i] == 80:
-            if ram[75+i]&128:
-                self.set_ram(75+i, 255-SPEED)
-            elif ram[75+i] > 0:
-                self.set_ram(75+i, 1+SPEED)
+        if ram[79 + i] == 80:
+            if ram[75 + i] & 128:
+                self.set_ram(75 + i, 255 - SPEED)
+            elif ram[75 + i] > 0:
+                self.set_ram(75 + i, 1 + SPEED)
         else:
-            if ram[75+i]&128:
-                self.set_ram(75+i, 256-SPEED)
-            elif ram[75+i] > 0:
-                self.set_ram(75+i, SPEED)
+            if ram[75 + i] & 128:
+                self.set_ram(75 + i, 256 - SPEED)
+            elif ram[75 + i] > 0:
+                self.set_ram(75 + i, SPEED)
 
 
 def _modif_funcs(env, modifs):
-    
     for mod in modifs:
         if mod == "no_last_line":
             env.step_modifs.append(no_last_line)
@@ -81,13 +85,13 @@ def _modif_funcs(env, modifs):
                     raise ValueError("Invalid value, choose speed value 2-10")
                 global SPEED
                 SPEED = mod_n
-            elif mod[-1] == 'e':
+            elif mod[-1] == "e":
                 pass
             else:
-                raise ValueError("Append value 2-10 to your mod-argument to increase speed accordingly")
-            
+                raise ValueError(
+                    "Append value 2-10 to your mod-argument to increase speed accordingly"
+                )
+
             env.step_modifs.append(speed_mode)
         else:
-            print('Invalid or unknown modification')
-    
-
+            print("Invalid or unknown modification")

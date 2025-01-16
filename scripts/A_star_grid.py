@@ -1,22 +1,22 @@
 # Python program for A* Search Algorithm
-import math
 import heapq
 from hackatari import HackAtari
+import pygame
 
 # Define the Cell class
 
 
 class Cell:
     def __init__(self):
-      # Parent cell's row index
+        # Parent cell's row index
         self.parent_i = 0
-    # Parent cell's column index
+        # Parent cell's column index
         self.parent_j = 0
- # Total cost of the cell (g + h)
-        self.f = float('inf')
-    # Cost from start to this cell
-        self.g = float('inf')
-    # Heuristic cost from this cell to destination
+        # Total cost of the cell (g + h)
+        self.f = float("inf")
+        # Cost from start to this cell
+        self.g = float("inf")
+        # Heuristic cost from this cell to destination
         self.h = 0
 
 
@@ -30,11 +30,13 @@ COL = 18
 def is_valid(row, col):
     return (row >= 0) and (row < ROW) and (col >= 0) and (col < COL)
 
+
 # Check if a cell is unblocked
 
 
 def is_unblocked(grid, row, col):
     return grid[row][col] == 1
+
 
 # Check if a cell is the destination
 
@@ -42,11 +44,13 @@ def is_unblocked(grid, row, col):
 def is_destination(row, col, dest):
     return row == dest[0] and col == dest[1]
 
+
 # Calculate the heuristic value of a cell (Euclidean distance to destination)
 
 
 def calculate_h_value(row, col, dest):
     return ((row - dest[0]) ** 2 + (col - dest[1]) ** 2) ** 0.5
+
 
 # Trace the path from source to destination
 
@@ -58,7 +62,10 @@ def trace_path(cell_details, dest):
     col = dest[1]
 
     # Trace the path from destination to source using parent cells
-    while not (cell_details[row][col].parent_i == row and cell_details[row][col].parent_j == col):
+    while not (
+        cell_details[row][col].parent_i == row
+        and cell_details[row][col].parent_j == col
+    ):
         path.append((row, col))
         temp_row = cell_details[row][col].parent_i
         temp_col = cell_details[row][col].parent_j
@@ -76,6 +83,7 @@ def trace_path(cell_details, dest):
     # print()
     return path
 
+
 # Implement the A* search algorithm
 
 
@@ -86,7 +94,9 @@ def a_star_search(grid, src, dest):
         return
 
     # Check if the source and destination are unblocked
-    if not is_unblocked(grid, src[0], src[1]) or not is_unblocked(grid, dest[0], dest[1]):
+    if not is_unblocked(grid, src[0], src[1]) or not is_unblocked(
+        grid, dest[0], dest[1]
+    ):
         print("Source or the destination is blocked")
         return
 
@@ -127,14 +137,18 @@ def a_star_search(grid, src, dest):
         closed_list[i][j] = True
 
         # For each direction, check the successors
-        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)] # ,
-                    #   (1, 1), (1, -1), (-1, 1), (-1, -1)]
+        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]  # ,
+        #   (1, 1), (1, -1), (-1, 1), (-1, -1)]
         for dir in directions:
             new_i = i + dir[0]
             new_j = j + dir[1]
 
             # If the successor is valid, unblocked, and not visited
-            if is_valid(new_i, new_j) and is_unblocked(grid, new_i, new_j) and not closed_list[new_i][new_j]:
+            if (
+                is_valid(new_i, new_j)
+                and is_unblocked(grid, new_i, new_j)
+                and not closed_list[new_i][new_j]
+            ):
                 # If the successor is the destination
                 if is_destination(new_i, new_j, dest):
                     # Set the parent of the destination cell
@@ -152,7 +166,10 @@ def a_star_search(grid, src, dest):
                     f_new = g_new + h_new
 
                     # If the cell is not in the open list or the new f value is smaller
-                    if cell_details[new_i][new_j].f == float('inf') or cell_details[new_i][new_j].f > f_new:
+                    if (
+                        cell_details[new_i][new_j].f == float("inf")
+                        or cell_details[new_i][new_j].f > f_new
+                    ):
                         # Add the cell to the open list
                         heapq.heappush(open_list, (f_new, new_i, new_j))
                         # Update the cell details
@@ -166,12 +183,13 @@ def a_star_search(grid, src, dest):
     if not found_dest:
         print("Failed to find the destination cell")
 
+
 # Driver Code
 
 
 def main():
     # Define the grid (1 for unblocked, 0 for blocked)
-    
+
     grid1 = [
         [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
         [1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1],
@@ -186,7 +204,7 @@ def main():
         [1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1],
         [1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1],
         [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ]
 
     grid2 = [
@@ -203,13 +221,14 @@ def main():
         [0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0],
         [1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1],
         [1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1],
-        [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1]
+        [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
     ]
 
 
 
-    env = HackAtari("MsPacman", ["maze_man"], "", "", render_mode="human")
-    env.reset()
+    env = HackAtari("MsPacman", ["mini_maze_man20"], "", "", render_mode="human", mode="ram", hud=True, render_oc_overlay=True, frameskip=1)
+    pygame.init()
+    obs, _ = env.reset()
     done = False
     nstep = 1
     # src = None
@@ -218,60 +237,81 @@ def main():
     path = None
     path_i = 0
     reset = True
+    j_prev = 0
+    go = False
     while not done:
-        action = 0
-        # action = env.action_space.sample()
-        x, y = env.objects[0].xy
-        i, j = 0, 0
-        if x < 80:
-            i = (x>>3)
-        else:
-            x-=84
-            i = 9 + (x>>3) + 1
-        j = int((y - 3)/12)
-        pos = [j, i]
-        if path is not None:
-            try:
-                if path[path_i] is None:
+        if go:
+            # action = env.action_space.sample()
+            x, y = env.objects[0].xy
+            i, j = 0, 0
+            if x < 80:
+                i = int((x-3)/8)
+            else:
+                x-=80
+                i = 9 + int(x/8)
+            j = int((y-2)/12)
+            if j!=j_prev:
+                print(j, y, i, x)
+                j_prev =j
+            pos = [j, i]
+            if path is not None:
+                try:
+                    if path[path_i] is None:
+                        action = 0
+                        path_i+=1
+                    elif pos[0] < path[path_i][0]:
+                        if pos[1] < path[path_i][1] and action != 7:
+                            action = 7
+                        elif pos[1] > path[path_i][1] and action != 8:
+                            action = 8
+                        else:
+                            action = 4
+                    elif pos[0] > path[path_i][0]:
+                        if pos[1] < path[path_i][1]:
+                            action = 5
+                        elif pos[1] > path[path_i][1]:
+                            action = 6
+                        else:
+                            action = 1
+                    elif pos[1] < path[path_i][1]:
+                        action = 2
+                    elif pos[1] > path[path_i][1]:
+                        action = 3
+                    else:
+                        action = 0
+                        path_i+=1
+                except:
+                    # import ipdb; ipdb.set_trace()
+                    reset = True
+                    path = None
                     action = 0
-                    path_i+=1
-                elif pos[0] < path[path_i][0]:
-                    action = 4
-                elif pos[0] > path[path_i][0]:
-                    action = 1
-                elif pos[1] < path[path_i][1]:
-                    action = 2
-                elif pos[1] > path[path_i][1]:
-                    action = 3
-                else:
-                    path_i+=1
-            except:
-                # import ipdb; ipdb.set_trace()
-                reset = True
-                path = None
-        elif reset and len(env.objects) > 1:
-            
-            op = 0
-            for i in range(len(env.objects)):
-                try:
-                    new_dest = list(env.objects[i].grid_ij)
-                    op = i
-                    break
-                except:
-                    new_dest = None
-            # new_dest = list(env.objects[1].grid_ij)
-            if new_dest != dest:
-                print(env.objects[op].grid_ij)
-                dest = new_dest
-                path = a_star_search(grid1, pos, dest)
-                try:
-                    path.extend([None]*5)
-                except:
-                    pass
-                print(pos, dest)
-                print(path)
-                path_i = 1
-                reset = False
+            elif reset and 1 < len(env.objects):
+                action = 0
+                op = None
+                new_dest = dest
+                for i in range(len(env.objects)):
+                    if env.objects[i].category is "Pill":
+                        new_dest = list(env.objects[i].grid_ij)
+                        op = i
+                        break
+                # new_dest = list(env.objects[1].grid_ij)
+                if new_dest != dest:
+                    print(env.objects[op].grid_ij)
+                    dest = new_dest
+                    path = a_star_search(grid1, pos, dest)
+                    try:
+                        path.extend([None]*5)
+                    except:
+                        pass
+                    print(pos, dest)
+                    print(path)
+                    path_i = 1
+                    reset = False
+            # if env.get_ram()[0]:
+            #     grid1 = grid2
+        else:
+            action = 0
+            go=True
         # print(action, pos, path_i)
         obs, reward, terminated, truncated, _ = env.step(action)
         if terminated or truncated:
@@ -283,11 +323,11 @@ def main():
     env.close()
 
     # Define the source and destination
-    src = [7, 3]
-    dest = [0, 0]
+    # src = [7, 3]
+    # dest = [0, 0]
 
     # Run the A* search algorithm
-    a_star_search(grid1, src, dest)
+    # a_star_search(grid1, src, dest)
 
 
 if __name__ == "__main__":

@@ -3,34 +3,35 @@
 PAUSE = 0
 TIMER = 0
 
+
 def set_enemies(self):
-    '''
+    """
     Changes the enemies to the second version.
-    '''
+    """
     ram = self.get_ram()
     for i in range(7):
-        if ram[73+i]&32:
-            self.set_ram(73+i, ram[73+i]|16)
+        if ram[73 + i] & 32:
+            self.set_ram(73 + i, ram[73 + i] | 16)
+
 
 def set_player(self):
-    '''
+    """
     Changes the player to the second version.
-    '''
+    """
     ram = self.get_ram()
     for i in range(7):
-        if not ram[73+i]&32:
-            self.set_ram(73+i, ram[73+i]|16)
+        if not ram[73 + i] & 32:
+            self.set_ram(73 + i, ram[73 + i] | 16)
+
 
 # def no_enemies(self):
 #     ram = self.get_ram()
 #     for i in range(7):
 #         if ram[73+i]&32:
 #             self.set_ram(73+i, ram[73+i]&(~32))
-    
 
 
-def _modif_funcs(env, modifs): 
-    
+def _modif_funcs(env, modifs):
     for mod in modifs:
         if mod == "change_enemy":
             env.step_modifs.append(set_enemies)
@@ -39,6 +40,4 @@ def _modif_funcs(env, modifs):
         elif mod == "no_enemies":
             env.step_modifs.append(no_enemies)
         else:
-            print('Invalid or unknown modification')
-    
-
+            print("Invalid or unknown modification")
