@@ -16,6 +16,7 @@ def gravity(self):
         self.set_ram(97, ram[97] + 1)
     TIMER +=1
 
+
 def disable_enemies(self):
     # Has stray missiles/Divers seem to transform into enemy missiles sometimes
     """
@@ -59,7 +60,6 @@ def random_color_enemies(self):
 
 
 def _modif_funcs(env, modifs):
-    
     for mod in modifs:
         if mod == "unlimited_oxygen":
             env.step_modifs.append(unlimited_oxygen)
