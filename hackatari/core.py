@@ -265,11 +265,10 @@ class HackAtari(OCAtari):
         return obs, info
 
     def render(self, image=None):
-
         if self.dopamine_pooling:
-            super().render(self._state_buffer_rgb[-1])
+            return super().render(self._state_buffer_rgb[-1])
         else:
-            super().render()
+            return super().render()
 
     # def _colorswap_step(self, *args, **kwargs):
     #     """
