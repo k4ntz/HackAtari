@@ -61,7 +61,7 @@ class HackAtari(OCAtari):
         switch_frame=1000,
         rewardfunc_path=None,
         colorswaps=None,
-        dopamine_pooling=True,
+        dopamine_pooling=False,
         game_mode=0,
         difficulty=0,
         *args,

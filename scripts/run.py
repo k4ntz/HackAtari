@@ -158,7 +158,7 @@ if __name__ == "__main__":
             mode="ram",
             hud=False,
             render_oc_overlay=True,
-            frameskip=1,
+            frameskip=1
         )
         env.run()
     else:
@@ -221,6 +221,6 @@ if __name__ == "__main__":
             elif args.picture - nstep < 4:
                 obss.append(obs)
             nstep += 1
-            env.render()
+            env.render(env._state_buffer_rgb[-1])
 
         env.close()

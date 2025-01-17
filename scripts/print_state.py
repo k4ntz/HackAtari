@@ -13,11 +13,11 @@ from hackatari import HackAtari
 set the ram and see whats changed
 """
 
-env_id = "Boxing"
+env_id = "Kangaroo"
 obs_mode = "dqn"
 seed = 42
 frameskip = 1
-modifs = ["switch_p"]
+modifs = [""]
 
 # Seeding
 os.environ['PYTHONHASHSEED'] = str(seed)
