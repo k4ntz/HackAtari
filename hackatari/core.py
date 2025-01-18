@@ -61,7 +61,7 @@ class HackAtari(OCAtari):
         switch_frame=1000,
         rewardfunc_path=None,
         colorswaps=None,
-        dopamine_pooling=True,
+        dopamine_pooling=False,
         game_mode=0,
         difficulty=0,
         *args,
@@ -194,6 +194,7 @@ class HackAtari(OCAtari):
         total_reward += float(reward)
         for func in self.post_detection_modifs:
             func(self)
+        
         if self.dopamine_pooling:
             last_two_obs.append(cv2.resize(cv2.cvtColor(self.getScreenRGB(
             ), cv2.COLOR_RGB2GRAY), (84, 84), interpolation=cv2.INTER_AREA))
@@ -202,9 +203,17 @@ class HackAtari(OCAtari):
         if self.dopamine_pooling:
             merged_obs = np.maximum.reduce(last_two_obs)
             merged_org = np.maximum.reduce(last_two_org)
-            self._state_buffer_dqn[-1] = merged_obs
-            self._state_buffer_rgb[-1] = merged_org
-            obs[-1] = merged_obs
+            
+            if self.create_dqn_stack:
+                self._state_buffer_dqn[-1] = merged_obs
+            if self.create_rgb_stack:
+                self._state_buffer_rgb[-1] = merged_org
+            
+            if self.obs_mode == "dqn":
+                obs[-1] = merged_obs
+            else:
+                # dopamine pooling works with either "dqn" or "ori" obs_mode. 
+                obs = merged_org
 
         return obs, total_reward, terminated, truncated, info
 
@@ -265,11 +274,10 @@ class HackAtari(OCAtari):
         return obs, info
 
     def render(self, image=None):
-
         if self.dopamine_pooling:
-            super().render(self._state_buffer_rgb[-1])
+            return super().render(self._state_buffer_rgb[-1])
         else:
-            super().render()
+            return super().render()
 
     # def _colorswap_step(self, *args, **kwargs):
     #     """

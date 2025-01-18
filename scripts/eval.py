@@ -11,6 +11,40 @@ import os
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 
+def combine_means_and_stds(mu_list, sigma_list, n_list):
+    """
+    Combine multiple means and standard deviations using their sample sizes.
+
+    Args:
+        mu_list (list): List of means.
+        sigma_list (list): List of standard deviations.
+        n_list (list): List of sample sizes.
+
+    Returns:
+        tuple: Combined mean and combined standard deviation.
+    """
+    # Validate inputs
+    if not (len(mu_list) == len(sigma_list) == len(n_list)):
+        raise ValueError("All input lists must have the same length.")
+
+    # Total sample size
+    total_n = sum(n_list)
+
+    # Combined mean
+    combined_mean = sum(n * mu for mu, n in zip(mu_list, n_list)) / total_n
+
+    # Combined variance
+    combined_variance = sum(
+        n * (sigma**2 + (mu - combined_mean)**2)
+        for mu, sigma, n in zip(mu_list, sigma_list, n_list)
+    ) / total_n
+
+    # Combined standard deviation
+    combined_std = np.sqrt(combined_variance)
+
+    return combined_mean, combined_std
+
+
 if __name__ == "__main__":
     import argparse
 
@@ -35,8 +69,15 @@ if __name__ == "__main__":
                         help="Frame threshold for applying switch_modifs")
     parser.add_argument("-rf", "--reward_function", type=str, default="",
                         help="Replace default reward function with a custom one")
-    parser.add_argument("-a", "--agent", type=str, default="",
-                        help="Path to the trained agent to be loaded.")
+    # Add a parameter for a list of models
+    parser.add_argument(
+        "-a",
+        '--agents',
+        nargs='+',  # Accepts one or more arguments as a list
+        required=True,
+        help="List of model names to use (e.g., model1 model2 model3)"
+    )
+
     parser.add_argument("-mo", "--game_mode", type=int,
                         default=0, help="Alternative ALE game mode")
     parser.add_argument("-d", "--difficulty", type=int,
@@ -67,41 +108,54 @@ if __name__ == "__main__":
         full_action_space=False,
     )
 
-    pygame.init()
+    avg_results = []
+    std_results = []
+    total_runs = []
+    for pth in args.agents:
+        # Load agent
+        agent, policy = load_agent(pth, env, "cpu")
+        print(f"Loaded agent from {pth}")
 
-    # Load agent
-    agent, policy = load_agent(args.agent, env, "cpu")
-    print(f"Loaded agent from {args.agent}")
+        rewards = []
+        total_rewards = []
+        env._env.sdl = False
 
-    rewards = []
-    total_rewards = []
-    env._env.sdl = False
+        for episode in range(args.episodes):
+            obs, _ = env.reset()
+            done = False
+            episode_reward = 0
 
-    for episode in range(args.episodes):
-        obs, _ = env.reset()
-        done = False
-        episode_reward = 0
+            while not done:
+                dqn_obs = torch.Tensor(obs).unsqueeze(0)
+                action = policy(dqn_obs)[0]
+                obs, reward, terminated, truncated, info = env.step(action)
+                episode_reward += reward
+                done = terminated or truncated
 
-        while not done:
-            dqn_obs = torch.Tensor(obs).unsqueeze(0)
-            action = policy(dqn_obs)[0]
-            obs, reward, terminated, truncated, info = env.step(action)
-            episode_reward += reward
-            done = terminated or truncated
+            rewards.append(episode_reward)
+            print(f"Episode {episode + 1}: Reward = {episode_reward}")
 
-        rewards.append(episode_reward)
-        print(f"Episode {episode + 1}: Reward = {episode_reward}")
+        avg_reward = np.mean(rewards)
+        std_reward = np.std(rewards)
+        avg_results.append(avg_reward)
+        std_results.append(std_reward)
+        total_runs.append(args.episodes)
+        min_reward = np.min(rewards)
+        max_reward = np.max(rewards)
 
-    avg_reward = np.mean(rewards)
-    std_reward = np.std(rewards)
-    min_reward = np.min(rewards)
-    max_reward = np.max(rewards)
+        print("\nSummary:")
+        print(f"Total Episodes: {args.episodes}")
+        print(f"Average Reward: {avg_reward:.2f}")
+        print(f"Standard Deviation: {std_reward:.2f}")
+        print(f"Min Reward: {min_reward}")
+        print(f"Max Reward: {max_reward}")
+        print("____________________________________")
 
-    print("\nSummary:")
-    print(f"Total Episodes: {args.episodes}")
-    print(f"Average Reward: {avg_reward:.2f}")
-    print(f"Standard Deviation: {std_reward:.2f}")
-    print(f"Min Reward: {min_reward}")
-    print(f"Max Reward: {max_reward}")
+    a, b = combine_means_and_stds(avg_results, std_results, total_runs)
+
+    print("------------------------------------------------")
+    print(f"Total Average Reward: {a:.2f}")
+    print(f"Total Standard Deviation: {b:.2f}")
+    print("------------------------------------------------")
 
     env.close()
