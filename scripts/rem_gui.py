@@ -150,7 +150,8 @@ class Renderer:
                         statepkl = self.env._ale.cloneState()
                         with open(f"state_{self.env.game_name}.pkl", "wb") as f:
                             pkl.dump(statepkl, f)
-                            print(f"State saved in state_{self.env.game_name}.pkl.")
+                            print(f"State saved in state_{
+                                  self.env.game_name}.pkl.")
 
                 if event.key == pygame.K_r:  # 'R': reset
                     self.env.reset()
@@ -160,7 +161,8 @@ class Renderer:
 
                 elif [
                     x for x in self.keys2actions.keys() if event.key in x
-                ]:  # (event.key,) in self.keys2actions.keys() or [x for x in self.keys2actions.keys() if event.key in x]:  # env action
+                    # (event.key,) in self.keys2actions.keys() or [x for x in self.keys2actions.keys() if event.key in x]:  # env action
+                ]:
                     self.current_keys_down.add(event.key)
 
                 elif pygame.K_0 <= event.key <= pygame.K_9:  # enter digit
@@ -182,14 +184,15 @@ class Renderer:
                 elif event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER:
                     if self.active_cell_idx is not None:
                         if len(self.current_active_cell_input) > 0:
-                            new_cell_value = int(self.current_active_cell_input)
+                            new_cell_value = int(
+                                self.current_active_cell_input)
                             if new_cell_value < 256:
                                 self._set_ram_value_at(
                                     self.active_cell_idx, new_cell_value
                                 )
                         self._unselect_active_cell()
 
-                elif event.type == pygame.KEYDOWN and event.key == pygame.K_q: # Quit
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_q:  # Quit
                     self.running = False
 
             elif event.type == pygame.KEYUP:  # keyboard key released
@@ -282,7 +285,8 @@ class Renderer:
                 color = (30, 90, 255)
             else:
                 color = (200, 200, 200)
-            text = self.ram_cell_value_font.render(str(value), True, color, None)
+            text = self.ram_cell_value_font.render(
+                str(value), True, color, None)
             text_rect = text.get_rect()
             text_rect.bottomright = (x + w - 2, y + h - 2)
             self.window.blit(text, text_rect)
