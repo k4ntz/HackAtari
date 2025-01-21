@@ -224,9 +224,8 @@ def main():
         [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
     ]
 
-
-
-    env = HackAtari("MsPacman", ["mini_maze_man20"], "", "", render_mode="human", mode="ram", hud=True, render_oc_overlay=True, frameskip=1)
+    env = HackAtari("MsPacman", ["mini_maze_man20"], "", "", render_mode="human",
+                    mode="ram", hud=True, render_oc_overlay=True, frameskip=1)
     pygame.init()
     obs, _ = env.reset()
     done = False
@@ -247,18 +246,18 @@ def main():
             if x < 80:
                 i = int((x-3)/8)
             else:
-                x-=80
+                x -= 80
                 i = 9 + int(x/8)
             j = int((y-2)/12)
-            if j!=j_prev:
+            if j != j_prev:
                 print(j, y, i, x)
-                j_prev =j
+                j_prev = j
             pos = [j, i]
             if path is not None:
                 try:
                     if path[path_i] is None:
                         action = 0
-                        path_i+=1
+                        path_i += 1
                     elif pos[0] < path[path_i][0]:
                         if pos[1] < path[path_i][1] and action != 7:
                             action = 7
@@ -279,7 +278,7 @@ def main():
                         action = 3
                     else:
                         action = 0
-                        path_i+=1
+                        path_i += 1
                 except:
                     # import ipdb; ipdb.set_trace()
                     reset = True
@@ -311,7 +310,7 @@ def main():
             #     grid1 = grid2
         else:
             action = 0
-            go=True
+            go = True
         # print(action, pos, path_i)
         obs, reward, terminated, truncated, _ = env.step(action)
         if terminated or truncated:

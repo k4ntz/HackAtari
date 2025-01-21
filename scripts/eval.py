@@ -5,15 +5,16 @@ import pygame
 import torch
 import gymnasium as gym
 from ocatari.utils import load_agent
-
-# Set SDL to False (disable graphics window)
 import os
+import argparse
+
+# Disable graphics window (SDL) for headless execution
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 
 def combine_means_and_stds(mu_list, sigma_list, n_list):
     """
-    Combine multiple means and standard deviations using their sample sizes.
+    Combine multiple means and standard deviations using their respective sample sizes.
 
     Args:
         mu_list (list): List of means.
@@ -23,67 +24,51 @@ def combine_means_and_stds(mu_list, sigma_list, n_list):
     Returns:
         tuple: Combined mean and combined standard deviation.
     """
-    # Validate inputs
     if not (len(mu_list) == len(sigma_list) == len(n_list)):
         raise ValueError("All input lists must have the same length.")
 
-    # Total sample size
     total_n = sum(n_list)
-
-    # Combined mean
     combined_mean = sum(n * mu for mu, n in zip(mu_list, n_list)) / total_n
-
-    # Combined variance
     combined_variance = sum(
         n * (sigma**2 + (mu - combined_mean)**2)
         for mu, sigma, n in zip(mu_list, sigma_list, n_list)
     ) / total_n
-
-    # Combined standard deviation
     combined_std = np.sqrt(combined_variance)
 
     return combined_mean, combined_std
 
 
-if __name__ == "__main__":
-    import argparse
+def main():
+    """Main function to run HackAtari experiments with different agents."""
+    parser = argparse.ArgumentParser(description="HackAtari Experiment Runner")
 
-    parser = argparse.ArgumentParser(
-        description="HackAtari run.py Argument Setter")
-
+    # Game and environment parameters
     parser.add_argument("-g", "--game", type=str,
                         default="Seaquest", help="Game to be run")
     parser.add_argument("-obs", "--obs_mode", type=str,
-                        default="dqn", help="The observation mode (ori, dqn, obj)")
+                        default="dqn", help="Observation mode (ori, dqn, obj)")
     parser.add_argument("-w", "--window", type=int, default=4,
-                        help="The buffer window size (default = 4)")
+                        help="Buffer window size (default = 4)")
     parser.add_argument("-f", "--frameskip", type=int, default=4,
-                        help="The frames skipped after each action + 1 (default = 4)")
-    parser.add_argument("-dp", "--dopamine_pooling", type=bool, default=False,
-                        help="Use dopamine like frameskipping (default = False)")
-    parser.add_argument("-m", "--modifs", nargs="+", default=[],
-                        help="List of the modifications to be brought to the game")
-    parser.add_argument("-sm", "--switch_modifs", nargs="+", default=[],
-                        help="List of modifications after a certain frame")
-    parser.add_argument("-sf", "--switch_frame", type=int, default=0,
-                        help="Frame threshold for applying switch_modifs")
-    parser.add_argument("-rf", "--reward_function", type=str, default="",
-                        help="Replace default reward function with a custom one")
-    # Add a parameter for a list of models
-    parser.add_argument(
-        "-a",
-        '--agents',
-        nargs='+',  # Accepts one or more arguments as a list
-        required=True,
-        help="List of model names to use (e.g., model1 model2 model3)"
-    )
-
+                        help="Frames skipped after each action (default = 4)")
+    parser.add_argument("-dp", "--dopamine_pooling", action='store_true',
+                        help="Enable dopamine-like frameskipping")
+    parser.add_argument("-m", "--modifs", nargs="+",
+                        default=[], help="List of modifications to apply")
+    parser.add_argument("-sm", "--switch_modifs", nargs="+",
+                        default=[], help="Modifications after a threshold frame")
+    parser.add_argument("-sf", "--switch_frame", type=int,
+                        default=0, help="Frame threshold for switch_modifs")
+    parser.add_argument("-rf", "--reward_function", type=str,
+                        default="", help="Custom reward function path")
+    parser.add_argument("-a", "--agents", nargs='+',
+                        required=True, help="List of trained agent model paths")
     parser.add_argument("-mo", "--game_mode", type=int,
                         default=0, help="Alternative ALE game mode")
     parser.add_argument("-d", "--difficulty", type=int,
                         default=0, help="Alternative ALE difficulty")
     parser.add_argument("-e", "--episodes", type=int,
-                        default=10, help="Number of episodes to be played")
+                        default=10, help="Number of episodes to run per agent")
 
     args = parser.parse_args()
 
@@ -111,24 +96,21 @@ if __name__ == "__main__":
     avg_results = []
     std_results = []
     total_runs = []
-    for pth in args.agents:
-        # Load agent
-        agent, policy = load_agent(pth, env, "cpu")
-        print(f"Loaded agent from {pth}")
+
+    # Iterate through all agent models
+    for agent_path in args.agents:
+        agent, policy = load_agent(agent_path, env, "cpu")
+        print(f"Loaded agent from {agent_path}")
 
         rewards = []
-        total_rewards = []
-        env._env.sdl = False
-
         for episode in range(args.episodes):
             obs, _ = env.reset()
             done = False
             episode_reward = 0
 
             while not done:
-                dqn_obs = torch.Tensor(obs).unsqueeze(0)
-                action = policy(dqn_obs)[0]
-                obs, reward, terminated, truncated, info = env.step(action)
+                action = policy(torch.Tensor(obs).unsqueeze(0))[0]
+                obs, reward, terminated, truncated, _ = env.step(action)
                 episode_reward += reward
                 done = terminated or truncated
 
@@ -140,22 +122,26 @@ if __name__ == "__main__":
         avg_results.append(avg_reward)
         std_results.append(std_reward)
         total_runs.append(args.episodes)
-        min_reward = np.min(rewards)
-        max_reward = np.max(rewards)
 
         print("\nSummary:")
+        print(f"Agent: {agent_path}")
         print(f"Total Episodes: {args.episodes}")
         print(f"Average Reward: {avg_reward:.2f}")
         print(f"Standard Deviation: {std_reward:.2f}")
-        print(f"Min Reward: {min_reward}")
-        print(f"Max Reward: {max_reward}")
-        print("____________________________________")
+        print(f"Min Reward: {np.min(rewards)}")
+        print(f"Max Reward: {np.max(rewards)}")
+        print("--------------------------------------")
 
-    a, b = combine_means_and_stds(avg_results, std_results, total_runs)
-
+    # Compute overall statistics
+    total_avg, total_std = combine_means_and_stds(
+        avg_results, std_results, total_runs)
     print("------------------------------------------------")
-    print(f"Total Average Reward: {a:.2f}")
-    print(f"Total Standard Deviation: {b:.2f}")
+    print(f"Overall Average Reward: {total_avg:.2f}")
+    print(f"Overall Standard Deviation: {total_std:.2f}")
     print("------------------------------------------------")
 
     env.close()
+
+
+if __name__ == "__main__":
+    main()
