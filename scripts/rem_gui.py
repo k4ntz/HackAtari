@@ -150,8 +150,7 @@ class Renderer:
                         statepkl = self.env._ale.cloneState()
                         with open(f"state_{self.env.game_name}.pkl", "wb") as f:
                             pkl.dump(statepkl, f)
-                            print(f"State saved in state_{
-                                  self.env.game_name}.pkl.")
+                            print(f"State saved in state_{self.env.game_name}.pkl.")
 
                 if event.key == pygame.K_r:  # 'R': reset
                     self.env.reset()
