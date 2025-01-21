@@ -36,14 +36,8 @@ def main():
                         help="List of modifications to the game")
     parser.add_argument("-hu", "--human", action="store_true",
                         help="Let user play the game.")
-    parser.add_argument("-sm", "--switch_modifs", nargs="+",
-                        default=[], help="Modifications applied after a threshold")
-    parser.add_argument("-sf", "--switch_frame", type=int,
-                        default=0, help="Frame threshold for switch_modifs")
     parser.add_argument("-p", "--picture", type=int, default=0,
                         help="Takes a picture after the given steps.")
-    parser.add_argument("-cs", "--color_swaps", default="",
-                        help="Color swaps for images.")
     parser.add_argument("-rf", "--reward_function", type=str,
                         default="", help="Custom reward function path")
     parser.add_argument("-a", "--agent", type=str,
@@ -60,14 +54,14 @@ def main():
 
     if args.human:
         env = HumanPlayable(
-            args.game, args.modifs, args.switch_modifs, args.switch_frame, args.reward_function,
+            args.game, args.modifs, args.reward_function,
             game_mode=args.game_mode, difficulty=args.difficulty, render_mode=args.render,
             obs_mode=args.obs_mode, mode="ram", hud=False, render_oc_overlay=True, frameskip=1
         )
         env.run()
     else:
         env = HackAtari(
-            args.game, args.modifs, args.switch_modifs, args.switch_frame, args.reward_function,
+            args.game, args.modifs, args.reward_function,
             dopamine_pooling=args.dopamine_pooling, game_mode=args.game_mode, difficulty=args.difficulty,
             render_mode=args.render, obs_mode=args.obs_mode, mode="ram", hud=False,
             render_oc_overlay=True, buffer_window_size=args.window, frameskip=args.frameskip,
