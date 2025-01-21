@@ -82,7 +82,7 @@ if __name__ == "__main__":
             "",
             game_mode=0,
             difficulty=0,
-            render_mode=args.render,
+            render_mode="human",
             obs_mode=args.obs_mode,
             mode="ram",
             hud=False,
@@ -109,8 +109,8 @@ if __name__ == "__main__":
 
                 env.render()
 
-            if terminated or truncated:
-                running = False
+                if terminated or truncated:
+                    running = False
 
         pygame.quit()
         print(f"Final Score: {aggreward}")
