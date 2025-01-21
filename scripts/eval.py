@@ -55,10 +55,6 @@ def main():
                         help="Enable dopamine-like frameskipping")
     parser.add_argument("-m", "--modifs", nargs="+",
                         default=[], help="List of modifications to apply")
-    parser.add_argument("-sm", "--switch_modifs", nargs="+",
-                        default=[], help="Modifications after a threshold frame")
-    parser.add_argument("-sf", "--switch_frame", type=int,
-                        default=0, help="Frame threshold for switch_modifs")
     parser.add_argument("-rf", "--reward_function", type=str,
                         default="", help="Custom reward function path")
     parser.add_argument("-a", "--agents", nargs='+',
@@ -76,8 +72,6 @@ def main():
     env = HackAtari(
         args.game,
         args.modifs,
-        args.switch_modifs,
-        args.switch_frame,
         args.reward_function,
         dopamine_pooling=args.dopamine_pooling,
         game_mode=args.game_mode,
