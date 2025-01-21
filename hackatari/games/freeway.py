@@ -1,103 +1,118 @@
 import random
 
 
-color_map = {1: 0, 2: 2, 3: 66, 4: 15, 5: 210, 6: 120, 7: 145, 8: 6}
-
-CARS_COLOR = 0
-
-
-def modify_ram_for_color(self):
+class GameModifications:
     """
-    Modifies RAM for each car with the specified color.
+    Encapsulates game modifications to ensure thread safety and avoid global variables.
     """
-    for car in range(77, 87):
-        self.set_ram(car, CARS_COLOR)
+
+    _color_map = {1: 0, 2: 2, 3: 66, 4: 15, 5: 210, 6: 120, 7: 145, 8: 6}
+
+    def __init__(self, env):
+        """
+        Initializes the modification handler with the given environment.
+
+        :param env: The game environment to modify.
+        """
+        self.env = env
+        self.active_modifications = set()
+
+    def stop_random_car(self):
+        """
+        Stops a random car with a biased probability.
+        """
+        counter = random.choices([0, 1, 2, 3], weights=[
+                                 0.1, 0.3, 0.3, 0.3], k=1)[0]
+        random_car = random.randint(33, 42)
+        self.env.set_ram(random_car, 100 if counter > 0 else 0)
+
+    def align_all_cars(self):
+        """
+        Stops all cars based on a biased random decision.
+        """
+        car_all = random.choices([0, 1], weights=[0.6, 0.4], k=1)[0]
+        for car_pos in range(33, 43):
+            self.env.set_ram(car_pos, 100 if car_all > 0 else 0)
+
+    def stop_all_cars(self):
+        """
+        Stops all cars and repositions some to predefined positions.
+        """
+        for car_stop in range(33, 43):
+            self.env.set_ram(car_stop, 100)
+        for new_pos_down in range(108, 113):
+            self.env.set_ram(new_pos_down, 15)
+        for new_pos_down in range(113, 118):
+            self.env.set_ram(new_pos_down, 150)
+
+    def all_black_cars(self):
+        """
+        Colors all cars black.
+        """
+        for car in range(77, 87):
+            self.env.set_ram(car, 0)
+
+    def all_white_cars(self):
+        """
+        Colors all cars white.
+        """
+        for car in range(77, 87):
+            self.env.set_ram(car, 15)
+
+    def all_red_cars(self):
+        """
+        Colors all cars red.
+        """
+        for car in range(77, 87):
+            self.env.set_ram(car, 66)
+
+    def all_green_cars(self):
+        """
+        Colors all cars green.
+        """
+        for car in range(77, 87):
+            self.env.set_ram(car, 210)
+
+    def all_blue_cars(self):
+        """
+        Colors all cars blue.
+        """
+        for car in range(77, 87):
+            self.env.set_ram(car, 145)
+
+    def set_active_modifications(self, active_modifs):
+        """
+        Specifies which modifications are active.
+
+        :param active_modifs: A list of active modification names.
+        """
+        self.active_modifications = set(active_modifs)
+
+    def fill_modif_lists(self):
+        """
+        Returns modification lists with active modifications.
+
+        :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs lists.
+        """
+        modif_mapping = {
+            "stop_random_car": self.stop_random_car,
+            "stop_all_cars": self.stop_all_cars,
+            "align_all_cars": self.align_all_cars,
+            "all_black_cars": self.all_black_cars,
+            "all_white_cars": self.all_white_cars,
+            "all_red_cars": self.all_red_cars,
+            "all_green_cars": self.all_green_cars,
+            "all_blue_cars": self.all_blue_cars,
+        }
+
+        step_modifs = [modif_mapping[name]
+                       for name in self.active_modifications if name in modif_mapping]
+        reset_modifs = []
+        post_detection_modifs = []
+        return step_modifs, reset_modifs, post_detection_modifs
 
 
-def modify_ram_for_default(self):
-    """
-    Modifies RAM with default color values for specific cars.
-    """
-    default_colors = [26, 216, 68, 136, 36, 130, 74, 18, 220, 66, 189]
-    for index, value in enumerate(default_colors, start=77):
-        self.set_ram(index, value)
-
-
-def set_ram_value(self, address, value):
-    """
-    Sets the value in RAM at a specific address.
-    """
-    ram = self.get_ram()
-    ram[address] = value
-    self.set_ram(address, ram[address])
-
-
-def custom_biased_random(option_a, option_b, probability_a):
-    """
-    This function generates a random selection between two options (a and b) with a user-defined
-    probability for option a.
-    """
-    choices = [option_a, option_b]
-    weights = [probability_a, 1 - probability_a]
-    result = random.choices(choices, weights=weights, k=1)[0]
-    return result
-
-
-def handle_car_stop_mode_1(self):
-    """
-    Handles random car stop mode 1.
-    """
-    # Get a random counter value and a random car position
-    counter = custom_biased_random(0, 3, 0.9)
-    random_car = random.randint(33, 42)
-    # Set RAM value to 100 if counter is greater than 0, else set to 0
-    if counter > 0:
-        set_ram_value(self, random_car, 100)
-    else:
-        set_ram_value(self, random_car, 0)
-
-
-def handle_car_stop_mode_2(self):
-    """
-    Handles random car stop mode 2.
-    """
-    # Get a random value for all cars and modify RAM accordingly
-    car_all = custom_biased_random(0, 1, 0.4)
-    for car_pos in range(33, 43):
-        if car_all > 0:
-            set_ram_value(self, car_pos, 100)
-        else:
-            set_ram_value(self, car_pos, 0)
-
-
-def handle_car_stop_mode_3(self):
-    """
-    Handles random car stop mode 3.
-    """
-    # Ram value 100 stops all cars. Ram Value 15 is the position of the
-    # bottom 5 cars and 150 is the position of the top 5 cars.
-    for car_stop in range(33, 43):
-        self.set_ram(car_stop, 100)
-    for new_pos_down in range(108, 113):
-        set_ram_value(self, new_pos_down, 15)
-    for new_pos_down in range(113, 118):
-        set_ram_value(self, new_pos_down, 150)
-
-
-def _modif_funcs(env, modifs):
-    for mod in modifs:
-        if mod.startswith("s"):
-            mod_n = int(mod[-1])
-            if mod_n == 1:
-                env.step_modifs.append(handle_car_stop_mode_1)
-            elif mod_n == 2:
-                env.step_modifs.append(handle_car_stop_mode_2)
-            elif mod_n == 3:
-                env.step_modifs.append(handle_car_stop_mode_3)
-            else:
-                raise ValueError("Invalid modification number")
-        elif mod.startswith("c"):
-            mod_n = int(mod[-1])
-            global CARS_COLOR
-            CARS_COLOR = color_map.get(mod_n, 256)
-            env.step_modifs.append(modify_ram_for_color)
+def modif_funcs(env, active_modifs):
+    modifications = GameModifications(env)
+    modifications.set_active_modifications(active_modifs)
+    return modifications.fill_modif_lists()

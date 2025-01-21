@@ -1,191 +1,222 @@
 import random
 
-TIMER = 0
-global GRAVITY
-GRAVITY = 3
-PLAYER_COLOR = 0  # Black, Red, Blue, Green
-ENEMY_COLOR = 0  # White, Red, Blue, Green
-ONCE = 0
 
-colors = [0, 12, 48, 113, 200]
-
-
-def one_armed(self):
+class GameModifications:
     """
-    one_armed_boxing: disables the "hitting motion" with the right arm permanently
+    Encapsulates game modifications for managing active modifications and applying them.
     """
-    self.set_ram(101, 128)
 
+    def __init__(self, env):
+        """
+        Initializes the modification handler with the given environment.
 
-def gravity(self):
-    """
-    gravity_boxing: Increase the value in RAM cell 34 until reaching a certain threshold
-    """
-    curr_player_pos = self.get_ram()[34]
-    global TIMER
-    if curr_player_pos < 87:
-        global GRAVITY
-        if not TIMER % GRAVITY:
-            curr_player_pos += 1
-            self.set_ram(34, curr_player_pos)
-    TIMER += 1
+        :param env: The game environment to modify.
+        """
+        self.env = env
+        self.active_modifications = set()
+        self.gravity_level = 3
+        self.player_color = 0  # Black, Red, Blue, Green
+        self.enemy_color = 0  # White, Red, Blue, Green
+        self.once = 0
+        self.colors = [0, 12, 48, 113, 200]
 
-    # if TOGGLE_HUMAN_MODE:
-    #     if curr_player_pos < 87 and not (pygame.K_w in list(self.current_keys_down)):
-    #         curr_player_pos += 1
-    #         self.set_ram(34, curr_player_pos)
+    def one_armed(self):
+        """
+        Disables the "hitting motion" with the right arm permanently.
+        """
+        self.env.set_ram(101, 128)
 
+    def gravity(self):
+        """
+        Increases the value in RAM cell 34 until reaching a threshold to simulate gravity.
+        """
+        curr_player_pos = self.env.get_ram()[34]
+        if curr_player_pos < 87:
+            if not self.env.timer % self.gravity_level:
+                curr_player_pos += 1
+                self.env.set_ram(34, curr_player_pos)
+        self.env.timer += 1
 
-def offensive(self):
-    """
-    Moves the player character forward in the game environment.
-    """
-    curr_player_pos_x = self.get_ram()[32]
-    curr_player_pos_x_enemy = self.get_ram()[33]
+    def offensive(self):
+        """
+        Moves the player character forward in the game environment.
+        """
+        curr_player_pos_x = self.env.get_ram()[32]
+        curr_player_pos_x_enemy = self.env.get_ram()[33]
 
-    if (
-        0 < curr_player_pos_x < 109
-        and curr_player_pos_x + 14 != curr_player_pos_x_enemy
-    ):
-        curr_player_pos_x += 1
-        self.set_ram(32, curr_player_pos_x)
+        if 0 < curr_player_pos_x < 109 and curr_player_pos_x + 14 != curr_player_pos_x_enemy:
+            curr_player_pos_x += 1
+            self.env.set_ram(32, curr_player_pos_x)
 
+    def antigravity(self):
+        """
+        Moves the player character up in the game environment.
+        """
+        curr_player_pos_y = self.env.get_ram()[34]
 
-def antigravity(self):
-    """
-    Moves the player character up in the game environment.
-    """
-    curr_player_pos_y = self.get_ram()[34]
+        if 0 < curr_player_pos_y < 87:
+            curr_player_pos_y -= 1
+            self.env.set_ram(34, curr_player_pos_y)
 
-    if 0 < curr_player_pos_y < 87:
-        curr_player_pos_y -= 1
-        self.set_ram(34, curr_player_pos_y)
+    def defensive(self):
+        """
+        Moves the player character backward in the game environment.
+        """
+        curr_player_pos_x = self.env.get_ram()[32]
 
+        if 0 < curr_player_pos_x < 109:
+            curr_player_pos_x -= 1
+            self.env.set_ram(32, curr_player_pos_x)
 
-def defensive(self):
-    """
-    Moves the player character backward in the game environment.
-    """
-    curr_player_pos_x = self.get_ram()[32]
+    def down(self):
+        """
+        Moves the player character down in the game environment.
+        """
+        curr_player_pos_y = self.env.get_ram()[34]
 
-    if 0 < curr_player_pos_x < 109:
-        curr_player_pos_x -= 1
-        self.set_ram(32, curr_player_pos_x)
+        if 0 < curr_player_pos_y < 87:
+            curr_player_pos_y += 1
+            self.env.set_ram(34, curr_player_pos_y)
 
-
-def down(self):
-    """
-    Moves the player character down in the game environment.
-    """
-    curr_player_pos_y = self.get_ram()[34]
-
-    if 0 < curr_player_pos_y < 87:
-        curr_player_pos_y += 1
-        self.set_ram(34, curr_player_pos_y)
-
-
-def drunken_boxing(self):
-    """
-    Applies random movements to the players input
-    """
-    r = random.randint(0, 1)
-    if r == 0:
-        # Add a counter variable to keep track of the function calls
-        self.counter = getattr(self, "counter", 0)
-        do = self.counter % 4
-        # Increment the counter for the next function call
-        self.counter += 1
-    else:
-        do = random.randint(0, 3)
-
-    # Call functions in sequence based on the counter value
-    if do == 0:
-        offensive(self)
-    elif do == 1:
-        antigravity(self)
-    elif do == 2:
-        defensive(self)
-    elif do == 3:
-        down(self)
-
-
-def color_player(self):
-    """
-    Changes the color of the player to [Black, White, Red, Blue, Green] by choosing a value 0-4
-    """
-    self.set_ram(1, colors[PLAYER_COLOR])
-
-
-def color_enemy(self):
-    """
-    Changes the color of the enemy to [Black, White, Red, Blue, Green] by choosing a value 0-4
-    """
-    self.set_ram(2, colors[ENEMY_COLOR])
-
-
-def switch_positions(self):
-    """
-    Switches the position of player and enemy
-    """
-    global ONCE
-    if ONCE:
-        self.set_ram(33, 30)
-        self.set_ram(35, 4)
-        # 109, 87
-        self.set_ram(32, 105)
-        self.set_ram(34, 85)
-        ONCE -= 1
-
-
-def reset_onc(self):
-    global ONCE
-    ONCE = 2
-
-
-def _modif_funcs(env, modifs):
-    for mod in modifs:
-        if mod.startswith("gravity"):
-            if mod[-1].isdigit():
-                global GRAVITY
-                GRAVITY = 7 - int(mod[-1])
-                assert 1 < GRAVITY < 7, "Invalid Gravity lelvel, choose number 1-5"
-            env.step_modifs.append(gravity)
-        elif mod == "one_armed":
-            env.step_modifs.append(one_armed)
-        elif mod == "drunken_boxing":
-            env.step_modifs.append(drunken_boxing)
-        elif mod.startswith("color_p"):
-            if mod[-1].isdigit():
-                mod_n = int(mod[-1])
-                if mod_n:
-                    mod_n += 1
-                if mod_n < 0 or mod_n > 3:
-                    raise ValueError(
-                        "Invalid color for player, choose value 0-3 [black, red, blue, green]"
-                    )
-            else:
-                raise ValueError(
-                    "Append value 0-3 [black, red, blue, green] to your color mod-argument"
-                )
-            global PLAYER_COLOR
-            PLAYER_COLOR = mod_n
-            env.step_modifs.append(color_player)
-        elif mod.startswith("color_e"):
-            if mod[-1].isdigit():
-                mod_n = int(mod[-1]) + 1
-                if mod_n < 0 or mod_n > 3:
-                    raise ValueError(
-                        "Invalid color for player, choose value 0-3 [white, red, blue, green]"
-                    )
-            else:
-                raise ValueError(
-                    "Append value 0-3 [white, red, blue, green] to your color mod-argument"
-                )
-            global ENEMY_COLOR
-            ENEMY_COLOR = mod_n
-            env.step_modifs.append(color_enemy)
-        elif mod.startswith("switch_p"):
-            env.step_modifs.append(switch_positions)
-            env.reset_modifs.append(reset_onc)
+    def drunken_boxing(self):
+        """
+        Applies random movements to the player's input.
+        """
+        r = random.randint(0, 1)
+        if r == 0:
+            self.env.counter = getattr(self.env, "counter", 0)
+            do = self.env.counter % 4
+            self.env.counter += 1
         else:
-            raise ValueError("Invalid modification")
+            do = random.randint(0, 3)
+
+        if do == 0:
+            self.offensive()
+        elif do == 1:
+            self.antigravity()
+        elif do == 2:
+            self.defensive()
+        elif do == 3:
+            self.down()
+
+    def color_player_black(self):
+        """
+        Changes the player's color to black.
+        """
+        self.env.set_ram(1, self.colors[0])
+
+    def color_player_white(self):
+        """
+        Changes the player's color to white.
+        """
+        self.env.set_ram(1, self.colors[1])
+
+    def color_player_red(self):
+        """
+        Changes the player's color to red.
+        """
+        self.env.set_ram(1, self.colors[2])
+
+    def color_player_blue(self):
+        """
+        Changes the player's color to blue.
+        """
+        self.env.set_ram(1, self.colors[3])
+
+    def color_player_green(self):
+        """
+        Changes the player's color to green.
+        """
+        self.env.set_ram(1, self.colors[4])
+
+    def color_enemy_black(self):
+        """
+        Changes the enemy's color to black.
+        """
+        self.env.set_ram(2, self.colors[0])
+
+    def color_enemy_white(self):
+        """
+        Changes the enemy's color to white.
+        """
+        self.env.set_ram(2, self.colors[1])
+
+    def color_enemy_red(self):
+        """
+        Changes the enemy's color to red.
+        """
+        self.env.set_ram(2, self.colors[2])
+
+    def color_enemy_blue(self):
+        """
+        Changes the enemy's color to blue.
+        """
+        self.env.set_ram(2, self.colors[3])
+
+    def color_enemy_green(self):
+        """
+        Changes the enemy's color to green.
+        """
+        self.env.set_ram(2, self.colors[4])
+
+    def switch_positions(self):
+        """
+        Switches the position of player and enemy.
+        """
+        if self.once:
+            self.env.set_ram(33, 30)
+            self.env.set_ram(35, 4)
+            self.env.set_ram(32, 105)
+            self.env.set_ram(34, 85)
+            self.once -= 1
+
+    def reset_once(self):
+        """
+        Resets the "once" variable to its initial value.
+        """
+        self.once = 2
+
+    def set_active_modifications(self, active_modifs):
+        """
+        Specifies which modifications are active.
+
+        :param active_modifs: A list of active modification names.
+        """
+        self.active_modifications = set(active_modifs)
+
+    def fill_modif_lists(self):
+        """
+        Returns the modification lists (step, reset, and post-detection) with active modifications.
+
+        :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
+        """
+        modif_mapping = {
+            "one_armed": self.one_armed,
+            "gravity": self.gravity,
+            "drunken_boxing": self.drunken_boxing,
+            "color_player_black": self.color_player_black,
+            "color_player_white": self.color_player_white,
+            "color_player_red": self.color_player_red,
+            "color_player_blue": self.color_player_blue,
+            "color_player_green": self.color_player_green,
+            "color_enemy_black": self.color_enemy_black,
+            "color_enemy_white": self.color_enemy_white,
+            "color_enemy_red": self.color_enemy_red,
+            "color_enemy_blue": self.color_enemy_blue,
+            "color_enemy_green": self.color_enemy_green,
+            "switch_positions": self.switch_positions,
+        }
+
+        step_modifs = [modif_mapping[name]
+                       for name in self.active_modifications if name in modif_mapping]
+        reset_modifs = []
+        if "switch_positions" in self.active_modifications:
+            reset_modifs.append(self.reset_once)
+        post_detection_modifs = []
+        return step_modifs, reset_modifs, post_detection_modifs
+
+
+def modif_funcs(env, active_modifs):
+    modifications = GameModifications(env)
+    modifications.set_active_modifications(active_modifs)
+    return modifications.fill_modif_lists()

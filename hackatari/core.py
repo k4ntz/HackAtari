@@ -46,9 +46,17 @@ class HackAtari(OCAtari):
         super().__init__(env_name, *args, **kwargs)
 
         # Initialize modifications and environment settings
-        self._modif_funcs = lambda x, y: ([], [])
         self.step_modifs, self.reset_modifs, self.post_detection_modifs = [], [], []
-        self._modif_funcs(self, modifs)
+
+        # Load modification functions dynamically
+        modif_module = importlib.import_module(
+            f"hackatari.games.{env_name.lower()}")
+        step_modifs, reset_modifs, post_detection_modifs = modif_module.modif_funcs(
+            self, modifs)
+
+        self.step_modifs.extend(step_modifs)
+        self.reset_modifs.extend(reset_modifs)
+        self.post_detection_modifs.extend(post_detection_modifs)
 
         self.dopamine_pooling = dopamine_pooling and self._frameskip > 1
 
@@ -91,14 +99,14 @@ class HackAtari(OCAtari):
 
         # Apply step modifications
         for func in self.step_modifs:
-            func(self)
+            func()
 
         obs, reward, terminated, truncated, info = super().step(*args, **kwargs)
         total_reward += float(reward)
 
         # Apply post-detection modifications
         for func in self.post_detection_modifs:
-            func(self)
+            func()
 
         return obs, total_reward, terminated, truncated, info
 
@@ -126,9 +134,9 @@ class HackAtari(OCAtari):
         self.org_return = 0
 
         for func in self.reset_modifs:
-            func(self)
+            func()
         for func in self.post_detection_modifs:
-            func(self)
+            func()
 
         return obs, info
 
@@ -146,7 +154,7 @@ class HumanPlayable(HackAtari):
         kwargs["render_oc_overlay"] = True
         kwargs["full_action_space"] = True
 
-        super().__init__(game, modifs, rewardfunc_path, dopamine_pooling=0,
+        super().__init__(game, modifs, rewardfunc_path, dopamine_pooling=1,
                          game_mode=game_mode, difficulty=difficulty, *args, **kwargs)
 
         self.reset()
@@ -171,7 +179,7 @@ class HumanPlayable(HackAtari):
                 _, reward, _, _, _ = self.step(action)
                 if self.print_reward and reward:
                     print(reward)
-                self.render()
+                self.render(self._state_buffer_rgb[0])
 
         pygame.quit()
 

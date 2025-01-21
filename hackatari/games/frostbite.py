@@ -1,173 +1,163 @@
-ICE_COLOR = 0  # Black, Red, Blue, Green
-UI_COLOR = 0  # New color for the UI (Int: 000-255)
-LINE = [
-    False,
-    False,
-    False,
-    False,
-]  # Which lines are recolored, multiple line commands are possible (Int: 0-3)
-# Define the numbers of enemies to occur per line (Int: 0-3)
-ENEMIES_NUMBER = 0
-NEW_X_POS = 0  # New startposition of ice shelves (Int: 0-255)
-
-colors = [0, 48, 113, 200]
-"""
-A constant used to change the mode for the number of enemies.
-"""
-
-
-def modify_ram_for_color(self):
+class GameModifications:
     """
-    Adjusts the colors of the ice floes bases on the specified values.
+    Encapsulates game modifications for managing active modifications and applying them.
     """
-    if LINE[3]:
-        self.set_ram(43, colors[ICE_COLOR])
-    if LINE[2]:
-        self.set_ram(44, colors[ICE_COLOR])
-    if LINE[1]:
-        self.set_ram(45, colors[ICE_COLOR])
-    if LINE[0]:
-        self.set_ram(46, colors[ICE_COLOR])
+
+    COLORS = [0, 48, 113, 200]  # Black, Red, Blue, Green
+
+    def __init__(self, env):
+        """
+        Initializes the modification handler with the given environment.
+
+        :param env: The game environment to modify.
+        """
+        self.env = env
+        self.active_modifications = set()
+
+    def recolor_ice_black(self):
+        """
+        Adjusts the ice floes to black.
+        """
+        self.env.set_ram(43, self.COLORS[0])
+        self.env.set_ram(44, self.COLORS[0])
+        self.env.set_ram(45, self.COLORS[0])
+        self.env.set_ram(46, self.COLORS[0])
+
+    def recolor_ice_red(self):
+        """
+        Adjusts the ice floes to red.
+        """
+        self.env.set_ram(43, self.COLORS[1])
+        self.env.set_ram(44, self.COLORS[1])
+        self.env.set_ram(45, self.COLORS[1])
+        self.env.set_ram(46, self.COLORS[1])
+
+    def recolor_ice_blue(self):
+        """
+        Adjusts the ice floes to blue.
+        """
+        self.env.set_ram(43, self.COLORS[2])
+        self.env.set_ram(44, self.COLORS[2])
+        self.env.set_ram(45, self.COLORS[2])
+        self.env.set_ram(46, self.COLORS[2])
+
+    def recolor_ice_green(self):
+        """
+        Adjusts the ice floes to green.
+        """
+        self.env.set_ram(43, self.COLORS[3])
+        self.env.set_ram(44, self.COLORS[3])
+        self.env.set_ram(45, self.COLORS[3])
+        self.env.set_ram(46, self.COLORS[3])
+
+    def ui_color_black(self):
+        """
+        Adjusts the UI to black.
+        """
+        self.env.set_ram(71, self.COLORS[0])
+
+    def ui_color_red(self):
+        """
+        Adjusts the UI to red.
+        """
+        self.env.set_ram(71, self.COLORS[1])
+
+    def ui_color_blue(self):
+        """
+        Adjusts the UI to blue.
+        """
+        self.env.set_ram(71, self.COLORS[2])
+
+    def ui_color_green(self):
+        """
+        Adjusts the UI to green.
+        """
+        self.env.set_ram(71, self.COLORS[3])
+
+    def reposition_floes_easy(self):
+        """
+        Adjusts the position of the ice floes to an easy layout.
+        """
+        self.env.set_ram(22, 0)
+        for i in range(31, 35):
+            self.env.set_ram(i, 80)
+
+    def reposition_floes_medium(self):
+        """
+        Adjusts the position of the ice floes to a medium layout.
+        """
+        self.env.set_ram(22, 0)
+        for i in range(31, 35):
+            self.env.set_ram(i, 80+30*(i-30))
+
+    def reposition_floes_hard(self):
+        """
+        Adjusts the position of the ice floes to a hard layout.
+        """
+        self.env.set_ram(22, 0)
+        for i in range(31, 35):
+            self.env.set_ram(i, 80+20*(i-30))
+
+    def no_birds(self):
+        """
+        Removes all enemies.
+        """
+        for i in range(92, 96):
+            self.env.set_ram(i, 0)
+
+    def few_enemies(self):
+        """
+        Sets a few enemies (e.g., easy mode).
+        """
+        for i in range(92, 96):
+            self.env.set_ram(i, 5)
+
+    def many_enemies(self):
+        """
+        Sets many enemies (e.g., hard mode).
+        """
+        for i in range(92, 96):
+            self.env.set_ram(i, 15)
+
+    def set_active_modifications(self, active_modifs):
+        """
+        Specifies which modifications are active.
+
+        :param active_modifs: A list of active modification names.
+        """
+        self.active_modifications = set(active_modifs)
+
+    def fill_modif_lists(self):
+        """
+        Returns the modification lists (step, reset, and post-detection) with active modifications.
+
+        :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
+        """
+        modif_mapping = {
+            "recolor_ice_black": self.recolor_ice_black,
+            "recolor_ice_red": self.recolor_ice_red,
+            "recolor_ice_blue": self.recolor_ice_blue,
+            "recolor_ice_green": self.recolor_ice_green,
+            "ui_color_red": self.ui_color_red,
+            "ui_color_blue": self.ui_color_blue,
+            "ui_color_green": self.ui_color_green,
+            "reposition_floes_easy": self.reposition_floes_easy,
+            "reposition_floes_medium": self.reposition_floes_medium,
+            "reposition_floes_hard": self.reposition_floes_hard,
+            "no_birds": self.no_birds,
+            "few_enemies": self.few_enemies,
+            "many_enemies": self.many_enemies,
+        }
+
+        step_modifs = [modif_mapping[name]
+                       for name in self.active_modifications if name in modif_mapping]
+        reset_modifs = []
+        post_detection_modifs = []
+
+        return step_modifs, reset_modifs, post_detection_modifs
 
 
-def modify_ram_for_uicolor(self):
-    """
-    Adjusts the colors of the ui bases on the specified values.
-    """
-    self.set_ram(71, UI_COLOR)
-
-
-def modify_ram_for_floes_position(self):
-    """
-    Adjusts the memory based on the specified new position of the ice floes.
-    """
-    self.set_ram(22, 0)
-    self.set_ram(31, NEW_X_POS)
-    self.set_ram(32, NEW_X_POS)
-    self.set_ram(33, NEW_X_POS)
-    self.set_ram(34, NEW_X_POS)
-
-
-def modify_ram_for_enemy_amount(self):
-    """
-    Adjusts the memory based on the specified number of enemies selected by the user.
-    """
-    if ENEMIES_NUMBER > 0:
-        # enemies number 1: easy mode with 0 enemies
-        if ENEMIES_NUMBER == 1:
-            value = 0
-        # enemies number 2: medium mode with 8 enemies
-        elif ENEMIES_NUMBER == 2:
-            value = 5
-        # enemies number 3: medium mode with 12 enemies
-        elif ENEMIES_NUMBER == 3:
-            value = 15
-        for rows in range(92, 96):
-            self.set_ram(rows, value)
-
-
-def random_color(self):
-    global ICE_COLOR
-    self.set_ram(43, ICE_COLOR)
-    self.set_ram(44, ICE_COLOR)
-    self.set_ram(45, ICE_COLOR)
-    self.set_ram(46, ICE_COLOR)
-
-
-def _modif_funcs(env, modifs):
-    for mod in modifs:
-        if mod.startswith("color"):
-            if mod[-1].isdigit():
-                mod_n = int(mod[-1])
-                if mod_n < 0 or mod_n > 3:
-                    raise ValueError(
-                        "Invalid color for ice, choose value 0-3 [black, red, blue, green]"
-                    )
-            else:
-                raise ValueError(
-                    "Append value 0-3 [black, red, blue, green] to your color mod-argument"
-                )
-            global ICE_COLOR
-            ICE_COLOR = mod_n
-            env.step_modifs.append(modify_ram_for_color)
-        elif mod.startswith("line"):
-            mod_n = int(mod[-1])
-            if mod_n < 1 or mod_n > 4:
-                raise ValueError("Invalid color for ice, choose number 1-5")
-            global LINE
-            LINE[mod_n - 1] = True
-            env.step_modifs.append(modify_ram_for_color)
-        elif mod.startswith("ui_color"):
-            if mod[-1].isdigit():
-                mod_n = int(mod[-1])
-                if mod_n < 0 or mod_n > 3:
-                    raise ValueError(
-                        "Invalid color for ui, choose value 0-3 [black, red, blue, green]"
-                    )
-            else:
-                raise ValueError(
-                    "Append value 0-3 [black, red, blue, green] to your ui_color mod-argument"
-                )
-            global UI_COLOR
-            UI_COLOR = mod_n
-            env.step_modifs.append(modify_ram_for_uicolor)
-        elif mod.startswith("e"):
-            mod_n = int(mod[-1])
-            if mod_n < 0 or mod_n > 3:
-                raise ValueError(
-                    "Invalid number of enenmies, choose number 0-3")
-            global ENEMIES_NUMBER
-            ENEMIES_NUMBER = mod_n
-            env.step_modifs.append(modify_ram_for_enemy_amount)
-        elif mod.startswith("f"):
-            for i in range(3):
-                if mod[-3 + i:].isdigit():
-                    mod_n = int(mod[-3 + i:])
-                    break
-            if mod_n < 0 or mod_n > 160:
-                raise ValueError(
-                    "Invalid position for floes, max. value is 160")
-            global NEW_X_POS
-            NEW_X_POS = mod_n
-            env.step_modifs.append(modify_ram_for_floes_position)
-
-
-# def _modif_funcs(env, modifs):
-#
-#     for mod in modifs:
-#         if mod.startswith('color'):
-#             mod_n = int(mod[-3:])
-#             if mod_n < 0 or mod_n > 255:
-#                 raise ValueError("Invalid color for ice")
-#             global ICE_COLOR
-#             ICE_COLOR = mod_n
-#             #env.step_modifs.append(modify_ram_for_color)
-#         elif mod.startswith('line'):
-#             mod_n = int(mod[-1])
-#             if mod_n < 1 or mod_n > 5:
-#                 raise ValueError("Invalid color for ice")
-#             global LINE
-#             LINE[mod_n] = True
-#             env.step_modifs.append(modify_ram_for_color)
-#         elif mod.startswith('color_ui'):
-#             mod_n = int(mod[-3:])
-#             if mod_n < 0 or mod_n > 255:
-#                 raise ValueError("Invalid color for UI")
-#             global UI_COLOR
-#             UI_COLOR = mod_n
-#             env.step_modifs.append(modify_ram_for_uicolor)
-#         elif mod.startswith('e'):
-#             mod_n = int(mod[-1])
-#             if mod_n < 0 or mod_n > 3:
-#                 raise ValueError("Invalid number of enenmies")
-#             global ENEMIES_NUMBER
-#             ENEMIES_NUMBER = mod_n
-#             env.step_modifs.append(modify_ram_for_enemy_amount)
-#         elif mod.startswith('f'):
-#             mod_n = int(mod[-3:])
-#             if mod_n < 0 or mod_n > 255:
-#                 raise ValueError("Invalid position for floes")
-#             global NEW_X_POS
-#             NEW_X_POS = mod_n
-#             env.reset_modifs.append(modify_ram_for_floes_position)
-#
+def modif_funcs(env, active_modifs):
+    modifications = GameModifications(env)
+    modifications.set_active_modifications(active_modifs)
+    return modifications.fill_modif_lists()

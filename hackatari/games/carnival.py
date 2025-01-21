@@ -1,52 +1,83 @@
-MISSILE_SPEED_INCREASE = 0
-
-
-def no_flying_ducks(self):
+class GameModifications:
     """
-    Ducks in the last row disappear instead of turning into flying ducks.
+    Encapsulates game modifications for managing active modifications and applying them.
     """
-    ram = self.get_ram()
-    self.set_ram(1, 79)
+
+    def __init__(self, env):
+        """
+        Initializes the modification handler with the given environment.
+
+        :param env: The game environment to modify.
+        """
+        self.env = env
+        self.active_modifications = set()
+
+    def no_flying_ducks(self):
+        """
+        Ducks in the last row disappear instead of turning into flying ducks.
+        """
+        self.env.set_ram(1, 79)
+
+    def unlimited_ammo(self):
+        """
+        Ammunition doesn't decrease.
+        """
+        self.env.set_ram(3, 40)
+
+    def missile_speed_small_increase(self):
+        """
+        The projectiles fired from the players are faster (slow increase).
+        """
+        missile_y = self.env.get_ram()[55]
+        if missile_y >= 5:
+            self.env.set_ram(55, missile_y - 1)
+
+    def missile_speed_medium_increase(self):
+        """
+        The projectiles fired from the players are faster (medium increase).
+        """
+        missile_y = self.env.get_ram()[55]
+        if missile_y >= 5:
+            self.env.set_ram(55, missile_y - 2)
+
+    def missile_speed_large_increase(self):
+        """
+        The projectiles fired from the players are faster (fast increase).
+        """
+        missile_y = self.env.get_ram()[55]
+        if missile_y >= 5:
+            self.env.set_ram(55, missile_y - 3)
+
+    def set_active_modifications(self, active_modifs):
+        """
+        Specifies which modifications are active.
+
+        :param active_modifs: A list of active modification names.
+        """
+        self.active_modifications = set(active_modifs)
+
+    def fill_modif_lists(self):
+        """
+        Returns the modification lists (step, reset, and post-detection) with active modifications.
+
+        :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
+        """
+        modif_mapping = {
+            "no_flying_ducks": self.no_flying_ducks,
+            "unlimited_ammo": self.unlimited_ammo,
+            "missile_speed_small_increase": self.missile_speed_small_increase,
+            "missile_speed_medium_increase": self.missile_speed_medium_increase,
+            "missile_speed_large_increase": self.missile_speed_large_increase,
+        }
+
+        step_modifs = [modif_mapping[name]
+                       for name in self.active_modifications if name in modif_mapping]
+        reset_modifs = []
+        post_detection_modifs = []
+        return step_modifs, reset_modifs, post_detection_modifs
 
 
-def unlimited_ammo(self):
-    """
-    Ammunition doesn't decrease.
-    """
-    ram = self.get_ram()
-    self.set_ram(3, 40)
-
-
-def fast_missiles(self):
-    """
-    The projectiles fired from the players are faster.
-    Increases the speed of the missiles by changing the corresponding ram positions.
-    Uses the values 1-3 to determine how by how much to speed the missile up.
-    """
-    missile_y = self.get_ram()[55]
-
-    # ensures there is a missile in the game
-    if missile_y >= 5:
-        self.set_ram(55, missile_y - MISSILE_SPEED_INCREASE)
-
-
-def _modif_funcs(env, modifs):
-    for mod in modifs:
-        if mod == "no_flying_ducks":
-            env.step_modifs.append(no_flying_ducks)
-        elif mod == "unlimited_ammo":
-            env.step_modifs.append(unlimited_ammo)
-        elif mod.startswith("fast_missiles"):
-            if mod[-1].isdigit():
-                mod_n = int(mod[-1])
-                if mod_n < 1 or mod_n > 3:
-                    raise ValueError(
-                        "Invalid speed increase, choose value 1-3")
-            else:
-                raise ValueError(
-                    "Append value 1-3 to your fast_missiles mod-argument")
-            global MISSILE_SPEED_INCREASE
-            MISSILE_SPEED_INCREASE = mod_n
-            env.step_modifs.append(fast_missiles)
-        else:
-            print("Invalid modification")
+def modif_funcs(env, active_modifs):
+    modifications = GameModifications(env)
+    modifications.set_active_modifications(active_modifs)
+    return modifications.fill_modif_lists()

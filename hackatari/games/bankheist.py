@@ -1,98 +1,124 @@
 import random
 
-TOWNS_VISITED = []
-REMAINING_TOWNS = [i for i in range(256)]
-random.shuffle(REMAINING_TOWNS)
-CURRENT_TOWN = 0
-PLAYER_X = 0
 
+class GameModifications:
+    """
+    Encapsulates game modifications for managing active modifications and applying them.
+    """
 
-def unlimited_gas(self):
-    """
-    Unlimited gas all the enemies.
-    """
-    self.set_ram(86, 0)
+    def __init__(self, env):
+        """
+        Initializes the modification handler with the given environment.
 
+        :param env: The game environment to modify.
+        """
+        self.env = env
+        self.active_modifications = set()
+        self.towns_visited = []
+        self.remaining_towns = [i for i in range(256)]
+        random.shuffle(self.remaining_towns)
+        self.current_town = 0
+        self.player_x = 0
 
-def no_police(self):
-    """
-    Removes police from the game.
-    """
-    ram = self.get_ram()
-    for i in range(3):
-        if ram[24 + i] == 254:
-            self.set_ram(24 + i, 0)
+    def unlimited_gas(self):
+        """
+        Provides unlimited gas for all enemies.
+        """
+        self.env.set_ram(86, 0)
 
+    def no_police(self):
+        """
+        Removes police from the game.
+        """
+        ram = self.env.get_ram()
+        for i in range(3):
+            if ram[24 + i] == 254:
+                self.env.set_ram(24 + i, 0)
 
-def only_police(self):
-    """
-    No banks only police.
-    """
-    ram = self.get_ram()
-    for i in range(3):
-        if ram[24 + i] == 253:
-            self.set_ram(24 + i, 254)
+    def only_police(self):
+        """
+        Replaces all banks with police.
+        """
+        ram = self.env.get_ram()
+        for i in range(3):
+            if ram[24 + i] == 253:
+                self.env.set_ram(24 + i, 254)
 
+    def random_city(self):
+        """
+        Randomizes which city is entered next.
+        """
+        ram = self.env.get_ram()
+        city = ram[0]
+        if city == self.current_town + 1:  # arrived to new city
+            picked_city = self.remaining_towns.pop(0)
+            self.current_town = picked_city
+            if len(self.remaining_towns) == 0:  # reset
+                self.remaining_towns = [i for i in range(256)]
+                random.shuffle(self.remaining_towns)
+            self.towns_visited.append(picked_city)
+            self.env.set_ram(0, picked_city)
 
-def random_city(self):
-    """
-    Randomizes which city is entered next.
-    """
-    global TOWNS_VISITED, REMAINING_TOWNS, CURRENT_TOWN
-    ram = self.get_ram()
-    city = ram[0]
-    if city == CURRENT_TOWN + 1:  # arrived to new city
-        picked_city = REMAINING_TOWNS.pop(0)
-        CURRENT_TOWN = picked_city
-        if len(REMAINING_TOWNS) == 0:  # reset
-            REMAINING_TOWNS = [i for i in range(256)]
-            random.shuffle(REMAINING_TOWNS)
-        TOWNS_VISITED.append(picked_city)
-        self.set_ram(0, picked_city)
+    def random_city_res(self):
+        """
+        Resets the city randomizer.
+        """
+        self.remaining_towns = [i for i in range(256)]
+        random.shuffle(self.remaining_towns)
+        picked_city = self.remaining_towns.pop(0)
+        self.current_town = picked_city
+        self.towns_visited.append(picked_city)
+        self.env.set_ram(0, picked_city)
 
-
-def random_city_res(self):
-    """
-    Resets the city randomizer.
-    """
-    global TOWNS_VISITED, REMAINING_TOWNS, CURRENT_TOWN
-    ram = self.get_ram()
-    REMAINING_TOWNS = [i for i in range(256)]
-    random.shuffle(REMAINING_TOWNS)
-    picked_city = REMAINING_TOWNS.pop(0)
-    CURRENT_TOWN = picked_city
-    TOWNS_VISITED.append(picked_city)
-    self.set_ram(0, picked_city)
-
-
-def revisit_city(self):
-    """
-    Allows player to go back one city.
-    """
-    global PLAYER_X, CURRENT_TOWN
-    ram = self.get_ram()
-    if 16 > PLAYER_X and ram[28] > 120:
-        PLAYER_X = 0
-        if CURRENT_TOWN == 0:
-            CURRENT_TOWN = 255
+    def revisit_city(self):
+        """
+        Allows player to go back to the previous city.
+        """
+        ram = self.env.get_ram()
+        if 16 > self.player_x and ram[28] > 120:
+            self.player_x = 0
+            if self.current_town == 0:
+                self.current_town = 255
+            else:
+                self.current_town -= 1
+            self.env.set_ram(0, self.current_town)
         else:
-            CURRENT_TOWN = CURRENT_TOWN - 1
-        self.set_ram(0, CURRENT_TOWN)
-    else:
-        CURRENT_TOWN = ram[0]
-    PLAYER_X = ram[28]
+            self.current_town = ram[0]
+        self.player_x = ram[28]
+
+    def set_active_modifications(self, active_modifs):
+        """
+        Specifies which modifications are active.
+
+        :param active_modifs: A list of active modification names.
+        """
+        self.active_modifications = set(active_modifs)
+
+    def fill_modif_lists(self):
+        """
+        Returns the modification lists (step, reset, and post-detection) with active modifications.
+
+        :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
+        """
+        modif_mapping = {
+            "unlimited_gas": self.unlimited_gas,
+            "no_police": self.no_police,
+            "only_police": self.only_police,
+            "random_city": self.random_city,
+            "random_city_res": self.random_city_res,
+            "revisit_city": self.revisit_city,
+        }
+
+        step_modifs = [modif_mapping[name]
+                       for name in self.active_modifications if name in modif_mapping]
+        reset_modifs = []
+        if "random_city" in self.active_modifications:
+            reset_modifs.append(self.random_city_res)
+        post_detection_modifs = []
+        return step_modifs, reset_modifs, post_detection_modifs
 
 
-def _modif_funcs(env, modifs):
-    for mod in modifs:
-        if mod == "unlimited_gas":
-            env.step_modifs.append(unlimited_gas)
-        elif mod == "no_police":
-            env.step_modifs.append(no_police)
-        elif mod == "only_police":
-            env.step_modifs.append(only_police)
-        elif mod == "random_city":
-            env.step_modifs.append(random_city)
-            env.reset_modifs.append(random_city_res)
-        elif mod == "revisit_city":
-            env.step_modifs.append(revisit_city)
+def modif_funcs(env, active_modifs):
+    modifications = GameModifications(env)
+    modifications.set_active_modifications(active_modifs)
+    return modifications.fill_modif_lists()
