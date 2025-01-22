@@ -10,7 +10,7 @@ Use `-hu` to start the game in Human Mode and play the game yourself.
 
 Use `-m` to select the mode you want to play in. All modes/hacks/changes can be activated individually or in any combination by separating with whitespace between them.
 
-**Example**: `python run.py -g Freeway -m c3 sm3 -hu` will run Freeway with all cars being red (`c3`) and stopped (`sm3`) in Human (playable) Mode (`-hu`).
+**Example**: `python run.py -g Freeway -hu -m stop_all_cars` will run Freeway with all cars being red (`c3`) and stopped (`sm3`) in Human (playable) Mode (`-hu`).
 
 The modes are:
 
