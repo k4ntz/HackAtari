@@ -1,121 +1,103 @@
-LAST_ENEMY_Y_POS = 127
-BALL_PREVIOUS_X_POS = 130
-
-STRENGTH = 6
-TIMER = 0
-
-
-def lazy_enemy(self):
+class GameModifications:
     """
-    Enemy does not move after returning the shot.
+    Encapsulates game modifications for managing active modifications and applying them.
     """
-    ram = self.get_ram()
-    global LAST_ENEMY_Y_POS, BALL_PREVIOUS_X_POS
-    if 0 < ram[11] < 5:
-        self.set_ram(21, 127)
-        self.set_ram(49, 130)
-    if BALL_PREVIOUS_X_POS < ram[49]:
-        self.set_ram(21, LAST_ENEMY_Y_POS)
-        tmp = LAST_ENEMY_Y_POS
-    else:
-        tmp = ram[21]
-    BALL_PREVIOUS_X_POS = ram[49]
-    LAST_ENEMY_Y_POS = tmp
 
+    def __init__(self, env):
+        """
+        Initializes the modification handler with the given environment.
 
-def up_drift(self):
-    """
-    Makes the ball drift upwards by changing the corresponding ram positions
-    """
-    # ball_x = self.get_ram()[49]
-    ball_y = self.get_ram()[54]
-    new_ball_pos = ball_y - 1
+        :param env: The game environment to modify.
+        """
+        self.env = env
+        self.active_modifications = set()
+        self.strength = 6
+        self.timer = 0
+        self.last_enemy_y_pos = 127
+        self.ball_previous_x_pos = 130
 
-    global TIMER
-    # else the ball isnt there at all or outside of the walls
-    if (
-        ball_y != 0 and not TIMER % STRENGTH
-    ):  # if (ball_y + 9 <= 196 and new_ball_pos != 0) and 57 <= new_ball_pos <= 199 and not TIMER%10:
-        self.set_ram(54, new_ball_pos)
-    TIMER += 1
-
-
-def down_drift(self):
-    """
-    Makes the ball drift downwards by changing the corresponding ram positions
-    """
-    # ball_x = self.get_ram()[49]
-    ball_y = self.get_ram()[54]
-    new_ball_pos = ball_y + 1
-
-    global TIMER
-    # else the ball isnt there at all or outside of the walls
-    if (
-        ball_y != 0 and not TIMER % STRENGTH
-    ):  # if (ball_y + 9 <= 196 and new_ball_pos != 0) and 57 <= new_ball_pos <= 199 and not TIMER%10:
-        self.set_ram(54, new_ball_pos)
-    TIMER += 1
-
-
-def right_drift(self):
-    """
-    Makes the ball drift to the right by changing the corresponding ram positions
-    """
-    ball_x = self.get_ram()[49]
-    # ball_y = self.get_ram()[54]
-    new_ball_pos = ball_x + 1
-
-    global TIMER
-    # else the ball isnt there at all or outside of the walls
-    if (
-        ball_x != 0 and not TIMER % STRENGTH
-    ):  # if (ball_y + 9 <= 196 and new_ball_pos != 0) and 57 <= new_ball_pos <= 199 and not TIMER%10:
-        self.set_ram(49, new_ball_pos)
-    TIMER += 1
-
-
-def left_drift(self):
-    """
-    Makes the ball drift to the left by changing the corresponding ram positions
-    """
-    ball_x = self.get_ram()[49]
-    # ball_y = self.get_ram()[54]
-    new_ball_pos = ball_x - 1
-
-    global TIMER
-    # else the ball isnt there at all or outside of the walls
-    if (
-        ball_x != 0 and not TIMER % STRENGTH
-    ):  # if (ball_y + 9 <= 196 and new_ball_pos != 0) and 57 <= new_ball_pos <= 199 and not TIMER%10:
-        self.set_ram(49, new_ball_pos)
-    TIMER += 1
-
-
-def _modif_funcs(env, modifs):
-    for mod in modifs:
-        if mod == "lazy_enemy":
-            env.step_modifs.append(lazy_enemy)
-        elif mod == "gravity":
-            if mod[-1].isdigit():
-                global STRENGTH
-                mod_n = int(mod[-1])
-                assert 0 < mod_n < 6, "Invalid Gravity lelvel, choose number 1-5"
-                mod_n = 6 - mod_n
-                if mod_n == 1:
-                    STRENGTH = 3
-                else:
-                    STRENGTH = mod_n * 2
-            if mod.startswith("up_drift"):
-                env.step_modifs.append(up_drift)
-            elif mod.startswith("down_drift"):
-                env.step_modifs.append(down_drift)
-            elif mod.startswith("left_drift"):
-                env.step_modifs.append(left_drift)
-            elif mod.startswith("right_drift"):
-                env.step_modifs.append(right_drift)
-        # elif mod == "gravity":
-        #     env.step_modifs.append(gravity)
-        # elif mod == "disable_enemies":
-        #     env.step_modifs.append(disable_enemies)
+    def lazy_enemy(self):
+        """
+        Enemy does not move after returning the shot.
+        """
+        ram = self.env.get_ram()
+        if 0 < ram[11] < 5:
+            self.env.set_ram(21, 127)
+            self.env.set_ram(49, 130)
+        if self.ball_previous_x_pos < ram[49]:
+            self.env.set_ram(21, self.last_enemy_y_pos)
+            tmp = self.last_enemy_y_pos
         else:
-            print(f"Invalid modification: {mod}")
+            tmp = ram[21]
+        self.ball_previous_x_pos = ram[49]
+        self.last_enemy_y_pos = tmp
+
+    def up_drift(self):
+        """
+        Makes the ball drift upwards by changing the corresponding ram positions.
+        """
+        ball_y = self.env.get_ram()[54]
+        new_ball_pos = ball_y - 1
+        if ball_y != 0 and not self.timer % self.strength:
+            self.env.set_ram(54, new_ball_pos)
+        self.timer += 1
+
+    def down_drift(self):
+        """
+        Makes the ball drift downwards by changing the corresponding ram positions.
+        """
+        ball_y = self.env.get_ram()[54]
+        new_ball_pos = ball_y + 1
+        if ball_y != 0 and not self.timer % self.strength:
+            self.env.set_ram(54, new_ball_pos)
+        self.timer += 1
+
+    def right_drift(self):
+        """
+        Makes the ball drift to the right by changing the corresponding ram positions.
+        """
+        ball_x = self.env.get_ram()[49]
+        new_ball_pos = ball_x + 1
+        if ball_x != 0 and not self.timer % self.strength:
+            self.env.set_ram(49, new_ball_pos)
+        self.timer += 1
+
+    def left_drift(self):
+        """
+        Makes the ball drift to the left by changing the corresponding ram positions.
+        """
+        ball_x = self.env.get_ram()[49]
+        new_ball_pos = ball_x - 1
+        if ball_x != 0 and not self.timer % self.strength:
+            self.env.set_ram(49, new_ball_pos)
+        self.timer += 1
+
+    def set_active_modifications(self, active_modifs):
+        """
+        Specifies which modifications are active.
+        """
+        self.active_modifications = set(active_modifs)
+
+    def fill_modif_lists(self):
+        """
+        Returns the modification lists (step, reset, and post-detection) with active modifications.
+        """
+        modif_mapping = {
+            "lazy_enemy": self.lazy_enemy,
+            "up_drift": self.up_drift,
+            "down_drift": self.down_drift,
+            "left_drift": self.left_drift,
+            "right_drift": self.right_drift,
+        }
+
+        step_modifs = [modif_mapping[name]
+                       for name in self.active_modifications if name in modif_mapping]
+        reset_modifs = []
+        post_detection_modifs = []
+        return step_modifs, reset_modifs, post_detection_modifs
+
+
+def modif_funcs(env, active_modifs):
+    modifications = GameModifications(env)
+    modifications.set_active_modifications(active_modifs)
+    return modifications.fill_modif_lists()

@@ -10,66 +10,68 @@ class GameModifications:
         :param env: The game environment to modify.
         """
         self.env = env
-        self.fish_mode = 0  # Default fish mode
-        self.shark_mode = 0  # Default shark mode
         self.active_modifications = set()
 
-    def shark_no_movement_easy(self):
+    def endless_oxygen(self):
         """
-        Shark mode: no movement (easy).
+        Player can no longer run out of oxygen. Will not be set at max, so oxygen can always be picked up.
         """
-        self.env.set_ram(75, 105)
+        self.env.set_ram(113, 255)
 
-    def shark_no_movement_hard(self):
+    def infinite_lives(self):
         """
-        Shark mode: no movement (hard).
+        Always maximizes the treasure value (represents the remaining lives).
         """
-        self.env.set_ram(75, 25)
+        self.env.set_ram(73, 3)
 
-    def shark_teleport(self):
+    def double_wave_length(self):
         """
-        Shark mode: teleport.
+        Doubles the time of each wave.
         """
-        current_x_position = self.env.get_ram()[75]
-        if current_x_position == 100:
-            self.env.set_ram(75, 25)
-        elif current_x_position == 30:
-            self.env.set_ram(75, 105)
+        ram = self.env.get_ram()
+        bit = 7
+        repeat = True
 
-    def shark_speed_mode(self):
-        """
-        Shark mode: speed mode.
-        """
-        current_x_position = self.env.get_ram()[75]
-        if current_x_position < 120:
-            self.env.set_ram(75, current_x_position + 5)
-        elif current_x_position > 120:
-            self.env.set_ram(75, 1)
+        if repeat:
+            try:
+                if ram[114] and not ram[114] & (2 ** bit):
+                    self.env.set_ram(114, ram[114] | (2 ** bit))
+                    repeat = False
+                elif not ram[114] and not ram[115] & (2 ** bit):
+                    self.env.set_ram(115, ram[115] | (2 ** bit))
+                    repeat = False
+            except:
+                pass
+        else:
+            if ram[114] and not ram[114] & (2 ** bit):
+                bit -= 1
+                repeat = True
+            elif not ram[114] and ram[115] & (2 ** bit):
+                bit += 1
+                repeat = True
 
-    def fish_on_player_side(self):
+    def quick_start(self):
         """
-        Fish mode: all fish are on the player's side.
+        Skips the intro and starts the game at once.
         """
-        for i in range(6):
-            if self.env.get_ram()[69 + i] > 86:
-                self.env.set_ram(69 + i, 44)
+        self.env.set_ram(65, 10)
 
-    def fish_in_middle(self):
+    def octo_start(self):
         """
-        Fish mode: fish are always in the middle between player and enemy.
+        Adds the first lane of tentacles for the octopus.
         """
-        for i in range(6):
-            if self.env.get_ram()[112] != i + 1 or self.env.get_ram()[113] != i + 1:
-                if self.env.get_ram()[69 + i] < 70:
-                    self.env.set_ram(69 + i, 86)
-                elif self.env.get_ram()[69 + i] > 86:
-                    self.env.set_ram(69 + i, 70)
+        for i in range(5):
+            self.env.set_ram(9 + (10 * i), 64)
+
+    def octo_rest(self):
+        """
+        Resets the timer for the octopus tentacles.
+        """
+        self.env.set_ram(9, 0)
 
     def set_active_modifications(self, active_modifs):
         """
         Specifies which modifications are active.
-
-        :param active_modifs: A list of active modification names.
         """
         self.active_modifications = set(active_modifs)
 
@@ -80,18 +82,19 @@ class GameModifications:
         :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
         """
         modif_mapping = {
-            "shark_no_movement_easy": self.shark_no_movement_easy,
-            "shark_no_movement_hard": self.shark_no_movement_hard,
-            "shark_teleport": self.shark_teleport,
-            "shark_speed_mode": self.shark_speed_mode,
-            "fish_on_player_side": self.fish_on_player_side,
-            "fish_in_middle": self.fish_in_middle,
+            "endless_oxygen": self.endless_oxygen,
+            "infinite_lives": self.infinite_lives,
+            "double_wave_length": self.double_wave_length,
+            "quick_start": self.quick_start,
+            "octo_start": self.octo_start,
+            "octo_rest": self.octo_rest,
         }
 
         step_modifs = [modif_mapping[name]
                        for name in self.active_modifications if name in modif_mapping]
         reset_modifs = []
         post_detection_modifs = []
+
         return step_modifs, reset_modifs, post_detection_modifs
 
 
