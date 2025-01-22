@@ -1,6 +1,5 @@
 import random
 import numpy as np
-from ocatari.ram.kangaroo import Ladder
 
 
 class GameModifications:

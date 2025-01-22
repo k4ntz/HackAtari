@@ -54,25 +54,13 @@ class GameModifications:
         """
         Adjusts the UI to black.
         """
-        self.env.set_ram(71, self.COLORS[0])
+        self.env.set_ram(71, self.COLORS[3])
 
     def ui_color_red(self):
         """
         Adjusts the UI to red.
         """
         self.env.set_ram(71, self.COLORS[1])
-
-    def ui_color_blue(self):
-        """
-        Adjusts the UI to blue.
-        """
-        self.env.set_ram(71, self.COLORS[2])
-
-    def ui_color_green(self):
-        """
-        Adjusts the UI to green.
-        """
-        self.env.set_ram(71, self.COLORS[3])
 
     def reposition_floes_easy(self):
         """
@@ -134,13 +122,13 @@ class GameModifications:
         :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
         """
         modif_mapping = {
-            "recolor_ice_black": self.recolor_ice_black,
-            "recolor_ice_red": self.recolor_ice_red,
-            "recolor_ice_blue": self.recolor_ice_blue,
-            "recolor_ice_green": self.recolor_ice_green,
+            # are game breaking
+            # "recolor_ice_black": self.recolor_ice_black,
+            # "recolor_ice_red": self.recolor_ice_red,
+            # "recolor_ice_blue": self.recolor_ice_blue,
+            # "recolor_ice_green": self.recolor_ice_green,
             "ui_color_red": self.ui_color_red,
-            "ui_color_blue": self.ui_color_blue,
-            "ui_color_green": self.ui_color_green,
+            "ui_color_black": self.ui_color_black,
             "reposition_floes_easy": self.reposition_floes_easy,
             "reposition_floes_medium": self.reposition_floes_medium,
             "reposition_floes_hard": self.reposition_floes_hard,

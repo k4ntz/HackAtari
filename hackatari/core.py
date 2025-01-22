@@ -103,7 +103,7 @@ class HackAtari(OCAtari):
 
         for i in range(frameskip-1):
             for func in self.step_modifs:
-                func(self)
+                func()
             obs, reward, terminated, truncated, info = self._env.step(
                 *args, **kwargs)
             total_reward += float(reward)
@@ -116,12 +116,12 @@ class HackAtari(OCAtari):
             last_two_org.append(self.getScreenRGB())
 
         for func in self.step_modifs:
-            func(self)
+            func()
         obs, reward, terminated, truncated, info = super().step(
             *args, **kwargs)
         total_reward += float(reward)
         for func in self.post_detection_modifs:
-            func(self)
+            func()
 
         if self.dopamine_pooling:
             last_two_obs.append(cv2.resize(cv2.cvtColor(self.getScreenRGB(
@@ -188,7 +188,7 @@ class HumanPlayable(HackAtari):
         kwargs["render_mode"] = "human"
         kwargs["render_oc_overlay"] = True
         kwargs["frameskip"] = 1
-        # kwargs["full_action_space"] = True
+        kwargs["full_action_space"] = True
 
         super().__init__(game, modifs, rewardfunc_path, dopamine_pooling=True,
                          game_mode=game_mode, difficulty=difficulty, *args, **kwargs)

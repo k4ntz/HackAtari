@@ -12,47 +12,77 @@ class GameModifications:
         self.env = env
         self.active_modifications = set()
 
-    def team_colors_white(self):
+    def player_color_white(self):
         """
-        Changes the player and enemy colors to black.
+        Changes the player color to white.
         """
-        self.env.set_ram(94, 0)  # Player color
-        self.env.set_ram(95, 0)  # Enemy color
+        self.env.set_ram(94, 0)
 
-    def team_colors_green(self):
+    def player_color_green(self):
         """
-        Changes the player and enemy colors to white.
+        Changes the player color to green.
         """
-        self.env.set_ram(94, 1)  # Player color
-        self.env.set_ram(95, 1)  # Enemy color
+        self.env.set_ram(94, 1)
 
-    def team_colors_red(self):
+    def player_color_red(self):
         """
-        Changes the player and enemy colors to red.
+        Changes the player color to red.
         """
-        self.env.set_ram(94, 2)  # Player color
-        self.env.set_ram(95, 2)  # Enemy color
+        self.env.set_ram(94, 2)
 
-    def team_colors_yellow(self):
+    def player_color_yellow(self):
         """
-        Changes the player and enemy colors to blue.
+        Changes the player color to yellow.
         """
-        self.env.set_ram(94, 3)  # Player color
-        self.env.set_ram(95, 3)  # Enemy color
+        self.env.set_ram(94, 3)
 
-    def team_colors_purple(self):
+    def player_color_purple(self):
         """
-        Changes the player and enemy colors to green.
+        Changes the player color to purple.
         """
-        self.env.set_ram(94, 4)  # Player color
-        self.env.set_ram(95, 4)  # Enemy color
+        self.env.set_ram(94, 4)
 
-    def team_colors_blue(self):
+    def player_color_blue(self):
         """
-        Changes the player and enemy colors to yellow.
+        Changes the player color to blue.
         """
-        self.env.set_ram(94, 5)  # Player color
-        self.env.set_ram(95, 5)  # Enemy color
+        self.env.set_ram(94, 5)
+
+    def enemy_color_white(self):
+        """
+        Changes the enemy color to white.
+        """
+        self.env.set_ram(95, 0)
+
+    def enemy_color_green(self):
+        """
+        Changes the enemy color to green.
+        """
+        self.env.set_ram(95, 1)
+
+    def enemy_color_red(self):
+        """
+        Changes the enemy color to red.
+        """
+        self.env.set_ram(95, 2)
+
+    def enemy_color_yellow(self):
+        """
+        Changes the enemy color to yellow.
+        """
+        self.env.set_ram(95, 3)
+
+    def enemy_color_purple(self):
+        """
+        Changes the enemy color to purple.
+        """
+        self.env.set_ram(95, 4)
+
+    def enemy_color_blue(self):
+        """
+        Changes the enemy color to blue.
+        """
+        self.env.set_ram(95, 5)
 
     def set_active_modifications(self, active_modifs):
         """
@@ -69,12 +99,18 @@ class GameModifications:
         :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
         """
         modif_mapping = {
-            "team_colors_purple": self.team_colors_purple,
-            "team_colors_white": self.team_colors_white,
-            "team_colors_red": self.team_colors_red,
-            "team_colors_blue": self.team_colors_blue,
-            "team_colors_green": self.team_colors_green,
-            "team_colors_yellow": self.team_colors_yellow,
+            "player_color_white": self.player_color_white,
+            "player_color_green": self.player_color_green,
+            "player_color_red": self.player_color_red,
+            "player_color_yellow": self.player_color_yellow,
+            "player_color_purple": self.player_color_purple,
+            "player_color_blue": self.player_color_blue,
+            "enemy_color_white": self.enemy_color_white,
+            "enemy_color_green": self.enemy_color_green,
+            "enemy_color_red": self.enemy_color_red,
+            "enemy_color_yellow": self.enemy_color_yellow,
+            "enemy_color_purple": self.enemy_color_purple,
+            "enemy_color_blue": self.enemy_color_blue,
         }
 
         step_modifs = []

@@ -59,16 +59,16 @@ class GameModifications:
             self.towns_visited.append(picked_city)
             self.env.set_ram(0, picked_city)
 
-    def random_city_res(self):
-        """
-        Resets the city randomizer.
-        """
-        self.remaining_towns = [i for i in range(256)]
-        random.shuffle(self.remaining_towns)
-        picked_city = self.remaining_towns.pop(0)
-        self.current_town = picked_city
-        self.towns_visited.append(picked_city)
-        self.env.set_ram(0, picked_city)
+    # def random_city_res(self):
+    #     """
+    #     Resets the city randomizer.
+    #     """
+    #     self.remaining_towns = [i for i in range(256)]
+    #     random.shuffle(self.remaining_towns)
+    #     picked_city = self.remaining_towns.pop(0)
+    #     self.current_town = picked_city
+    #     self.towns_visited.append(picked_city)
+    #     self.env.set_ram(0, picked_city)
 
     def revisit_city(self):
         """
@@ -105,7 +105,6 @@ class GameModifications:
             "no_police": self.no_police,
             "only_police": self.only_police,
             "random_city": self.random_city,
-            "random_city_res": self.random_city_res,
             "revisit_city": self.revisit_city,
         }
 

@@ -19,21 +19,15 @@ class GameModifications:
         self.env.set_ram(54, 5)
         self.speed += 4
 
-    def set_speed_0(self):
+    def set_consumable_1(self):
         """
-        Sets the game speed based on the current speed value.
-        """
-        self.env.set_ram(54, 0)
-
-    def set_speed_1(self):
-        """
-        Sets the game speed based on the current speed value.
+        Sets the consumale to pink (100points)
         """
         self.env.set_ram(54, 1)
 
-    def set_speed_2(self):
+    def set_consumable_2(self):
         """
-        Sets the game speed based on the current speed value.
+        Sets the consumbale to shields (200points).
         """
         self.env.set_ram(54, 2)
 
@@ -75,9 +69,8 @@ class GameModifications:
         """
         modif_mapping = {
             "obelix": self.obelix,
-            "set_speed_0": self.set_speed_0,
-            "set_speed_1": self.set_speed_1,
-            "set_speed_2": self.set_speed_2,
+            "set_consumable_1": self.set_consumable_1,
+            "set_consumable_2": self.set_consumable_2,
             "unlimited_lives": self.unlimited_lives,
             "even_lines_free": self.even_lines_free,
             "odd_lines_free": self.odd_lines_free,

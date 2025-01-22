@@ -23,38 +23,38 @@ class GameModifications:
             if types[i] == 2:
                 self.env.set_ram(78 + i, 4)
 
-    def wall_inpaintings(self):
-        """
-        Generates inpainting data for walls.
-        """
-        background_color = np.array((80, 0, 132))
-        wall_rgb = np.stack((wall,) * 3, axis=-1)
-        w, h = wall.shape[1], wall.shape[0]
-        ladder_poses = [(0, 0)]
-        return [(y, x, h, w, wall_rgb) for x, y in ladder_poses]
+    # def wall_inpaintings(self):
+    #     """
+    #     Generates inpainting data for walls.
+    #     """
+    #     background_color = np.array((80, 0, 132))
+    #     wall_rgb = np.stack((wall,) * 3, axis=-1)
+    #     w, h = wall.shape[1], wall.shape[0]
+    #     ladder_poses = [(0, 0)]
+    #     return [(y, x, h, w, wall_rgb) for x, y in ladder_poses]
 
-    def wall_updates(self):
-        """
-        Updates the wall rendering based on flag positions.
-        """
-        ram = self.env.get_ram()
-        wall = self.env.env.ale._inpaintings[0][-1]
-        w, h = wall.shape[1], wall.shape[0]
-        flags = []
-        for i in range(8):
-            if ram[70 + i] == 2:  # Flag
-                x, y = (ram[62 + i], 182 - ram[86 + i])
-                height = 75 - ram[90 + i]
-                if not (y > 177 or y < 27 or (y in [27, 28] and height < 16)):
-                    flags.append((x, y))
-        self.env.env.ale._env.inpaintings = [
-            (y, x, h, w, wall) for x, y in flags]
+    # def wall_updates(self):
+    #     """
+    #     Updates the wall rendering based on flag positions.
+    #     """
+    #     ram = self.env.get_ram()
+    #     wall = self.env.env.ale._inpaintings[0][-1]
+    #     w, h = wall.shape[1], wall.shape[0]
+    #     flags = []
+    #     for i in range(8):
+    #         if ram[70 + i] == 2:  # Flag
+    #             x, y = (ram[62 + i], 182 - ram[86 + i])
+    #             height = 75 - ram[90 + i]
+    #             if not (y > 177 or y < 27 or (y in [27, 28] and height < 16)):
+    #                 flags.append((x, y))
+    #     self.env.env.ale._env.inpaintings = [
+    #         (y, x, h, w, wall) for x, y in flags]
 
-    def wall_updates_reset(self):
-        """
-        Resets the wall inpainting modifications.
-        """
-        self.env.env.ale.place_above = []
+    # def wall_updates_reset(self):
+    #     """
+    #     Resets the wall inpainting modifications.
+    #     """
+    #     self.env.env.ale.place_above = []
 
     def set_active_modifications(self, active_modifs):
         """

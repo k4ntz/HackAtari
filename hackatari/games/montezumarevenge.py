@@ -89,11 +89,11 @@ class GameModifications:
             "set_level_2": lambda: self.set_level(2),
             "randomize_items": self.randomize_items,
             "full_inventory": self.full_inventory,
-            "unify_item_color_black": lambda: self.unify_item_color(0),
-            "unify_item_color_orange": lambda: self.unify_item_color(1),
-            "unify_item_color_white": lambda: self.unify_item_color(2),
-            "unify_item_color_yellow": lambda: self.unify_item_color(3),
-            "unify_item_color_green": lambda: self.unify_item_color(4),
+            # "unify_item_color_black": lambda: self.unify_item_color(0),
+            # "unify_item_color_orange": lambda: self.unify_item_color(1),
+            # "unify_item_color_white": lambda: self.unify_item_color(2),
+            # "unify_item_color_yellow": lambda: self.unify_item_color(3),
+            # "unify_item_color_green": lambda: self.unify_item_color(4),
         }
 
         step_modifs = [modif_mapping[name]

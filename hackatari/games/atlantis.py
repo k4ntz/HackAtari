@@ -61,7 +61,7 @@ class GameModifications:
         """
         self._adjust_speed(2)
 
-    def speed_mode_normal(self):
+    def speed_mode_medium(self):
         """
         Sets a normal speed for all enemy ships.
         """
@@ -117,7 +117,7 @@ class GameModifications:
             "jets_only": self.jets_only,
             "random_enemies": self.random_enemies,
             "speed_mode_slow": self.speed_mode_slow,
-            "speed_mode_normal": self.speed_mode_normal,
+            "speed_mode_medium": self.speed_mode_medium,
             "speed_mode_fast": self.speed_mode_fast,
             "speed_mode_ultrafast": self.speed_mode_ultrafast,
         }
