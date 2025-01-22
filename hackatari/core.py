@@ -175,12 +175,6 @@ class HackAtari(OCAtari):
 
         return obs, info
 
-    def render(self, image=None):
-        if self.dopamine_pooling:
-            return super().render(self._state_buffer_rgb[-1])
-        else:
-            return super().render()
-
 
 class HumanPlayable(HackAtari):
     """
@@ -200,7 +194,7 @@ class HumanPlayable(HackAtari):
                          game_mode=game_mode, difficulty=difficulty, *args, **kwargs)
 
         self.reset()
-        self.render()
+        self.render(self._state_buffer_rgb[-1])
         self.print_reward = bool(rewardfunc_path)
         self.paused = False
         self.current_keys_down = set()
@@ -222,7 +216,7 @@ class HumanPlayable(HackAtari):
                 _, reward, _, _, _ = self.step(action)
                 if self.print_reward and reward:
                     print(reward)
-                self.render()
+                self.render(self._state_buffer_rgb[-1])
 
         pygame.quit()
 
