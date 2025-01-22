@@ -1,85 +1,102 @@
-from random import random
+import random
 
 
-def modify_ram_adding_wind(self):
+class GameModifications:
     """
-    wind: Sets the ball in the up and right direction by 3 pixles every single ram step
-    to simulate the effect of wind
+    Encapsulates game modifications for managing active modifications and applying them.
     """
-    ram = self.get_ram()
-    ball_x = ram[16]
-    # ball_y isn't always stable, as the ball bounces in some situations
-    ball_y = 189 - ram[54]
-    # shadow x is always the same as ball_x
-    # this ankers the ball when bouncing
-    shadow_anker = ram[15]
-    shadow_y = 189 - ram[55]
 
-    # movement up and right - noth-east wind direction stays the same so no indication is needed
-    new_ball_x = ball_x  # moves the ball to the right one position every ram step
-    new_ball_y = ball_y  # moves the ball up one position every ram step
-    new_shadow_y = shadow_y
-    if random() < 0.5:
-        new_ball_x += 1  # moves the ball to the right one position every ram step
-        new_ball_y += 1  # moves the ball up one position every ram step
-        new_shadow_y += 1
-    # first part makes sure ball only moves in the air, not if bouncing on the line
-    # as ram manipualtion fails when bouncing
-    # second part makes sure the ball stops moving when it exits the visible field
-    # in the x position to not loop the ram around
-    if (
-        (ball_y < 140 and ball_y > 10)
-        and (shadow_anker < 140 and shadow_anker > 10)
-        and (ball_x > 2 and ball_x < 155)
-    ):
-        self.set_ram(16, new_ball_x)
-        self.set_ram(54, new_ball_y)
-        self.set_ram(55, new_shadow_y)
+    def __init__(self, env):
+        """
+        Initializes the modification handler with the given environment.
+        """
+        self.env = env
+        self.active_modifications = set()
+
+    def wind_effect(self):
+        """
+        Applies a wind effect: moves the ball up and right by 3 pixels per frame.
+        """
+        ram = self.env.get_ram()
+        ball_x = ram[16]
+        ball_y = 189 - ram[54]
+        shadow_anker = ram[15]
+        shadow_y = 189 - ram[55]
+
+        new_ball_x = ball_x
+        new_ball_y = ball_y
+        new_shadow_y = shadow_y
+        if random.randint(0, 1) < 0.5:
+            new_ball_x += 1
+            new_ball_y += 1
+            new_shadow_y += 1
+
+        if (
+            (10 < ball_y < 140)
+            and (10 < shadow_anker < 140)
+            and (2 < ball_x < 155)
+        ):
+            self.env.set_ram(16, new_ball_x)
+            self.env.set_ram(54, new_ball_y)
+            self.env.set_ram(55, new_shadow_y)
+
+    def always_upper_pitches(self):
+        """
+        Ensures the upper player always pitches.
+        """
+        ram = self.env.get_ram()
+        if ram[15] == 7:
+            self.env.set_ram(15, 142)
+            self.env.set_ram(74, 0)
+
+    def always_lower_pitches(self):
+        """
+        Ensures the lower player always pitches.
+        """
+        ram = self.env.get_ram()
+        if ram[15] == 142:
+            self.env.set_ram(15, 7)
+            self.env.set_ram(74, 1)
+
+    def always_upper_player(self):
+        """
+        Ensures the player is always on the upper field.
+        """
+        self.env.set_ram(80, 0)
+
+    def always_lower_player(self):
+        """
+        Ensures the player is always on the lower field.
+        """
+        self.env.set_ram(80, 1)
+
+    def set_active_modifications(self, active_modifs):
+        """
+        Specifies which modifications are active.
+        """
+        self.active_modifications = set(active_modifs)
+
+    def fill_modif_lists(self):
+        """
+        Returns the modification lists (step, reset, and post-detection) with active modifications.
+        """
+        modif_mapping = {
+            "wind_effect": self.wind_effect,
+            "always_upper_pitches": self.always_upper_pitches,
+            "always_lower_pitches": self.always_lower_pitches,
+            "always_upper_player": self.always_upper_player,
+            "always_lower_player": self.always_lower_player,
+        }
+
+        step_modifs = [modif_mapping[name]
+                       for name in self.active_modifications if name in modif_mapping]
+        reset_modifs = []
+        post_detection_modifs = []
+
+        return step_modifs, reset_modifs, post_detection_modifs
 
 
-def upper_pitches(self):
-    """
-    Changes the ram so that it is always the upper persons turn to pitch.
-    """
-    ram = self.get_ram()
-    if ram[15] == 7:
-        self.set_ram(15, 142)  # makes the ball start from the top
-        self.set_ram(74, 0)  # makes it the upper persons turn to pitch
-
-
-def lower_pitches(self):
-    """
-    Changes the ram so that it is always the lower persons turn to pitch.
-    """
-    ram = self.get_ram()
-    if ram[15] == 142:
-        self.set_ram(15, 7)  # makes the ball start from the bottom
-        self.set_ram(74, 1)  # makes it the lower persons turn to pitch
-
-
-def upper_player(self):
-    """
-    Changes the ram so that the player is always in the upper field
-    """
-    self.set_ram(80, 0)
-
-
-def lower_player(self):
-    """
-    Changes the ram so that the player is always in the lower field
-    """
-    self.set_ram(80, 1)
-
-
-def _modif_funcs(env, modifs):
-    for mod in modifs:
-        if mod == "wind":
-            env.step_modifs.append(modify_ram_adding_wind)
-        if mod == "upper_pitches":
-            env.step_modifs.append(upper_pitches)
-        if mod == "lower_pitches":
-            env.step_modifs.append(lower_pitches)
-        if mod == "upper_player":
-            env.step_modifs.append(upper_player)
-        if mod == "lower_player":
-            env.step_modifs.append(lower_player)
+def modif_funcs(env, active_modifs):
+    modifications = GameModifications(env)
+    modifications.set_active_modifications(active_modifs)
+    return modifications.fill_modif_lists()

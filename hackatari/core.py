@@ -46,9 +46,17 @@ class HackAtari(OCAtari):
         super().__init__(env_name, *args, **kwargs)
 
         # Initialize modifications and environment settings
-        self._modif_funcs = lambda x, y: ([], [])
         self.step_modifs, self.reset_modifs, self.post_detection_modifs = [], [], []
-        self._modif_funcs(self, modifs)
+
+        # Load modification functions dynamically
+        modif_module = importlib.import_module(
+            f"hackatari.games.{env_name.lower()}")
+        step_modifs, reset_modifs, post_detection_modifs = modif_module.modif_funcs(
+            self, modifs)
+
+        self.step_modifs.extend(step_modifs)
+        self.reset_modifs.extend(reset_modifs)
+        self.post_detection_modifs.extend(post_detection_modifs)
 
         self.dopamine_pooling = dopamine_pooling and self._frameskip > 1
 
@@ -84,21 +92,56 @@ class HackAtari(OCAtari):
 
     def step(self, *args, **kwargs):
         """
-        Execute a step in the environment, applying modifications if necessary.
+        Take a step in the game environment after altering the ram.
         """
+        frameskip = self._frameskip
         total_reward = 0.0
         terminated = truncated = False
+        if self.dopamine_pooling:
+            last_two_obs = []
+            last_two_org = []
 
-        # Apply step modifications
+        for i in range(frameskip-1):
+            for func in self.step_modifs:
+                func()
+            obs, reward, terminated, truncated, info = self._env.step(
+                *args, **kwargs)
+            total_reward += float(reward)
+            if terminated or truncated:
+                break
+
+        if self.dopamine_pooling:
+            last_two_obs.append(cv2.resize(cv2.cvtColor(self.getScreenRGB(
+            ), cv2.COLOR_RGB2GRAY), (84, 84), interpolation=cv2.INTER_AREA))
+            last_two_org.append(self.getScreenRGB())
+
         for func in self.step_modifs:
-            func(self)
-
-        obs, reward, terminated, truncated, info = super().step(*args, **kwargs)
+            func()
+        obs, reward, terminated, truncated, info = super().step(
+            *args, **kwargs)
         total_reward += float(reward)
-
-        # Apply post-detection modifications
         for func in self.post_detection_modifs:
-            func(self)
+            func()
+
+        if self.dopamine_pooling:
+            last_two_obs.append(cv2.resize(cv2.cvtColor(self.getScreenRGB(
+            ), cv2.COLOR_RGB2GRAY), (84, 84), interpolation=cv2.INTER_AREA))
+            last_two_org.append(self.getScreenRGB())
+
+        if self.dopamine_pooling:
+            merged_obs = np.maximum.reduce(last_two_obs)
+            merged_org = np.maximum.reduce(last_two_org)
+
+            if self.create_dqn_stack:
+                self._state_buffer_dqn[-1] = merged_obs
+            if self.create_rgb_stack:
+                self._state_buffer_rgb[-1] = merged_org
+
+            if self.obs_mode == "dqn":
+                obs[-1] = merged_obs
+            else:
+                # dopamine pooling works with either "dqn" or "ori" obs_mode.
+                obs = merged_org
 
         return obs, total_reward, terminated, truncated, info
 
@@ -126,9 +169,9 @@ class HackAtari(OCAtari):
         self.org_return = 0
 
         for func in self.reset_modifs:
-            func(self)
+            func()
         for func in self.post_detection_modifs:
-            func(self)
+            func()
 
         return obs, info
 
@@ -144,17 +187,19 @@ class HumanPlayable(HackAtari):
         """
         kwargs["render_mode"] = "human"
         kwargs["render_oc_overlay"] = True
+        kwargs["frameskip"] = 1
         kwargs["full_action_space"] = True
 
-        super().__init__(game, modifs, rewardfunc_path, dopamine_pooling=0,
+        super().__init__(game, modifs, rewardfunc_path, dopamine_pooling=True,
                          game_mode=game_mode, difficulty=difficulty, *args, **kwargs)
 
         self.reset()
-        self.render()
+        self.render(self._state_buffer_rgb[-1])
         self.print_reward = bool(rewardfunc_path)
         self.paused = False
         self.current_keys_down = set()
         self.keys2actions = self.env.unwrapped.get_keys_to_action()
+        print("Keys to actions: ", self.keys2actions)
 
     def run(self):
         """
@@ -171,7 +216,7 @@ class HumanPlayable(HackAtari):
                 _, reward, _, _, _ = self.step(action)
                 if self.print_reward and reward:
                     print(reward)
-                self.render()
+                self.render(self._state_buffer_rgb[-1])
 
         pygame.quit()
 
@@ -182,7 +227,9 @@ class HumanPlayable(HackAtari):
         pressed_keys = list(self.current_keys_down)
         pressed_keys.sort()
         pressed_keys = tuple(pressed_keys)
+        print("Pressed keys: ", pressed_keys)
         if pressed_keys in self.keys2actions.keys():
+            print("Action: ", self.keys2actions[pressed_keys])
             return self.keys2actions[pressed_keys]
         else:
             return 0  # NOOP

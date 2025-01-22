@@ -1,83 +1,104 @@
-# from random import random
-REPEAT = True
-BIT = 7
-
-TIMER = 50
-
-
-def endeless_oxygen(self):
-    '''
-    Player can no longer run out of oxygen. Will not be set at max, so oxygen can always be picked up
-    '''
-    self.set_ram(113, 255)
-
-
-def infinte_lives(self):
-    '''
-    Always maximizes the treasure value (represents the remaining lives)
-    '''
-    self.set_ram(73, 3)
-
-
-def double_wave_length(self):
-    '''
-    Doubles the time of each wave
-    '''
-    global REPEAT
-    ram = self.get_ram()
-    if REPEAT:
-        global BIT
-        try:
-            if ram[114] and not ram[114] & (2**BIT):
-                self.set_ram(114, ram[114] | (2**BIT))
-                REPEAT = False
-            elif not ram[114] and not ram[115] & (2**BIT):
-                self.set_ram(115, ram[115] | (2**BIT))
-                REPEAT = False
-        except:
-            pass
-    else:
-        if ram[114] and not ram[114] & (2**BIT):
-            BIT -= 1
-            REPEAT = True
-        elif not ram[114] and ram[115] & (2**BIT):
-            BIT += 1
-            REPEAT = True
-
-
-def quick_start(self):
+class GameModifications:
     """
-    Skips the intro and starts the game at once
+    Encapsulates game modifications for managing active modifications and applying them.
     """
-    self.set_ram(65, 10)
 
-# def octo_start(self):
-#     """
-#     Adds the first lane of tentacles for the octopus
-#     """
-#     global TIMER
-#     if TIMER:
-#         for i in range(5):
-#             self.set_ram(9+(10*i), 64)
-#         TIMER-=1
+    def __init__(self, env):
+        """
+        Initializes the modification handler with the given environment.
 
-# def octo_rest(self):
-#     global TIMER
-#     TIMER = 20
+        :param env: The game environment to modify.
+        """
+        self.env = env
+        self.active_modifications = set()
 
+    def endless_oxygen(self):
+        """
+        Player can no longer run out of oxygen. Will not be set at max, so oxygen can always be picked up.
+        """
+        self.env.set_ram(113, 255)
 
-def _modif_funcs(env, modifs):
-    for mod in modifs:
-        if mod == "endeless_oxygen":
-            env.step_modifs.append(endeless_oxygen)
-        elif mod == "infinte_lives":
-            env.step_modifs.append(infinte_lives)
-        elif mod == "double_wave_length":
-            env.step_modifs.append(double_wave_length)
-        elif mod == "quick_start":
-            env.reset_modifs.append(quick_start)
-        # elif mod == "octo_start":
-        #     env.reset_modifs.append(quick_start)
-        #     env.reset_modifs.append(octo_rest)
+    def infinite_lives(self):
+        """
+        Always maximizes the treasure value (represents the remaining lives).
+        """
+        self.env.set_ram(73, 3)
+
+    def double_wave_length(self):
+        """
+        Doubles the time of each wave.
+        """
+        ram = self.env.get_ram()
+        bit = 7
+        repeat = True
+
+        if repeat:
+            try:
+                if ram[114] and not ram[114] & (2 ** bit):
+                    self.env.set_ram(114, ram[114] | (2 ** bit))
+                    repeat = False
+                elif not ram[114] and not ram[115] & (2 ** bit):
+                    self.env.set_ram(115, ram[115] | (2 ** bit))
+                    repeat = False
+            except:
+                pass
         else:
-            print('Invalid or unknown modification')
+            if ram[114] and not ram[114] & (2 ** bit):
+                bit -= 1
+                repeat = True
+            elif not ram[114] and ram[115] & (2 ** bit):
+                bit += 1
+                repeat = True
+
+    def quick_start(self):
+        """
+        Skips the intro and starts the game at once.
+        """
+        self.env.set_ram(65, 10)
+
+    def octopus_start(self):
+        """
+        Adds the first lane of tentacles for the octopus.
+        """
+        for i in range(5):
+            self.env.set_ram(9 + (10 * i), 64)
+
+    def octopus_rest(self):
+        """
+        Resets the timer for the octopus tentacles.
+        """
+        self.env.set_ram(9, 0)
+
+    def set_active_modifications(self, active_modifs):
+        """
+        Specifies which modifications are active.
+        """
+        self.active_modifications = set(active_modifs)
+
+    def fill_modif_lists(self):
+        """
+        Returns the modification lists (step, reset, and post-detection) with active modifications.
+
+        :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
+        """
+        modif_mapping = {
+            "endless_oxygen": self.endless_oxygen,
+            "infinite_lives": self.infinite_lives,
+            "double_wave_length": self.double_wave_length,
+            "quick_start": self.quick_start,
+            "octopus_start": self.octopus_start,
+            "octopus_rest": self.octopus_rest,
+        }
+
+        step_modifs = [modif_mapping[name]
+                       for name in self.active_modifications if name in modif_mapping]
+        reset_modifs = []
+        post_detection_modifs = []
+
+        return step_modifs, reset_modifs, post_detection_modifs
+
+
+def modif_funcs(env, active_modifs):
+    modifications = GameModifications(env)
+    modifications.set_active_modifications(active_modifs)
+    return modifications.fill_modif_lists()

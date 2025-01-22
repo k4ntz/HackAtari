@@ -10,86 +10,195 @@ Use `-hu` to start the game in Human Mode and play the game yourself.
 
 Use `-m` to select the mode you want to play in. All modes/hacks/changes can be activated individually or in any combination by separating with whitespace between them.
 
-**Example**: `python run.py -g Freeway -m c3 sm3 -hu` will run Freeway with all cars being red (`c3`) and stopped (`sm3`) in Human (playable) Mode (`-hu`).
+**Example**: `python run.py -g Freeway -hu -m stop_all_cars` will run Freeway with all cars being red (`c3`) and stopped (`sm3`) in Human (playable) Mode (`-hu`).
 
 The modes are:
+
+## Amidar:
+| Command | Effect                                                                               |
+|---------|--------------------------------------------------------------------------------------|
+| change_enemy  | Changes enemies into pigs |
+| change_player | Changes player into snake |
+
+## Asterix:
+| Command | Effect                                                                               |
+|---------|--------------------------------------------------------------------------------------|
+| obelix                | Changes playmode to obelix (more difficult) |
+| set_consumable_1      | Changes consumable into pink objects (100points) |
+| set_consumable_2      | Changes consumable into shields (200points) |
+| unlimited_lives       | Do not decrease lives |
+| even_lines_free       | Even lines are free |
+| odd_lines_free        | Odd lines are free |
+
+## Atlantis:
+| Command | Effect                                                                               |
+|---------|--------------------------------------------------------------------------------------|
+| no_last_line                | Remove enemies from the last (lowest) line |
+| jets_only                   | Replace all enemies with Bandit Bombers |
+| random_enemies              | Randomly assign enemy types |
+| speed_mode_slow             | Set speed to 2 |
+| speed_mode_medium           | Set speed to 4 |
+| speed_mode_fast             | Set speed to 6 |
+| speed_mode_ultrafast        | Set speed to 8 |
+
+## Bankheist:
+| Command | Effect                                                                               |
+|---------|--------------------------------------------------------------------------------------|
+| unlimited_gas           | Do not decrease the gas |
+| no_police               | Do not spawn police |
+| only_police             | Directly spawn police |
+| random_city             | Start in a random city |
+| revisit_city            | Allows player to revisit previous cities |
 
 ## Boxing:
 | Command | Effect                                                                               |
 |---------|--------------------------------------------------------------------------------------|
-| g       | Enables Gravity pull on the player character                                         |
-| db      | Enables drunken boxing mode where the player character staggers in a circular motion |
-| oa      | Enables one armed mode where the player character only uses the right arm            |
+| gravity        | Enables Gravity pull on the player character |
+| drunken_boxing | Enables drunken boxing mode where the player character staggers in a circular motion |
+| one_armed      | Enables one armed mode where the player character only uses the right arm |
+| color_player_black | Set player color to black (also works with white, red, blue and green) |
+| color_enemy_black | Set enemy color to black (also works with white, red, blue and green) |
+| switch_position | Set player position to the lower right corner |
 
 ## Breakout:
 | Command | Effect                                        |
 |---------|-----------------------------------------------|
-| d[r, l] | Set the drift direction "right" or "left"     |
-| s[0-2]  | Sets the strenght of the drift, 0 is no drift |
+| right_drift     | Set the drift direction "right" |
+| left_drift      | Set the drift direction "right" |
+| gravity         | Set drift direction downwards |
+| inverse_gravity | Set drift dirtection upwards |
+| color_player_and_ball_black | Set color of player and ball (also works with white, red, blue and green) |
+| color_all_blocks_black | Set color of all blocks (also works with white, red, blue and green)  |
 
-### Note: In Breakout, the drift will not work if human mode is enabled due to issues with the rendering.
+## Carnival:
+| Command | Effect                                                                               |
+|---------|--------------------------------------------------------------------------------------|
+| no_flying_ducks                | Ducks in the last row disappear instead of turning into flying ducks. |
+| unlimited_ammo                 | Ammunition doesn't decrease. |
+| missile_speed_small_increase   | The projectiles fired from the players are faster (slow increase). |
+| missile_speed_medium_increase  | The projectiles fired from the players are faster (medium increase). |
+| missile_speed_large_increase   | The projectiles fired from the players are faster (large increase). |
 
+## ChopperCommand:
+### Untested due to the update of OCAtari to ns_representations
+
+| Command | Effect                                                                               |
+|---------|--------------------------------------------------------------------------------------|
+| delay_shots           | Puts time delay between shots. |
+| no_enemies            | Removes all enemies from the game. |
+| no_radar              | Removes the radar content. |
+| invisible_player      | Makes the player invisible. |
+| color_black           | Changes the background and enemies' color to black. (also works with white, red, blue and green). |
+
+## DonkeyKong:
+
+| Command | Effect                                                                               |
+|---------|--------------------------------------------------------------------------------------|
+| no_barrel           | Removes barrels from the game. |
+| unlimited_time      | Provides unlimited time for the player. |
+| random_start        | Randomly choose between 10 possible starting positions. |
+
+## DoubleDunk:
+
+| Command | Effect                                                                               |
+|---------|--------------------------------------------------------------------------------------|
+| player_color_white | Set player teams color to white. (also works with green, red, yellow, purple and blue)
+| enemy_color_white | Set enemy teams color to white. (also works with green, red, yellow, purple and blue)
 
 ## Fishing Derby:
-| Command | Effect                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| sm[0-4] | 0 = default behavior. 1 = x-position of the shark is fixed at 105, which is directly below the enemy player - 2 = x-position of the shark is fixed at 25, which is directly below the player - 3 = the shark teleports from the left to the right and the other way around when x-position 25 or 105 is reached - 4 = the shark moves from the left to the right with a very high velocity. When reaching x-position 120 the shark is set back to x-position 1 and starts to move again in the same speed up way as described. |
-| fm[0-3] | = = default behavior. 1 = The x-position of the fish is changed. They are mainly on the player's side. 2 = The x-position of the fish is changed. They are mainly on the enemy's side. 3 = The x-position of the fish is changed. They are in the middle betwen  player and enemy.                                                                                                                                                                                                                                             |
+
+| Command | Effect                                                                               |
+|---------|--------------------------------------------------------------------------------------|
+| shark_teleport        | Teleports the shark in the line |
+| shark_speed_mode      | Makes the shark very very fast |
+| fish_on_player_side   | All fish are on the player's side |
+| fish_in_middle        | All fish are in the middle.|
 
 ## Freeway:
-| Command | Effect                                                                                                                                                               |
-|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| c[0-8]  | Change the colors of the cars. 0 = standard; 1 = black; 2 = grey; 3 = red; 4 = white; 5 = green; 6 = purple; 7 = blue; 8 = "invisible"                               |
-| sm[0-3] | Change the behavior of the cars: 1 = cars stop randomly and drive off again; 2 = all cars stop simultaneously and drive off again simultaneously; 3 = all cars stop. |
+
+| Command | Effect                                                                               |
+|---------|--------------------------------------------------------------------------------------|
+| stop_random_car       | Stops a random car with a biased probability for a certain time. |
+| stop_all_cars         | Stops all cars on the side of the board. |
+| align_all_cars        | Align all cars so they move in a line. |
+| all_black_cars        | All cars are black. (also works with white, red, blue and green)|
+
 
 ## Frostbite:
-| Command   | Effect                                                                                                                                                   |
-|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| c         | Argument for setting the color of line 1 of the ice floes. The chosen value has to be between 0 and 255. The default value is 12                         |
-| l[1-4]    | Argument for choosing a line of ice floes for color changing.                                                                                            |
-| c3        | This mode recolors 3 lines at once.                                                                                                                      |
-| cui       | Argument for setting the color of the UI for temperature, life and points. The chosen value has to be between 6 and 254. The default value is 0 = white. |
-| cfp       | Argument for enabling positional changes to the ice floes. Needs to be set for .fp to haven an effect.                                                   |
-| fp[0-255] | Argument for setting the x-position of the ice floes. The input value has to be between 0 and 255.                                                       |
-| en[0-3]   | Argument for changing the enemies number. The value has to be between 0 and 3. 0 is the unaltered version.                                               |
+| Command | Effect                                                                               |
+|---------|--------------------------------------------------------------------------------------|
+| ui_color_black            | Sets ui color to black. (also works with red). |
+| reposition_floes_easy     | Make ice shelves static (easy mode). |
+| reposition_floes_medium   | Make ice shelves static (medium mode). |
+| reposition_floes_hard     | Make ice shelves static (hard mode).|
+| no_birds                  | Removes all birds (and fishes?) |
+| few_enemies               | Increase enemies slightly |
+| many_enemies              | Increase enemies to a maximum|
+
 
 ## Kangaroo:
 | Command | Effect                                  |
 |---------|-----------------------------------------|
-| f       | Set the starting floor (0, 1, or 2)     |
-| dm      | Disable monkeys in the game             |
-| dc      | Disable the falling coconut in the game |
-| e       | Enable easy mode                        |
-| ra      | Rndom difficulty                        |
+| set_kangaroo_position_floor1  | Set the starting floor (0, 1, or 2)     |
+| randomize_kangaroo_position   | Random starting floor |
+| disable_monkeys               | Disable monkeys in the game             |
+| disable_coconut               | Disable the falling coconut in the game |
+| disable_thrown_coconut        | Disable the throwing coconut in the game |
+| change_level_0                | Set starting level (0, 1, or 2) |
 
-## MS Pacman
+## MontezumaRevenge:
+| Command | Effect                                  |
+|---------|-----------------------------------------|
+| random_position_start     | Sets a random starting position for the player. |
+| set_level_0               | Sets the game to a specified level. (0, 1 or 2) |
+| randomize_items           | Randomizes which items are found in which rooms. |
+| full_inventory            | Adds all items to the player's inventory. |
+
+
+## MsPacman
 | Command                 | Effect                                                            |
 |-------------------------|-------------------------------------------------------------------|
-| cg                      | Caged ghosts, ghosts will not leave the middle                    |
-| orange, cyan, pink, red | cages ghosts selectivly by color                                  |
-| npp[0-4]                | number of available power pills                                   |
-| eg                      | ghosts can always be eaten, power pills do nothing                |
-| i                       | inverted mode, eating a power pill maked the ghos dangerous again |
+| caged_ghosts       | Caged ghosts, ghosts will not leave the middle |
+| disable_orange     | Disable the orange ghost (also works with red, cyan, pink) |
+| set_level_0        | Set level to 0. (0, 1 or 2) |
+| end_game           | inverted mode, eating a power pill maked the ghos dangerous again |
+
+## Pong
+| Command                 | Effect                                                            |
+|-------------------------|-------------------------------------------------------------------|
+| lazy_enemy   | Enemy does not move after returning the shot. |
+| up_drift     | Makes the ball drift upwards. (Also works with down, left and right) |
+
 
 ## Seaquest
 | Command | Effect                           |
 |---------|----------------------------------|
-| o       | Set the oxygen to unlimited mode |
-| de      | disables all enemies             |
-| gr      | Enable graxity mode.             |
+| unlimited_oxygen     | Set the oxygen to unlimited mode |
+| disable_enemies      | Disables all enemies             |
+| random_color_enemies | The enemies have new random colors each time they go across the screen.|
+| gravity              | Enable graxity mode.             |
 
 ### Note: If all enemies are disabled, stray projectiles can occure in certain situations which will still kill the player. We haven't found a fix for this.
 
+## Skiing
+| Command | Effect                           |
+|---------|----------------------------------|
+| invert_flags     | Change flag color to red (last flag will be blue) |
 
-## Space Invaders:
+## SpaceInvaders:
 | Command    | Effect                                                            |
 |------------|-------------------------------------------------------------------|
-| pos[35-53] | Moves the shields side to side via an offset.                     |
-| ds         | Disables all the shields.                                         |
-| l, r, m    | disables the shields (left, right, middle) one by one selectively |
-| c          | enabled curved shots                                              |
+| disable_shield_left          | Disables the left shield. (Also works with middle and right)  |
+| relocate_shields_slight_left | Set the shields to a position left of their original  |
+| relocate_shields_off_by_one  | Set shields off by one pixel  |
+| relocate_shields_right       | Set shields to new position right of the original  |
+| controlable_missile          | The missible trajectory follows the user control of the ship  |
 
 ## Tennis
 | Command | Effect             |
 |---------|--------------------|
-| w       | Enables wind drift |
+| wind_effect               | Enables wind drift |
+| always_upper_pitches      | The upper player always pitches |
+| always_lower_pitches      | The lower player always pitches |
+| always_upper_player       | The player is always the upper player |
+| always_lower_player       | The player is always the lower player |

@@ -79,8 +79,6 @@ def main():
     env = HumanPlayable(
         args.game,
         args.modifs,
-        [],
-        0,
         "",
         game_mode=0,
         difficulty=0,

@@ -1,97 +1,135 @@
 import random
 
-TYPES = [32, 64, 80]
-TYPE_STATE = [0, 0, 0, 0]
 
-SPEED = 2
-
-
-def no_last_line(self):
+class GameModifications:
     """
-    Removes enemies from the last (lowest) line.
+    Encapsulates game modifications for managing active modifications and applying them.
     """
-    self.set_ram(36, 0)
 
+    def __init__(self, env):
+        """
+        Initializes the modification handler with the given environment.
 
-def jets_only(self):
-    """
-    Replaces all enemies with Bandit-Bombers
-    """
-    ram = self.get_ram()
-    for i in range(4):
-        if ram[82 - i] and ram[82 - i] < 80:
-            self.set_ram(82 - i, 80)
-            if ram[78 - i] == 1:
-                self.set_ram(78 - i, 2)
-            elif ram[78 - i] == 255:
-                self.set_ram(78 - i, 254)
+        :param env: The game environment to modify.
+        """
+        self.env = env
+        self.active_modifications = set()
 
+    def no_last_line(self):
+        """
+        Removes enemies from the last (lowest) line.
+        """
+        self.env.set_ram(36, 0)
 
-def random_enemies(self):
-    """
-    Randomly assigns enemy types, instead of following the standardized pattern.
-    """
-    ram = self.get_ram()
-    global TYPES, TYPE_STATE
-    for i in range(4):
-        if ram[79 + i] and ram[79 + i] < 81 and ram[79 + i] != TYPE_STATE[i]:
-            enemy = random.choice(TYPES)
-            self.set_ram(79 + i, enemy)
-            if enemy < 80:
-                if ram[75 + i] == 2:
-                    self.set_ram(75 + i, 1)
-                elif ram[75 + i] == 254:
-                    self.set_ram(75 + i, 255)
+    def jets_only(self):
+        """
+        Replaces all enemies with Bandit-Bombers.
+        """
+        ram = self.env.get_ram()
+        for i in range(4):
+            if ram[82 - i] and ram[82 - i] < 80:
+                self.env.set_ram(82 - i, 80)
+                if ram[78 - i] == 1:
+                    self.env.set_ram(78 - i, 2)
+                elif ram[78 - i] == 255:
+                    self.env.set_ram(78 - i, 254)
+
+    def random_enemies(self):
+        """
+        Randomly assigns enemy types, instead of following the standardized pattern.
+        """
+        ram = self.env.get_ram()
+        types = [32, 64, 80]
+        for i in range(4):
+            if ram[79 + i] and ram[79 + i] < 81:
+                enemy = random.choice(types)
+                self.env.set_ram(79 + i, enemy)
+                if enemy < 80:
+                    if ram[75 + i] == 2:
+                        self.env.set_ram(75 + i, 1)
+                    elif ram[75 + i] == 254:
+                        self.env.set_ram(75 + i, 255)
+                else:
+                    if ram[75 + i] == 1:
+                        self.env.set_ram(75 + i, 2)
+                    elif ram[75 + i] == 255:
+                        self.env.set_ram(75 + i, 254)
+
+    def speed_mode_slow(self):
+        """
+        Sets a slow speed for all enemy ships.
+        """
+        self._adjust_speed(2)
+
+    def speed_mode_medium(self):
+        """
+        Sets a normal speed for all enemy ships.
+        """
+        self._adjust_speed(4)
+
+    def speed_mode_fast(self):
+        """
+        Sets a fast speed for all enemy ships.
+        """
+        self._adjust_speed(6)
+
+    def speed_mode_ultrafast(self):
+        """
+        Sets an ultra-fast speed for all enemy ships.
+        """
+        self._adjust_speed(8)
+
+    def _adjust_speed(self, speed):
+        """
+        Adjusts the speed of all enemy ships.
+
+        :param speed: The speed value to set.
+        """
+        ram = self.env.get_ram()
+        for i in range(4):
+            if ram[79 + i] == 80:
+                if ram[75 + i] & 128:
+                    self.env.set_ram(75 + i, 255 - speed)
+                elif ram[75 + i] > 0:
+                    self.env.set_ram(75 + i, 1 + speed)
             else:
-                if ram[75 + i] == 1:
-                    self.set_ram(75 + i, 2)
-                elif ram[75 + i] == 255:
-                    self.set_ram(75 + i, 254)
-    TYPE_STATE = ram[79:83]
+                if ram[75 + i] & 128:
+                    self.env.set_ram(75 + i, 256 - speed)
+                elif ram[75 + i] > 0:
+                    self.env.set_ram(75 + i, speed)
+
+    def set_active_modifications(self, active_modifs):
+        """
+        Specifies which modifications are active.
+
+        :param active_modifs: A list of active modification names.
+        """
+        self.active_modifications = set(active_modifs)
+
+    def fill_modif_lists(self):
+        """
+        Returns the modification lists (step, reset, and post-detection) with active modifications.
+
+        :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
+        """
+        modif_mapping = {
+            "no_last_line": self.no_last_line,
+            "jets_only": self.jets_only,
+            "random_enemies": self.random_enemies,
+            "speed_mode_slow": self.speed_mode_slow,
+            "speed_mode_medium": self.speed_mode_medium,
+            "speed_mode_fast": self.speed_mode_fast,
+            "speed_mode_ultrafast": self.speed_mode_ultrafast,
+        }
+
+        step_modifs = [modif_mapping[name]
+                       for name in self.active_modifications if name in modif_mapping]
+        reset_modifs = []
+        post_detection_modifs = []
+        return step_modifs, reset_modifs, post_detection_modifs
 
 
-def speed_mode(self):
-    """
-    Increases the speed of all enemy ships according to the mod argument.
-    """
-    ram = self.get_ram()
-    global SPEED
-    for i in range(4):
-        if ram[79 + i] == 80:
-            if ram[75 + i] & 128:
-                self.set_ram(75 + i, 255 - SPEED)
-            elif ram[75 + i] > 0:
-                self.set_ram(75 + i, 1 + SPEED)
-        else:
-            if ram[75 + i] & 128:
-                self.set_ram(75 + i, 256 - SPEED)
-            elif ram[75 + i] > 0:
-                self.set_ram(75 + i, SPEED)
-
-
-def _modif_funcs(env, modifs):
-    for mod in modifs:
-        if mod == "no_last_line":
-            env.step_modifs.append(no_last_line)
-        elif mod == "jets_only":
-            env.step_modifs.append(jets_only)
-        elif mod == "randomize_enemies":
-            env.step_modifs.append(random_enemies)
-        elif mod.startswith("speed_mode"):
-            print(mod[-1])
-            if mod[-1].isdigit():
-                mod_n = int(mod[-1])
-                if mod_n < 2 or mod_n > 10:
-                    raise ValueError("Invalid value, choose speed value 2-10")
-                global SPEED
-                SPEED = mod_n
-            elif mod[-1] == "e":
-                pass
-            else:
-                raise ValueError(
-                    "Append value 2-10 to your mod-argument to increase speed accordingly"
-                )
-
-            env.step_modifs.append(speed_mode)
-        else:
-            print("Invalid or unknown modification")
+def modif_funcs(env, active_modifs):
+    modifications = GameModifications(env)
+    modifications.set_active_modifications(active_modifs)
+    return modifications.fill_modif_lists()

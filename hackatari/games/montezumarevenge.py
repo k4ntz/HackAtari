@@ -1,172 +1,109 @@
 import random
 
-NB_LIFES = 5
-poses = ((77, 235), (88, 192), (128, 192), (133, 148), (33, 148), (22, 192))
-BASE_DELAY = 108
-DELAY = BASE_DELAY
-DEAD = False
 
-COLORS = [0, 1, 2, 4, 6]
-COLOR_INDEX = 4
-
-LEVEL = 0
-
-# First list entey are is the item type (ram[49] for type, ram[50] for color), second list entry is the amount and space between items of the same type (ram[84])
-
-ITEMS = [
-    [1, 0],
-    None,
-    None,
-    None,
-    None,
-    [6, 0],
-    [2, 0],
-    [4, 0],
-    [4, 0],
-    None,
-    [1, 0],
-    None,
-    None,
-    None,
-    [4, 0],
-    None,
-    None,
-    None,
-    None,
-    [4, 0],
-    [1, 4],
-    None,
-    None,
-    [1, 3],
-]
-
-
-# MAP = [             [0, 1, 2],
-#                 [3, 4, 5, 6, 7],
-#             [8, 9, 10, 11, 12, 13, 14],
-#        [15, 16, 17, 18, 19, 20, 21, 22, 23]]
-
-
-def random_position_start_res(self):
+class GameModifications:
     """
-    Enemy does not move after returning the shot.
+    Encapsulates game modifications for managing active modifications and applying them.
     """
-    ram = self.get_ram()
-    if ram[3] == 1:
-        global NB_LIFES
-        ram = self.get_ram()
-        NB_LIFES = ram[58]
-        pos = random.choice(poses)
-        pos = poses[5]
-        for i, ram_n in enumerate([42, 43]):
-            self.set_ram(ram_n, pos[i])
+
+    # Black (Invisible), Orange (Ruby), White (Sword), Yellow (Key), Green (Snake)
+    COLORS = [0, 1, 2, 4, 6]
+    LEVELS = [0, 1, 2]
+    ITEM_ROOMS = [0, 5, 6, 7, 8, 10, 14, 19, 20, 23]
+    INVENTORY_FULL = 249
+
+    def __init__(self, env):
+        """
+        Initializes the modification handler with the given environment.
+
+        :param env: The game environment to modify.
+        """
+        self.env = env
+        self.active_modifications = set()
+        self.nb_lives = 5
+        self.dead = False
+        self.poses = [(77, 235), (88, 192), (128, 192),
+                      (133, 148), (33, 148), (22, 192)]
+
+    def random_position_start(self):
+        """
+        Sets a random starting position for the player.
+        """
+        ram = self.env.get_ram()
+        if ram[3] == 1:
+            if ram[58] == self.nb_lives - 1 or self.dead:
+                self.dead = True
+            if self.dead:
+                if ram[2] == 4:
+                    pos = self.poses[1]
+                    self.nb_lives = ram[58]
+                    for i, ram_n in enumerate([42, 43]):
+                        self.env.set_ram(ram_n, pos[i])
+                    self.dead = False
+
+    def set_level(self, level):
+        """
+        Sets the game to a specified level.
+        """
+        if level in self.LEVELS:
+            self.env.set_ram(57, level)
+
+    def randomize_items(self):
+        """
+        Randomizes which items are found in which rooms.
+        """
+        randomized = self.ITEM_ROOMS.copy()
+        random.shuffle(randomized)
+
+    def full_inventory(self):
+        """
+        Adds all items to the player's inventory.
+        """
+        self.env.set_ram(65, self.INVENTORY_FULL)
+
+    def unify_item_color(self, color_index):
+        """
+        Sets all items to a specified color.
+        """
+        if color_index in range(len(self.COLORS)):
+            self.env.set_ram(50, self.COLORS[color_index])
+
+    def set_active_modifications(self, active_modifs):
+        """
+        Specifies which modifications are active.
+
+        :param active_modifs: A list of active modification names.
+        """
+        self.active_modifications = set(active_modifs)
+
+    def fill_modif_lists(self):
+        """
+        Returns the modification lists (step, reset, and post-detection) with active modifications.
+
+        :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
+        """
+        modif_mapping = {
+            "random_position_start": self.random_position_start,
+            "set_level_0": lambda: self.set_level(0),
+            "set_level_1": lambda: self.set_level(1),
+            "set_level_2": lambda: self.set_level(2),
+            "randomize_items": self.randomize_items,
+            "full_inventory": self.full_inventory,
+            # "unify_item_color_black": lambda: self.unify_item_color(0),
+            # "unify_item_color_orange": lambda: self.unify_item_color(1),
+            # "unify_item_color_white": lambda: self.unify_item_color(2),
+            # "unify_item_color_yellow": lambda: self.unify_item_color(3),
+            # "unify_item_color_green": lambda: self.unify_item_color(4),
+        }
+
+        step_modifs = [modif_mapping[name]
+                       for name in self.active_modifications if name in modif_mapping]
+        reset_modifs = []
+        post_detection_modifs = []
+        return step_modifs, reset_modifs, post_detection_modifs
 
 
-def random_position_start(self):
-    ram = self.get_ram()
-    if ram[3] == 1:
-        global NB_LIFES, DEAD
-        ram = self.get_ram()
-        if ram[58] == NB_LIFES - 1 or DEAD:  # life lost
-            DEAD = True
-        if DEAD:
-            if ram[2] == 4:
-                pos = poses[1]
-                NB_LIFES = ram[58]
-                for i, ram_n in enumerate([42, 43]):
-                    self.set_ram(ram_n, pos[i])
-                DEAD = False
-
-
-def set_level(self):
-    """
-    Changes the level to a more difficult version. Level 0, 1, 2 are different versions, afterwards level%3 determines map layout.
-    """
-    global LEVEL
-    self.set_ram(57, LEVEL)
-
-
-def randomize_items(self):
-    """
-    Randomize which item is found in which room.
-    """
-    item_rooms = [0, 5, 6, 7, 8, 10, 14, 19, 20, 23]
-    randomized = item_rooms.copy()
-    random.shuffle(randomized)
-
-    global ITEMS
-    new_items = ITEMS.copy()
-
-    j = 0
-    for i in item_rooms:
-        new_items[i] = ITEMS[randomized[j]]
-        j += 1
-    ITEMS = new_items
-
-
-def change_items(self):
-    # ram[49] for type, ram[50] for color, space between items of the same type ram[84]
-    ram = self.get_ram()
-
-    global ITEMS
-    if ram[3] != 1 and ram[49] != 0:
-        item_type = ITEMS[ram[3]][0]
-        if item_type < 3:
-            color = item_type
-        else:
-            color = 4
-        self.set_ram(49, ITEMS[ram[3]][0])
-        self.set_ram(50, color)
-        self.set_ram(84, ITEMS[ram[3]][1])
-
-
-def full_inventory(self):
-    """
-    Adds all items to inventory.
-    """
-    self.set_ram(65, 249)
-
-
-def unify_item_color(self):
-    """
-    All items are turned into the same color. [Black (Invisible), Orang (Ruby), White (Sword), Yellow (Key), Green (Snake)]
-    """
-    global COLORS, COLOR_INDEX
-    self.set_ram(50, COLORS[COLOR_INDEX])
-
-
-def _modif_funcs(env, modifs):
-    for mod in modifs:
-        if mod == "random_position_start":
-            env.step_modifs.append(random_position_start)
-            env.reset_modifs.append(random_position_start_res)
-        elif mod.startswith("level"):
-            global LEVEL
-            try:
-                LEVEL = int(mod[-1])
-            except:
-                raise (
-                    "Append a number 0-9 to the end of the mod-argument to choose the level"
-                )
-            env.reset_modifs.append(set_level)
-        elif mod == "randomize_items":
-            env.step_modifs.append(change_items)
-            env.reset_modifs.append(randomize_items)
-        elif mod == "full_inventory":
-            env.step_modifs.append(full_inventory)
-        elif mod.startswith("item_color"):
-            if mod[-1].isdigit():
-                mod_n = int(mod[-1])
-                if mod_n < 0 or mod_n > 4:
-                    raise ValueError(
-                        "Invalid color value, choose value 0-4 [Black (Invisible), Orang (Ruby), White (Sword), Yellow (Key), Green (Snake)]"
-                    )
-            else:
-                raise ValueError(
-                    "Append value 0-4 [Black (Invisible), Orang (Ruby), White (Sword), Yellow (Key), Green (Snake)] to your color mod-argument"
-                )
-            global COLOR_INDEX
-            COLOR_INDEX = mod_n
-            env.step_modifs.append(unify_item_color)
-        else:
-            print("Invalid modification")
+def modif_funcs(env, active_modifs):
+    modifications = GameModifications(env)
+    modifications.set_active_modifications(active_modifs)
+    return modifications.fill_modif_lists()
