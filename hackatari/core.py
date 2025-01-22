@@ -92,21 +92,56 @@ class HackAtari(OCAtari):
 
     def step(self, *args, **kwargs):
         """
-        Execute a step in the environment, applying modifications if necessary.
+        Take a step in the game environment after altering the ram.
         """
+        frameskip = self._frameskip
         total_reward = 0.0
         terminated = truncated = False
+        if self.dopamine_pooling:
+            last_two_obs = []
+            last_two_org = []
 
-        # Apply step modifications
+        for i in range(frameskip-1):
+            for func in self.step_modifs:
+                func(self)
+            obs, reward, terminated, truncated, info = self._env.step(
+                *args, **kwargs)
+            total_reward += float(reward)
+            if terminated or truncated:
+                break
+
+        if self.dopamine_pooling:
+            last_two_obs.append(cv2.resize(cv2.cvtColor(self.getScreenRGB(
+            ), cv2.COLOR_RGB2GRAY), (84, 84), interpolation=cv2.INTER_AREA))
+            last_two_org.append(self.getScreenRGB())
+
         for func in self.step_modifs:
-            func()
-
-        obs, reward, terminated, truncated, info = super().step(*args, **kwargs)
+            func(self)
+        obs, reward, terminated, truncated, info = super().step(
+            *args, **kwargs)
         total_reward += float(reward)
-
-        # Apply post-detection modifications
         for func in self.post_detection_modifs:
-            func()
+            func(self)
+
+        if self.dopamine_pooling:
+            last_two_obs.append(cv2.resize(cv2.cvtColor(self.getScreenRGB(
+            ), cv2.COLOR_RGB2GRAY), (84, 84), interpolation=cv2.INTER_AREA))
+            last_two_org.append(self.getScreenRGB())
+
+        if self.dopamine_pooling:
+            merged_obs = np.maximum.reduce(last_two_obs)
+            merged_org = np.maximum.reduce(last_two_org)
+
+            if self.create_dqn_stack:
+                self._state_buffer_dqn[-1] = merged_obs
+            if self.create_rgb_stack:
+                self._state_buffer_rgb[-1] = merged_org
+
+            if self.obs_mode == "dqn":
+                obs[-1] = merged_obs
+            else:
+                # dopamine pooling works with either "dqn" or "ori" obs_mode.
+                obs = merged_org
 
         return obs, total_reward, terminated, truncated, info
 
@@ -140,6 +175,12 @@ class HackAtari(OCAtari):
 
         return obs, info
 
+    def render(self, image=None):
+        if self.dopamine_pooling:
+            return super().render(self._state_buffer_rgb[-1])
+        else:
+            return super().render()
+
 
 class HumanPlayable(HackAtari):
     """
@@ -152,9 +193,10 @@ class HumanPlayable(HackAtari):
         """
         kwargs["render_mode"] = "human"
         kwargs["render_oc_overlay"] = True
-        kwargs["full_action_space"] = True
+        kwargs["frameskip"] = 1
+        # kwargs["full_action_space"] = True
 
-        super().__init__(game, modifs, rewardfunc_path, dopamine_pooling=1,
+        super().__init__(game, modifs, rewardfunc_path, dopamine_pooling=True,
                          game_mode=game_mode, difficulty=difficulty, *args, **kwargs)
 
         self.reset()
@@ -163,6 +205,7 @@ class HumanPlayable(HackAtari):
         self.paused = False
         self.current_keys_down = set()
         self.keys2actions = self.env.unwrapped.get_keys_to_action()
+        print("Keys to actions: ", self.keys2actions)
 
     def run(self):
         """
@@ -179,7 +222,7 @@ class HumanPlayable(HackAtari):
                 _, reward, _, _, _ = self.step(action)
                 if self.print_reward and reward:
                     print(reward)
-                self.render(self._state_buffer_rgb[0])
+                self.render()
 
         pygame.quit()
 
@@ -190,7 +233,9 @@ class HumanPlayable(HackAtari):
         pressed_keys = list(self.current_keys_down)
         pressed_keys.sort()
         pressed_keys = tuple(pressed_keys)
+        print("Pressed keys: ", pressed_keys)
         if pressed_keys in self.keys2actions.keys():
+            print("Action: ", self.keys2actions[pressed_keys])
             return self.keys2actions[pressed_keys]
         else:
             return 0  # NOOP
