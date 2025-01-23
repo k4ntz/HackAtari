@@ -7,6 +7,7 @@ import gymnasium as gym
 from ocatari.utils import load_agent
 import os
 import argparse
+from utils import HackAtariArgumentParser
 
 # Disable graphics window (SDL) for headless execution
 os.environ["SDL_VIDEODRIVER"] = "dummy"
@@ -40,7 +41,7 @@ def combine_means_and_stds(mu_list, sigma_list, n_list):
 
 def main():
     """Main function to run HackAtari experiments with different agents."""
-    parser = argparse.ArgumentParser(description="HackAtari Experiment Runner")
+    parser = HackAtariArgumentParser(description="HackAtari Experiment Runner")
 
     # Game and environment parameters
     parser.add_argument("-g", "--game", type=str,
@@ -67,6 +68,7 @@ def main():
                         default=10, help="Number of episodes to run per agent")
 
     args = parser.parse_args()
+
 
     # Initialize environment
     env = HackAtari(

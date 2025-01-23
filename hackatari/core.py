@@ -177,6 +177,10 @@ class HackAtari(OCAtari):
 
         return obs, info
 
+    @property
+    def available_modifications(self):
+        return _available_modifications(self.game_name)
+        
 
 class HumanPlayable(HackAtari):
     """
@@ -263,3 +267,14 @@ class HumanPlayable(HackAtari):
             elif event.type == pygame.KEYUP:  # Keyboard key released
                 if (event.key,) in self.keys2actions.keys():
                     self.current_keys_down.remove(event.key)
+    
+
+def _available_modifications(game_name):
+    modif_module = importlib.import_module(
+            f"hackatari.games.{game_name.lower()}")
+    modifs_list = [mod for mod in dir(modif_module.GameModifications) if not mod.startswith("_")]
+    retstr = f"Available modifications for {game_name}:\n"
+    for mod in modifs_list:
+        retstr += f"  * {mod}:\n\t"
+        retstr += getattr(modif_module.GameModifications, mod).__doc__.strip() + "\n"
+    return retstr

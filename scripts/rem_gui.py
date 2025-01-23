@@ -3,6 +3,8 @@ import pygame
 from ocatari.core import OCAtari, UPSCALE_FACTOR
 from tqdm import tqdm
 
+from utils import HackAtariArgumentParser
+
 
 from hackatari.utils import load_color_swaps
 from hackatari.core import HackAtari
@@ -349,9 +351,8 @@ class Renderer:
 
 
 if __name__ == "__main__":
-    from argparse import ArgumentParser
 
-    parser = ArgumentParser(description="HackAtari remgui.py Argument Setter")
+    parser = HackAtariArgumentParser(description="HackAtari remgui.py Argument Setter")
 
     parser.add_argument(
         "-g", "--game", type=str, default="Seaquest", help="Game to be run"

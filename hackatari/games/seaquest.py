@@ -62,13 +62,13 @@ class GameModifications:
                 self.current_colors[i] = random.randint(0, 255)
             self.env.set_ram(44 + i, self.current_colors[i])
 
-    def set_active_modifications(self, active_modifs):
+    def _set_active_modifications(self, active_modifs):
         """
         Specifies which modifications are active.
         """
         self.active_modifications = set(active_modifs)
 
-    def fill_modif_lists(self):
+    def _fill_modif_lists(self):
         """
         Returns the modification lists (step, reset, and post-detection) with active modifications.
         """
@@ -88,5 +88,5 @@ class GameModifications:
 
 def modif_funcs(env, active_modifs):
     modifications = GameModifications(env)
-    modifications.set_active_modifications(active_modifs)
-    return modifications.fill_modif_lists()
+    modifications._set_active_modifications(active_modifs)
+    return modifications._fill_modif_lists()

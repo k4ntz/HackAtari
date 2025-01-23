@@ -2,7 +2,7 @@ from hackatari import HackAtari, HumanPlayable
 import numpy as np
 import cv2
 import pygame
-import argparse
+from utils import HackAtariArgumentParser
 from ocatari.utils import load_agent
 
 
@@ -20,7 +20,7 @@ def save_upsampled(rgb_arrays, k=4, l=4):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="HackAtari Argument Setter")
+    parser = HackAtariArgumentParser(description="HackAtari Argument Setter")
 
     parser.add_argument("-g", "--game", type=str,
                         default="Seaquest", help="Game to be run")

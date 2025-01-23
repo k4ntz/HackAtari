@@ -1,4 +1,4 @@
-class GameModifications:
+class GameModifications():
     """
     Encapsulates game modifications for managing active modifications and applying them.
     """
@@ -34,7 +34,7 @@ class GameModifications:
 
     def up_drift(self):
         """
-        Makes the ball drift upwards by changing the corresponding ram positions.
+        Makes the ball drift upwards.
         """
         ball_y = self.env.get_ram()[54]
         new_ball_pos = ball_y - 1
@@ -44,7 +44,7 @@ class GameModifications:
 
     def down_drift(self):
         """
-        Makes the ball drift downwards by changing the corresponding ram positions.
+        Makes the ball drift downwards.
         """
         ball_y = self.env.get_ram()[54]
         new_ball_pos = ball_y + 1
@@ -54,7 +54,7 @@ class GameModifications:
 
     def right_drift(self):
         """
-        Makes the ball drift to the right by changing the corresponding ram positions.
+        Makes the ball drift to the right.
         """
         ball_x = self.env.get_ram()[49]
         new_ball_pos = ball_x + 1
@@ -64,7 +64,7 @@ class GameModifications:
 
     def left_drift(self):
         """
-        Makes the ball drift to the left by changing the corresponding ram positions.
+        Makes the ball drift to the left.
         """
         ball_x = self.env.get_ram()[49]
         new_ball_pos = ball_x - 1
@@ -72,13 +72,13 @@ class GameModifications:
             self.env.set_ram(49, new_ball_pos)
         self.timer += 1
 
-    def set_active_modifications(self, active_modifs):
+    def _set_active_modifications(self, active_modifs):
         """
         Specifies which modifications are active.
         """
         self.active_modifications = set(active_modifs)
 
-    def fill_modif_lists(self):
+    def _fill_modif_lists(self):
         """
         Returns the modification lists (step, reset, and post-detection) with active modifications.
         """
@@ -99,5 +99,6 @@ class GameModifications:
 
 def modif_funcs(env, active_modifs):
     modifications = GameModifications(env)
-    modifications.set_active_modifications(active_modifs)
-    return modifications.fill_modif_lists()
+    modifications._set_active_modifications(active_modifs)
+    return modifications._fill_modif_lists()
+    

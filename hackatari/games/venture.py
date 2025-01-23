@@ -85,7 +85,7 @@ class GameModifications:
         for i in range(6):
             self.enemy_random_colors[i] = random.choice(self.COLORS)
 
-    def set_active_modifications(self, active_modifs):
+    def _set_active_modifications(self, active_modifs):
         """
         Specifies which modifications are active.
         """
@@ -104,7 +104,7 @@ class GameModifications:
             elif mod == "enemy_color_green":
                 self.active_modifications.add("enemy_color_green")
 
-    def fill_modif_lists(self):
+    def _fill_modif_lists(self):
         """
         Returns the modification lists (step, reset, and post-detection) with active modifications.
         """
@@ -129,5 +129,5 @@ class GameModifications:
 
 def modif_funcs(env, active_modifs):
     modifications = GameModifications(env)
-    modifications.set_active_modifications(active_modifs)
-    return modifications.fill_modif_lists()
+    modifications._set_active_modifications(active_modifs)
+    return modifications._fill_modif_lists()
