@@ -6,7 +6,7 @@ from tqdm import tqdm
 from utils import HackAtariArgumentParser
 
 
-from hackatari.utils import load_color_swaps
+# from hackatari.utils import load_color_swaps
 from hackatari.core import HackAtari
 import atexit
 import pickle as pkl

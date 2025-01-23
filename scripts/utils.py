@@ -13,6 +13,8 @@ class HackAtariArgumentParser(argparse.ArgumentParser):
                 print("Call the script with a given game to get a list of available modifications.")
             else:
                 print(_available_modifications(args[args.index('-g') + 1]))
+                print("\n provide -h (or --help) without a game argument for the original help message.")
+                exit(0)
 
         # Call the original `parse_args` method to display the default help
         return super().parse_args(args, namespace)
