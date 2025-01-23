@@ -47,10 +47,11 @@ class HackAtari(OCAtari):
 
         # Initialize modifications and environment settings
         self.step_modifs, self.reset_modifs, self.post_detection_modifs = [], [], []
+        
 
         # Load modification functions dynamically
         modif_module = importlib.import_module(
-            f"hackatari.games.{env_name.lower()}")
+            f"hackatari.games.{self.game_name.lower()}")
         step_modifs, reset_modifs, post_detection_modifs = modif_module.modif_funcs(
             self, modifs)
 
@@ -73,21 +74,22 @@ class HackAtari(OCAtari):
             sys.modules["reward_function"] = module
             spec.loader.exec_module(module)
             self.new_reward_func = module.reward_function
+            self._step = self.step  # Override step function
             self.step = self.step_with_lm_reward  # Override step function
 
         # Apply game mode and difficulty settings
         try:
             self.env.env.ale.setMode(game_mode)
         except RuntimeError:
-            print(f"Invalid mode. Available modes: {
-                  self.env.env.ale.getAvailableModes()}")
+            print(f"Invalid mode. Available modes: \
+                  {self.env.env.ale.getAvailableModes()}")
             exit()
 
         try:
             self.env.env.ale.setDifficulty(difficulty)
         except RuntimeError:
-            print(f"Invalid difficulty. Available difficulties: {
-                  self.env.env.ale.getAvailableDifficulties()}")
+            print(f"Invalid difficulty. Available difficulties: \
+                  {self.env.env.ale.getAvailableDifficulties()}")
             exit()
 
     def step(self, *args, **kwargs):
@@ -149,7 +151,7 @@ class HackAtari(OCAtari):
         """
         Perform a step in the environment while applying a custom reward function.
         """
-        obs, game_reward, truncated, terminated, info = self.step(action)
+        obs, game_reward, truncated, terminated, info = self._step(action)
         self.org_reward = game_reward
         self.org_return += game_reward
         try:
