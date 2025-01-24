@@ -423,13 +423,13 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    color_swaps = load_color_swaps(args.color_swaps)
+    # color_swaps = load_color_swaps(args.color_swaps)
 
     renderer = Renderer(
         args.game,
         args.modifs,
         args.reward_function,
-        color_swaps,
+        # color_swaps,
         args.no_render,
         args.game_mode,
         args.difficulty,
