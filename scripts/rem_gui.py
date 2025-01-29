@@ -68,6 +68,7 @@ class Renderer:
         self.candidate_cell_ids = []
         self.current_active_cell_input: str = ""
         self.no_render = no_render
+        self.red_render = []
 
     def _init_pygame(self, sample_image):
         pygame.init()
@@ -128,6 +129,12 @@ class Renderer:
                         self.no_render.remove(to_hide)
                     else:
                         self.no_render.append(to_hide)
+                elif event.button == 2:  # middle mouse button pressed
+                    toggle = self._get_cell_under_mouse()
+                    if toggle in self.red_render:
+                        self.red_render.remove(toggle)
+                    else:
+                        self.red_render.append(toggle)
                 elif event.button == 4:  # mousewheel up
                     cell_idx = self._get_cell_under_mouse()
                     if cell_idx is not None:
@@ -246,12 +253,15 @@ class Renderer:
     def _render_ram_cell(self, cell_idx, value):
         is_active = cell_idx == self.active_cell_idx
         is_candidate = cell_idx in self.candidate_cell_ids
+        is_red = cell_idx in self.red_render
 
         x, y, w, h = self._get_ram_cell_rect(cell_idx)
 
         # Render cell background
         if is_active:
             color = (70, 70, 30)
+        elif is_red:
+            color = (150, 20, 20)
         elif is_candidate:
             color = (15, 45, 100)
         else:
@@ -402,14 +412,14 @@ if __name__ == "__main__":
         "-mo",
         "--game_mode",
         type=int,
-        default=0,
+        default=None,
         help="Use an alternative ALE game mode",
     )
     parser.add_argument(
         "-d",
         "--difficulty",
         type=int,
-        default=0,
+        default=None,
         help="Use an alternative ALE difficulty for the game.",
     )
     parser.add_argument(

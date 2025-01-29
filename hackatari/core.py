@@ -6,6 +6,12 @@ import sys
 from ocatari.core import OCAtari
 import warnings
 import cv2
+try:
+    from termcolor import colored
+except ImportError:
+    def colored(text, color):
+        return text
+    print("Warning: termcolor not installed. Colored output will not be available.")
 
 # Suppress unnecessary warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -24,8 +30,8 @@ class HackAtari(OCAtari):
         modifs=[],
         rewardfunc_path=None,
         dopamine_pooling=False,
-        game_mode=0,
-        difficulty=0,
+        game_mode=None,
+        difficulty=None,
         *args,
         **kwargs,
     ):
@@ -50,14 +56,17 @@ class HackAtari(OCAtari):
         
 
         # Load modification functions dynamically
-        modif_module = importlib.import_module(
-            f"hackatari.games.{self.game_name.lower()}")
-        step_modifs, reset_modifs, post_detection_modifs = modif_module.modif_funcs(
-            self, modifs)
+        try:
+            modif_module = importlib.import_module(
+                f"hackatari.games.{self.game_name.lower()}")
+            step_modifs, reset_modifs, post_detection_modifs = modif_module.modif_funcs(
+                self, modifs)
+            self.step_modifs.extend(step_modifs)
+            self.reset_modifs.extend(reset_modifs)
+            self.post_detection_modifs.extend(post_detection_modifs)
 
-        self.step_modifs.extend(step_modifs)
-        self.reset_modifs.extend(reset_modifs)
-        self.post_detection_modifs.extend(post_detection_modifs)
+        except ModuleNotFoundError as e:
+            print(colored(f"Error: {e}. No modifications available for {self.game_name}.", "yellow"))
 
         self.dopamine_pooling = dopamine_pooling and self._frameskip > 1
 
@@ -77,20 +86,23 @@ class HackAtari(OCAtari):
             self._step = self.step  # Override step function
             self.step = self.step_with_lm_reward  # Override step function
 
-        # Apply game mode and difficulty settings
-        try:
-            self.env.env.ale.setMode(game_mode)
-        except RuntimeError:
-            print(f"Invalid mode. Available modes: \
-                  {self.env.env.ale.getAvailableModes()}")
-            exit()
-
-        try:
-            self.env.env.ale.setDifficulty(difficulty)
-        except RuntimeError:
-            print(f"Invalid difficulty. Available difficulties: \
-                  {self.env.env.ale.getAvailableDifficulties()}")
-            exit()
+        if game_mode is not None:
+            # Apply game mode and difficulty settings
+            try:
+                self.env.env.ale.setMode(game_mode)
+                print("Game mode set to: ", game_mode)
+            except RuntimeError:
+                print(f"Invalid mode. Available modes: \
+                    {self.env.env.ale.getAvailableModes()}")
+                exit()
+        if difficulty is not None:
+            try:
+                self.env.env.ale.setDifficulty(difficulty)
+                print("Difficulty set to: ", difficulty)
+            except RuntimeError:
+                print(f"Invalid difficulty. Available difficulties: \
+                    {self.env.env.ale.getAvailableDifficulties()}")
+                exit()
 
     def step(self, *args, **kwargs):
         """
@@ -187,7 +199,7 @@ class HumanPlayable(HackAtari):
     Enables human play mode for the Atari game by handling user input and rendering.
     """
 
-    def __init__(self, game, modifs=[], rewardfunc_path="", game_mode=0, difficulty=0, *args, **kwargs):
+    def __init__(self, game, modifs=[], rewardfunc_path="", game_mode=None, difficulty=None, *args, **kwargs):
         """
         Initialize a human-playable Atari game instance.
         """
