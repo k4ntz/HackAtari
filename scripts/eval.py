@@ -11,6 +11,7 @@ import json
 import gzip
 import shutil
 import argparse
+from typing import Literal
 from utils import HackAtariArgumentParser
 
 # Disable graphics window (SDL) for headless execution
@@ -177,6 +178,33 @@ def print_metrics(episode_data, args_episodes):
     print(f"Overall Average Reward: {total_avg:.2f}, Time: {total_avg_time:.2f} seconds and {total_avg_step:.2f} steps")
     print(f"Overall Reward Standard Deviation: {total_std:.2f}, Time Standard Deviation: {total_std_time:.2f} seconds, Step Standard Deviation: {total_std_step:.2f}")
     print("------------------------------------------------")
+
+def get_log_data(episode_data, data_type: Literal["time", "action", "reward"]):
+    """returns wanted measurement type from the log
+
+    Args:
+        episode_data (list): list of dictionaries where each dictionary is data from a episode
+        data_type (Literal['time', 'action', 'reward']): type of data to retrieve from log
+
+    Returns:
+        list: list of tuples that contains agent's path and it's measurements
+    """
+    
+    unique_agents = list({episode["agent_path"]: None for episode in episode_data}.keys())
+    episode_data_grouped_by_agent = [[episode for episode in episode_data if episode["agent_path"] == agent] for agent in unique_agents]
+
+    # this list will hold every measurement done during the evaluation
+    all_episode_data = []
+
+    for unique_agent, agent_group in zip(unique_agents, episode_data_grouped_by_agent):
+        # now we will append all data about the unique_agent's trainings
+        all_episode_data.append((unique_agent, []))
+        for episode, episode_data in enumerate(agent_group):
+            current_episodes_data = episode_data[f"current_episodes_{data_type}s"]
+            # append every episodes' index and data into the list of the unique_agent's tuple
+            all_episode_data[-1][1].append((episode, current_episodes_data))
+
+    return all_episode_data
 
 def main():
     """Main function to run HackAtari experiments with different agents."""
