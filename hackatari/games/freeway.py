@@ -16,8 +16,6 @@ class GameModifications:
         """
         self.env = env
         self.active_modifications = set()
-        # Attribut active_modifications: Set (Menge ohne Duplikate) mit allen aktiven Modifications
-        # active_modifications wird mit einem leeren Set initialisiert
 
     def stop_random_car(self):
         """
@@ -123,6 +121,22 @@ class GameModifications:
                 self.env.set_ram(car, self._color_map[rand_number])
         self.clock_counter = self.clock_counter + 1
 
+    def speed_mode(self):
+        """
+        Each car drives with speed 2 (default)
+        """
+        speed = 2 # default
+        ram = self.env.get_ram()
+        for car_x in range(108, 113):
+            x_value = ram[car_x]
+            self.env.set_ram(car_x, x_value+speed)
+        for car_x in range(113, 118):
+            x_value = ram[car_x]
+            new_x = x_value-speed
+            if new_x < 0:
+                new_x = 0 # to prevent negative x-koordinates
+            self.env.set_ram(car_x, new_x)
+
 
     def _set_active_modifications(self, active_modifs):
         """
@@ -150,7 +164,8 @@ class GameModifications:
             "invisible_mode": self.invisible_mode,
             "strobo_mode": self.strobo_mode,
             "phantom_mode": self.phantom_mode,
-            "blinking_mode": self.blinking_mode
+            "blinking_mode": self.blinking_mode,
+            "speed_mode": self.speed_mode
         }
 
         step_modifs = [modif_mapping[name]
