@@ -16,6 +16,8 @@ class GameModifications:
         """
         self.env = env
         self.active_modifications = set()
+        # Attribut active_modifications: Set (Menge ohne Duplikate) mit allen aktiven Modifications
+        # active_modifications wird mit einem leeren Set initialisiert
 
     def stop_random_car(self):
         """
@@ -80,6 +82,48 @@ class GameModifications:
         for car in range(77, 87):
             self.env.set_ram(car, 145)
 
+    #### My modifications
+
+    def invisible_mode(self):
+        """
+        Colors all cars invisible.
+        """
+        for car in range(77, 87):
+            self.env.set_ram(car, 6)
+
+    def strobo_mode(self):
+        """
+        Each car changes color randomly every timestep.
+        """
+        for car in range(77, 87):
+            color = random.randint(0, 255)
+            self.env.set_ram(car, color)
+
+    clock_counter = 0
+    def phantom_mode(self):
+        """
+        Each car changes color from black to invisible approximately every second.
+        """
+        for car in range(77, 87):
+            # global clock_counter -> braucht man hier nicht, da durch self schon angegeben wird, dass 
+            # die Variable außerhalb der Methode gemeint ist.
+            if self.clock_counter % 60 == 0:
+                self.env.set_ram(car, 1)
+            elif self.clock_counter % 30 == 0:
+                self.env.set_ram(car, 6)
+        self.clock_counter = self.clock_counter + 1
+
+    def blinking_mode(self):
+        """
+        Each car changes color randomly approximately every second.
+        """
+        for car in range(77, 87):
+            if self.clock_counter % 30 == 0:
+                rand_number = random.randint(1, 8)
+                self.env.set_ram(car, self._color_map[rand_number])
+        self.clock_counter = self.clock_counter + 1
+
+
     def _set_active_modifications(self, active_modifs):
         """
         Specifies which modifications are active.
@@ -103,6 +147,10 @@ class GameModifications:
             "all_red_cars": self.all_red_cars,
             "all_green_cars": self.all_green_cars,
             "all_blue_cars": self.all_blue_cars,
+            "invisible_mode": self.invisible_mode,
+            "strobo_mode": self.strobo_mode,
+            "phantom_mode": self.phantom_mode,
+            "blinking_mode": self.blinking_mode
         }
 
         step_modifs = [modif_mapping[name]
