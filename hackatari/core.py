@@ -52,7 +52,6 @@ class HackAtari(OCAtari):
 
         # Initialize modifications and environment settings
         self.step_modifs, self.reset_modifs, self.post_detection_modifs = [], [], []
-        
 
         # Load modification functions dynamically
         try:
@@ -65,7 +64,8 @@ class HackAtari(OCAtari):
             self.post_detection_modifs.extend(post_detection_modifs)
 
         except ModuleNotFoundError as e:
-            print(colored(f"Error: {e}. No modifications available for {self.game_name}.", "yellow"))
+            print(colored(
+                f"Error: {e}. No modifications available for {self.game_name}.", "yellow"))
 
         self.dopamine_pooling = dopamine_pooling and self._frameskip > 1
 
@@ -144,11 +144,23 @@ class HackAtari(OCAtari):
 
         for func in self.step_modifs:
             func()
-        obs, reward, terminated, truncated, info = super().step(
+        obs, reward, terminated, truncated, info = self._env.step(
             *args, **kwargs)
         total_reward += float(reward)
+        self.detect_objects()
+        # import ipdb
+        # ipdb.set_trace()
         for func in self.post_detection_modifs:
             func()
+
+        self._fill_buffer()
+
+        # import ipdb
+        # ipdb.set_trace()
+        if self.obs_mode == "dqn":
+            obs = np.array(self._state_buffer_dqn)
+        elif self.obs_mode == "obj":
+            obs = np.array(self._state_buffer_ns)
 
         if self.dopamine_pooling:
             last_two_obs.append(cv2.resize(cv2.cvtColor(self.getScreenRGB(
@@ -210,7 +222,7 @@ class HackAtari(OCAtari):
     @property
     def available_modifications(self):
         return _available_modifications(self.game_name)
-        
+
 
 class HumanPlayable(HackAtari):
     """
@@ -297,14 +309,16 @@ class HumanPlayable(HackAtari):
             elif event.type == pygame.KEYUP:  # Keyboard key released
                 if (event.key,) in self.keys2actions.keys():
                     self.current_keys_down.remove(event.key)
-    
+
 
 def _available_modifications(game_name):
     modif_module = importlib.import_module(
-            f"hackatari.games.{game_name.lower()}")
-    modifs_list = [mod for mod in dir(modif_module.GameModifications) if not mod.startswith("_")]
+        f"hackatari.games.{game_name.lower()}")
+    modifs_list = [mod for mod in dir(
+        modif_module.GameModifications) if not mod.startswith("_")]
     retstr = f"Available modifications for {game_name}:\n"
     for mod in modifs_list:
         retstr += f"  * {mod}:\n\t"
-        retstr += getattr(modif_module.GameModifications, mod).__doc__.strip() + "\n"
+        retstr += getattr(modif_module.GameModifications,
+                          mod).__doc__.strip() + "\n"
     return retstr
