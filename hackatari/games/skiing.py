@@ -22,6 +22,22 @@ class GameModifications:
         for i in range(8):
             if types[i] == 2:
                 self.env.set_ram(78 + i, 4)
+    
+    def mogul_to_trees(self):
+        """
+        Changes moguls to trees.
+        """
+        ram = self.env.get_ram()
+        for i in range(8):
+            if ram[70+i] == 5:
+                # mogul_height = ram[90+i]
+                self.env.set_ram(30+i, 60)
+                self.env.set_ram(38+i, 133)
+                self.env.set_ram(46+i, 126)
+                # self.env.set_ram(62+i, 79) #y pos
+                self.env.set_ram(70+i, 85)
+                self.env.set_ram(78+i, 6)
+                # self.env.set_ram(90+i, mogul_height+23)
 
     # def wall_inpaintings(self):
     #     """
@@ -69,6 +85,7 @@ class GameModifications:
         modif_mapping = {
             "invert_flags": self.modify_ram_invert_flag,
             #    "walls": self.wall_updates,
+            "mogul_to_trees": self.mogul_to_trees,
         }
 
         step_modifs = [modif_mapping[name]

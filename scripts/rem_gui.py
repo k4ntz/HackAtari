@@ -337,7 +337,7 @@ class Renderer:
         ale = self.env.unwrapped.ale
 
         ram = ale.getRAM().copy()
-        self.env.step(0)
+        self.env.env.env.step(0)
         original_pixel = ale.getScreenRGB()[y, x]
         self._set_ram(ram)  # restore original RAM
 
@@ -347,7 +347,7 @@ class Renderer:
             for altered_value in [0]:  # adding values != 0 causes Atari to crash
                 self.current_active_cell_input = str(altered_value)
                 ale.setRAM(i, altered_value)
-                self.env.step(0)
+                self.env.env.env.step(0)
                 new_frame = ale.getScreenRGB()
                 self._render()
                 new_pixel = new_frame[y, x]
