@@ -1,4 +1,5 @@
 import numpy as np
+from ocatari.ram.game_objects import NoObject
 
 
 class GameModifications:
@@ -58,6 +59,16 @@ class GameModifications:
         """
         self.env.set_ram(87, self.env.get_ram()[28])
 
+    def no_danger(self):
+        self.disable_shield_left()
+        self.disable_shield_middle()
+        self.disable_shield_right()
+        self.env.set_ram(16, 0)
+        for i in range(80, 83):
+            self.env.set_ram(i, 0)
+        for i in range(83, 85):
+            self.env.set_ram(i, 255)
+
     def _set_active_modifications(self, active_modifs):
         """
         Specifies which modifications are active.
@@ -79,6 +90,7 @@ class GameModifications:
             # "curved_shots_medium": self.curved_shots_medium,
             # "curved_shots_strong": self.curved_shots_strong,
             "controlable_missile": self.controlable_missile,
+            "no_danger": self.no_danger,
         }
 
         step_modifs = [modif_mapping[name]

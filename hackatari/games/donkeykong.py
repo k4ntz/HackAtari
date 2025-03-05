@@ -15,6 +15,8 @@ class GameModifications:
         216, 247, 93, 93, 93, 93, 93, 93, 48, 76, 34, 34,
         34, 34, 13, 243,
     ]
+    BARREL_TRIGGER = 30
+    Flicker = 2
 
     def __init__(self, env):
         """
@@ -33,6 +35,33 @@ class GameModifications:
         Removes barrels from the game.
         """
         self.env.set_ram(25, 255)
+
+    def double_barrel(self):
+        """
+        Removes barrels from the game.
+        """
+        ram = self.env.get_ram()
+        if ram[36]:
+            if ram[25] > 0:
+                if self.BARREL_TRIGGER:
+                    self.BARREL_TRIGGER-=1
+                else:
+                    self.env.set_ram(25, ram[25]-1)
+                    self.BARREL_TRIGGER = 30
+            else:
+                self.env.set_ram(25, ram[25]+1)
+                self.BARREL_TRIGGER = 30
+
+            pairs = [(i, j) for i, k in enumerate(ram[0:4]) for j, l in enumerate(ram[0:4]) if k and i < j and (-10 < k - l < 10)]
+            for t in pairs:
+                x, y = ram[65+t[0]], ram[t[0]]
+                x2, y2 = ram[65+t[1]], ram[t[1]]
+                # print(65+t[0], 65+t[1], x, x2)
+                self.env.set_ram(ram[65+t[0]], x2)
+                self.env.set_ram(ram[t[0]], y2)
+                self.env.set_ram(ram[65+t[1]], x)
+                self.env.set_ram(ram[t[1]], y)
+
 
     def unlimited_time(self):
         """
@@ -121,6 +150,7 @@ class GameModifications:
         """
         modif_mapping = {
             "no_barrel": self.no_barrel,
+            "double_barrel": self.double_barrel,
             "unlimited_time": self.unlimited_time,
             # "change_level_0": self.change_level_0,
             # "change_level_1": self.change_level_1,

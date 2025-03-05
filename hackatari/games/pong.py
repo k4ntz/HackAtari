@@ -1,3 +1,6 @@
+from ocatari.ram.game_objects import NoObject
+
+
 class GameModifications():
     """
     Encapsulates game modifications for managing active modifications and applying them.
@@ -31,6 +34,19 @@ class GameModifications():
             tmp = ram[21]
         self.ball_previous_x_pos = ram[49]
         self.last_enemy_y_pos = tmp
+
+    def hidden_enemy(self):
+        """
+        Enemy does not move after returning the shot.
+        """
+        objects = self.env.objects
+        if objects:
+            for i in range(len(objects)):
+                if objects[i].category == "Enemy":
+                    self.env.objects[i] = NoObject()
+                    break
+
+        self.env.objects = objects
 
     def up_drift(self):
         """
@@ -84,6 +100,7 @@ class GameModifications():
         """
         modif_mapping = {
             "lazy_enemy": self.lazy_enemy,
+            "hidden_enemy": self.hidden_enemy,
             "up_drift": self.up_drift,
             "down_drift": self.down_drift,
             "left_drift": self.left_drift,
@@ -93,7 +110,7 @@ class GameModifications():
         step_modifs = [modif_mapping[name]
                        for name in self.active_modifications if name in modif_mapping]
         reset_modifs = []
-        post_detection_modifs = []
+        post_detection_modifs = step_modifs
         return step_modifs, reset_modifs, post_detection_modifs
 
 
@@ -101,4 +118,3 @@ def modif_funcs(env, active_modifs):
     modifications = GameModifications(env)
     modifications._set_active_modifications(active_modifs)
     return modifications._fill_modif_lists()
-    

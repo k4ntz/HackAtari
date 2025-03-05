@@ -1,4 +1,3 @@
-import random
 import numpy as np
 import pygame
 import importlib
@@ -53,7 +52,6 @@ class HackAtari(OCAtari):
 
         # Initialize modifications and environment settings
         self.step_modifs, self.reset_modifs, self.post_detection_modifs = [], [], []
-        
 
         # Load modification functions dynamically
         try:
@@ -66,7 +64,8 @@ class HackAtari(OCAtari):
             self.post_detection_modifs.extend(post_detection_modifs)
 
         except ModuleNotFoundError as e:
-            print(colored(f"Error: {e}. No modifications available for {self.game_name}.", "yellow"))
+            print(colored(
+                f"Error: {e}. No modifications available for {self.game_name}.", "yellow"))
 
         self.dopamine_pooling = dopamine_pooling and self._frameskip > 1
 
@@ -74,17 +73,31 @@ class HackAtari(OCAtari):
         self.org_return = 0
         self.org_reward = 0
 
-        # Load custom reward function if provided
+        # Load custom reward function(s) if provided
         if rewardfunc_path:
-            print(f"Changed reward function to {rewardfunc_path}")
-            spec = importlib.util.spec_from_file_location(
-                "reward_function", rewardfunc_path)
-            module = importlib.util.module_from_spec(spec)
-            sys.modules["reward_function"] = module
-            spec.loader.exec_module(module)
-            self.new_reward_func = module.reward_function
-            self._step = self.step  # Override step function
-            self.step = self.step_with_lm_reward  # Override step function
+            if type(rewardfunc_path) is list:
+                # multiple reward functions (return tuple)
+                print(f"Using multiple rewards: {rewardfunc_path}")
+                self.new_reward_func = []
+                for path in rewardfunc_path:
+                    spec = importlib.util.spec_from_file_location(
+                        "reward_function", path
+                    )
+                    module = importlib.util.module_from_spec(spec)
+                    sys.modules["reward_function"] = module
+                    spec.loader.exec_module(module)
+                    self.new_reward_func.append(module.reward_function)
+            else:
+                print(f"Changed reward function to {rewardfunc_path}")
+                spec = importlib.util.spec_from_file_location(
+                    "reward_function", rewardfunc_path
+                )
+                module = importlib.util.module_from_spec(spec)
+                sys.modules["reward_function"] = module
+                spec.loader.exec_module(module)
+                self.new_reward_func = [module.reward_function]
+            self._step = self.step
+            self.step = self.step_with_lm_reward
 
         if game_mode is not None:
             # Apply game mode and difficulty settings
@@ -131,11 +144,23 @@ class HackAtari(OCAtari):
 
         for func in self.step_modifs:
             func()
-        obs, reward, terminated, truncated, info = super().step(
+        obs, reward, terminated, truncated, info = self._env.step(
             *args, **kwargs)
         total_reward += float(reward)
+        self.detect_objects()
+        # import ipdb
+        # ipdb.set_trace()
         for func in self.post_detection_modifs:
             func()
+
+        self._fill_buffer()
+
+        # import ipdb
+        # ipdb.set_trace()
+        if self.obs_mode == "dqn":
+            obs = np.array(self._state_buffer_dqn)
+        elif self.obs_mode == "obj":
+            obs = np.array(self._state_buffer_ns)
 
         if self.dopamine_pooling:
             last_two_obs.append(cv2.resize(cv2.cvtColor(self.getScreenRGB(
@@ -167,10 +192,15 @@ class HackAtari(OCAtari):
         self.org_reward = game_reward
         self.org_return += game_reward
         try:
-            reward = self.new_reward_func(self)
+            rewards = []
+            for reward_func in self.new_reward_func:
+                rewards.append(reward_func(self))
         except Exception as e:
             print("Error in new_reward_func: ", e)
-            reward = 0
+            rewards = [0]
+
+        info["all_rewards"] = rewards
+        reward = sum(rewards)
         info["org_return"] = self.org_return
         return obs, reward, truncated, terminated, info
 
@@ -192,7 +222,7 @@ class HackAtari(OCAtari):
     @property
     def available_modifications(self):
         return _available_modifications(self.game_name)
-        
+
 
 class HumanPlayable(HackAtari):
     """
@@ -279,14 +309,16 @@ class HumanPlayable(HackAtari):
             elif event.type == pygame.KEYUP:  # Keyboard key released
                 if (event.key,) in self.keys2actions.keys():
                     self.current_keys_down.remove(event.key)
-    
+
 
 def _available_modifications(game_name):
     modif_module = importlib.import_module(
-            f"hackatari.games.{game_name.lower()}")
-    modifs_list = [mod for mod in dir(modif_module.GameModifications) if not mod.startswith("_")]
+        f"hackatari.games.{game_name.lower()}")
+    modifs_list = [mod for mod in dir(
+        modif_module.GameModifications) if not mod.startswith("_")]
     retstr = f"Available modifications for {game_name}:\n"
     for mod in modifs_list:
         retstr += f"  * {mod}:\n\t"
-        retstr += getattr(modif_module.GameModifications, mod).__doc__.strip() + "\n"
+        retstr += getattr(modif_module.GameModifications,
+                          mod).__doc__.strip() + "\n"
     return retstr
