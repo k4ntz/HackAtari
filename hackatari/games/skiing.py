@@ -22,8 +22,21 @@ class GameModifications:
         for i in range(8):
             if types[i] == 2:
                 self.env.set_ram(78 + i, 4)
+
+    def moving_flags(self):
+        """
+        Moves the flags.
+        """
+        ram = self.env.get_ram()
+        speed = (ram[0] < 128)*2 - 1
+        if ram[0] % 4 == 0 and ram[17] != 255: # every 4 frames and not in game done state
+            for i in range(8):
+                if ram[70 + i] == 2:
+                    current_x = ram[62 + i]
+                    self.env.set_ram(62 + i, current_x + speed)
+
     
-    def mogul_to_trees(self):
+    def moguls_to_trees(self):
         """
         Changes moguls to trees.
         """
@@ -85,7 +98,8 @@ class GameModifications:
         modif_mapping = {
             "invert_flags": self.modify_ram_invert_flag,
             #    "walls": self.wall_updates,
-            "mogul_to_trees": self.mogul_to_trees,
+            "moguls_to_trees": self.moguls_to_trees,
+            "moving_flags": self.moving_flags,
         }
 
         step_modifs = [modif_mapping[name]
