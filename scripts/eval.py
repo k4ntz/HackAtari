@@ -9,7 +9,6 @@ import os
 import argparse
 import json
 from utils import HackAtariArgumentParser
-from ocatari_wrappers import BinaryMaskWrapper, PixelMaskWrapper, ObjectTypeMaskWrapper, ObjectTypeMaskPlanesWrapper, PixelMaskPlanesWrapper
 from stable_baselines3.common.atari_wrappers import (
     EpisodicLifeEnv,
     FireResetEnv,
@@ -21,17 +20,70 @@ import rliable.metrics as rlm
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 # Define human and random scores
-human_scores = {
-    'Boxing': 12.1, 'Breakout': 30.5, 'Freeway': 29.6, 'Frostbite': 4334.7, 'MsPacman': 6951.6, "Pong": 14.6, "Skiing": -4336.9,
-}
-random_scores = {
-    'Boxing': 0.1, 'Breakout': 1.7, 'Freeway': 0.0, 'Frostbite': 65.2, 'MsPacman': 307.3, "Pong": -20.7, "Skiing": -17098.1
+atari_scores = {
+    'alien': (227.8, 7127.7),
+    'amidar': (5.8, 1719.5),
+    'assault': (222.4, 742.0),
+    'asterix': (210.0, 8503.3),
+    'asteroids': (719.1, 47388.7),
+    'atlantis': (12850.0, 29028.1),
+    'bankheist': (14.2, 753.1),
+    'battlezone': (2360.0, 37187.5),
+    'beamrider': (363.9, 16926.5),
+    'berzerk': (123.7, 2630.4),
+    'bowling': (23.1, 160.7),
+    'boxing': (0.1, 12.1),
+    'breakout': (1.7, 30.5),
+    'centipede': (2090.9, 12017.0),
+    'choppercommand': (811.0, 7387.8),
+    'crazyclimber': (10780.5, 35829.4),
+    'defender': (2874.5, 18688.9),
+    'demon_attack': (152.1, 1971.0),
+    'double_dunk': (-18.6, -16.4),
+    'enduro': (0.0, 860.5),
+    'fishingderby': (-91.7, -38.7),
+    'freeway': (0.0, 29.6),
+    'frostbite': (65.2, 4334.7),
+    'gopher': (257.6, 2412.5),
+    'gravitar': (173.0, 3351.4),
+    'hero': (1027.0, 30826.4),
+    'ice_hockey': (-11.2, 0.9),
+    'jamesbond': (29.0, 302.8),
+    'kangaroo': (52.0, 3035.0),
+    'krull': (1598.0, 2665.5),
+    'kungfumaster': (258.5, 22736.3),
+    'montezumarevenge': (0.0, 4753.3),
+    'ms_pacman': (307.3, 6951.6),
+    'namethisgame': (2292.3, 8049.0),
+    'phoenix': (761.4, 7242.6),
+    'pitfall': (-229.4, 6463.7),
+    'pong': (-20.7, 14.6),
+    'privateeye': (24.9, 69571.3),
+    'qbert': (163.9, 13455.0),
+    'riverraid': (1338.5, 17118.0),
+    'roadrunner': (11.5, 7845.0),
+    'robotank': (2.2, 11.9),
+    'seaquest': (68.4, 42054.7),
+    'skiing': (-17098.1, -4336.9),
+    'solaris': (1236.3, 12326.7),
+    'spaceinvaders': (148.0, 1668.7),
+    'stargunner': (664.0, 10250.0),
+    'surround': (-10.0, 6.5),
+    'tennis': (-23.8, -8.3),
+    'timepilot': (3568.0, 5229.2),
+    'tutankham': (11.4, 167.6),
+    'upndown': (533.4, 11693.2),
+    'venture': (0.0, 1187.5),
+    'videopinball': (16256.9, 17667.9),
+    'wizardofwor': (563.5, 4756.5),
+    'yarsrevenge': (3092.9, 54576.9),
+    'zaxxon': (32.5, 9173.3),
 }
 
 
 def calculate_hns(score, game):
-    human_score = human_scores[game]
-    random_score = random_scores[game]
+    human_score = atari_scores[game.lower()][1]
+    random_score = atari_scores[game.lower()][0]
     return (score - random_score) / (human_score - random_score)
 
 
@@ -77,21 +129,6 @@ def main():
 
     if "FIRE" in env.unwrapped.get_action_meanings():
         env = FireResetEnv(env)
-
-    wrapper_mapping = {
-        "binary": BinaryMaskWrapper,
-        "pixels": PixelMaskWrapper,
-        "classes": ObjectTypeMaskWrapper,
-        "planes": ObjectTypeMaskPlanesWrapper,
-        "pixelplanes": PixelMaskPlanesWrapper,
-    }
-
-    if args.wrapper in wrapper_mapping:
-        env = wrapper_mapping[args.wrapper](env)
-    elif args.wrapper.endswith("+pixels"):
-        base_wrapper = args.wrapper.split("+")[0]
-        if base_wrapper in wrapper_mapping:
-            env = wrapper_mapping[base_wrapper](env, include_pixels=True)
 
     results = {}
 
