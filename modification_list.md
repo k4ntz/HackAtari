@@ -168,6 +168,7 @@ The modes are:
 |-------------------------|-------------------------------------------------------------------|
 | lazy_enemy   | Enemy does not move after returning the shot. |
 | up_drift     | Makes the ball drift upwards. (Also works with down, left and right) |
+| hidden_enemy | Makes the enemy invisible for the player (does not work in dqn_default since it is a object detection modification)
 
 
 ## Seaquest
@@ -193,6 +194,7 @@ The modes are:
 | relocate_shields_off_by_one  | Set shields off by one pixel  |
 | relocate_shields_right       | Set shields to new position right of the original  |
 | controlable_missile          | The missible trajectory follows the user control of the ship  |
+| no_danger                    | Stops enemies from moving and fireing missiles. Also removes the shields
 
 ## Tennis
 | Command | Effect             |
