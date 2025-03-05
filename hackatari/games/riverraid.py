@@ -57,7 +57,7 @@ class GameModifications:
         """
         Turns all elements of the game to another colorset (02)
         """
-        self.env.set_ram(76r, 164)
+        self.env.set_ram(76, 164)
 
     def ObjectColorChange03(self):
         """
