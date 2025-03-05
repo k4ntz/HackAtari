@@ -23,6 +23,59 @@ class GameModifications:
             if obj_type == 10:  # fuel deposit
                 self.env.set_ram(32 + i, 0)
 
+    def red_river(self):
+        """
+        Turns the river red.
+        """
+        self.env.set_ram(13, 0xFF)
+
+    def GameColorChange01(self):
+        """
+        Turns all elements of the game to another colorset (01)
+        """
+        self.env.set_ram(119, 144)
+
+    def GameColorChange02(self):
+        """
+        Turns all elements of the game to another colorset (02)
+        """
+        self.env.set_ram(119, 164)
+
+    def GameColorChange03(self):
+        """
+        Turns all elements of the game to another colorset (03)
+        """
+        self.env.set_ram(76, 184)
+
+    def ObjectColorChange01(self):
+        """
+        Turns all elements of the game to another colorset (01)
+        """
+        self.env.set_ram(76, 144)
+
+    def ObjectColorChange02(self):
+        """
+        Turns all elements of the game to another colorset (02)
+        """
+        self.env.set_ram(76, 164)
+
+    def ObjectColorChange03(self):
+        """
+        Turns all elements of the game to another colorset (03)
+        """
+        self.env.set_ram(119, 184)
+
+    def LinearRiver(self):
+        """
+        Makes the river straight, however objects still spwan at their normal position making them unreachable in the worst case
+        """
+        for i in range(14, 20):
+            self.env.set_ram(i, 0x05)
+        for i in range(38, 44):
+            self.env.set_ram(i, 35)
+        for i in range(44, 50):
+            self.env.set_ram(i, 0)
+
     def _set_active_modifications(self, active_modifs):
         """
         Specifies which modifications are active.
@@ -35,6 +88,15 @@ class GameModifications:
         """
         modif_mapping = {
             "no_fuel": self.no_fuel,
+            "red_river": self.red_river,
+            "linear_river": self.LinearRiver,
+            "game_color_change01": self.GameColorChange01,
+            "game_color_change02": self.GameColorChange02,
+            "game_color_change03": self.GameColorChange03,
+            "object_color_change01": self.ObjectColorChange01,
+            "object_color_change02": self.ObjectColorChange02,
+            "object_color_change03": self.ObjectColorChange03,
+
         }
 
         step_modifs = [modif_mapping[name]

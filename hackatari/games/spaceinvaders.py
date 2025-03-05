@@ -63,7 +63,7 @@ class GameModifications:
         self.disable_shield_left()
         self.disable_shield_middle()
         self.disable_shield_right()
-        self.env.set_ram(16, 0)
+        # self.env.set_ram(16, 0) # not going down
         for i in range(80, 83):
             self.env.set_ram(i, 0)
         for i in range(83, 85):

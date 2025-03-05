@@ -194,7 +194,7 @@ The modes are:
 | relocate_shields_off_by_one  | Set shields off by one pixel  |
 | relocate_shields_right       | Set shields to new position right of the original  |
 | controlable_missile          | The missible trajectory follows the user control of the ship  |
-| no_danger                    | Stops enemies from moving and fireing missiles. Also removes the shields
+| no_danger                    | Stops enemies from fireing missiles. Also removes the shields. 
 
 ## Tennis
 | Command | Effect             |
@@ -204,3 +204,16 @@ The modes are:
 | always_lower_pitches      | The lower player always pitches |
 | always_upper_player       | The player is always the upper player |
 | always_lower_player       | The player is always the lower player |
+
+## Riverraid
+| Command | Effect             |
+|---------|--------------------|
+| no_fuel                   | Disables Fuel |
+| red_river                 | Makes River red |
+| linear_river              | Makes the river straight, however objects still spwan at their normal position making them unreachable in the worst case                       | 
+| game_color_change01       | Changes game color to color set 01 |
+| game_color_change02       | Changes game color to color set 02 |
+| game_color_change03       | Changes game color to color set 03 |
+| object_color_change01     | Changes object color to color set 01 |
+| object_color_change02     | Changes object color to color set 02 |
+| object_color_change02     | Changes object color to color set 03 |
