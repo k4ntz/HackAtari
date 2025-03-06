@@ -103,8 +103,6 @@ class GameModifications:
         Each car changes color from black to invisible approximately every second.
         """
         for car in range(77, 87):
-            # global clock_counter -> braucht man hier nicht, da durch self schon angegeben wird, dass 
-            # die Variable außerhalb der Methode gemeint ist.
             if self.clock_counter % 60 == 0:
                 self.env.set_ram(car, 1)
             elif self.clock_counter % 30 == 0:
@@ -123,7 +121,7 @@ class GameModifications:
 
     def speed_mode(self):
         """
-        Each car drives with speed 2 (default)
+        Each car drives with speed 2 (default).
         """
         speed = 2 # default
         ram = self.env.get_ram()
@@ -134,7 +132,7 @@ class GameModifications:
             x_value = ram[car_x]
             new_x = x_value-speed
             if new_x < 0:
-                new_x = 0 # to prevent negative x-koordinates
+                new_x = 0 # to prevent negative x-coordinates
             self.env.set_ram(car_x, new_x)
 
 
