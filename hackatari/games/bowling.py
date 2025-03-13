@@ -32,6 +32,25 @@ class GameModifications:
             player.x = 28
             ball.x = 34
 
+    def horizontal_pins(self):
+        """
+        Draws the pins horizontally instead of vertically.
+        """
+        ram = self.env.get_ram()
+        for r in range(97, 117):
+            if ram[r] == 2 and ram[r+1] == 2:
+                self.env.set_ram(r, 3)
+                self.env.set_ram(r+1, 0)
+            elif ram[r] == 8 and ram[r+1] == 8:
+                self.env.set_ram(r, 12)
+                self.env.set_ram(r+1, 0)
+            elif ram[r] == 34 and ram[r+1] == 34:
+                self.env.set_ram(r, 51)
+                self.env.set_ram(r+1, 0)
+            elif ram[r] == 136 and ram[r+1] == 136:
+                self.env.set_ram(r, 204)
+                self.env.set_ram(r+1, 0)
+
 
     def top_pins(self):
         """
@@ -84,6 +103,7 @@ class GameModifications:
             "middle_pins": self.middle_pins,
             "bottom_pins": self.bottom_pins,
             "shift_player": self.shift_player,
+            "horizontal_pins": self.horizontal_pins,
         }
 
         step_modifs = [modif_mapping[name]
