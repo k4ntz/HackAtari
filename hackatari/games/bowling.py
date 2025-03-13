@@ -26,8 +26,11 @@ class GameModifications:
         """
         ram = self.env.get_ram()
         if ram[42] == 184:
-            self.env.set_ram(29, 18)
-            self.env.set_ram(30, 25)
+            self.env.set_ram(29, 20)
+            self.env.set_ram(30, 27)
+            player, ball = self.env.objects[0: 2]
+            player.x = 28
+            ball.x = 34
 
 
     def top_pins(self):

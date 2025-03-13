@@ -126,7 +126,7 @@ class GameModifications:
     
     def exploding_fuels(self):
         """
-        Makes the fuel deposits explode when they are hit.
+        Shooting the fuel deposits will now provides -80 points (instead of 20).
         """
         ram = self.env.get_ram()
         nsc = riverraid_score(ram)
@@ -138,7 +138,8 @@ class GameModifications:
     
     def restricted_firing(self):
         """
-        Makes the player only able to shoot bridges.
+        Makes the player only able to shoot in critical situation, facing a bridge 
+        or in a corridor.
         """
         ram = self.env.get_ram()
         bridge_present = False
