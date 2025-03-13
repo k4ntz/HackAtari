@@ -80,6 +80,62 @@ class GameModifications:
         for car in range(77, 87):
             self.env.set_ram(car, 145)
 
+    #### My modifications
+
+    def invisible_mode(self):
+        """
+        Colors all cars invisible.
+        """
+        for car in range(77, 87):
+            self.env.set_ram(car, 6)
+
+    def strobo_mode(self):
+        """
+        Each car changes color randomly every timestep.
+        """
+        for car in range(77, 87):
+            color = random.randint(0, 255)
+            self.env.set_ram(car, color)
+
+    clock_counter = 0
+    def phantom_mode(self):
+        """
+        Each car changes color from black to invisible approximately every second.
+        """
+        for car in range(77, 87):
+            if self.clock_counter % 60 == 0:
+                self.env.set_ram(car, 1)
+            elif self.clock_counter % 30 == 0:
+                self.env.set_ram(car, 6)
+        self.clock_counter = self.clock_counter + 1
+
+    def blinking_mode(self):
+        """
+        Each car changes color randomly approximately every second.
+        """
+        for car in range(77, 87):
+            if self.clock_counter % 30 == 0:
+                rand_number = random.randint(1, 8)
+                self.env.set_ram(car, self._color_map[rand_number])
+        self.clock_counter = self.clock_counter + 1
+
+    def speed_mode(self):
+        """
+        Each car drives with speed 2 (default).
+        """
+        speed = 2 # default
+        ram = self.env.get_ram()
+        for car_x in range(108, 113):
+            x_value = ram[car_x]
+            self.env.set_ram(car_x, x_value+speed)
+        for car_x in range(113, 118):
+            x_value = ram[car_x]
+            new_x = x_value-speed
+            if new_x < 0:
+                new_x = 0 # to prevent negative x-coordinates
+            self.env.set_ram(car_x, new_x)
+
+
     def _set_active_modifications(self, active_modifs):
         """
         Specifies which modifications are active.
@@ -103,6 +159,11 @@ class GameModifications:
             "all_red_cars": self.all_red_cars,
             "all_green_cars": self.all_green_cars,
             "all_blue_cars": self.all_blue_cars,
+            "invisible_mode": self.invisible_mode,
+            "strobo_mode": self.strobo_mode,
+            "phantom_mode": self.phantom_mode,
+            "blinking_mode": self.blinking_mode,
+            "speed_mode": self.speed_mode
         }
 
         step_modifs = [modif_mapping[name]
