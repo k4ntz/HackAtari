@@ -19,6 +19,16 @@ class GameModifications:
         :param active_modifs: A list of active modification names.
         """
         self.active_modifications = set(active_modifs)
+    
+    def shift_player(self):
+        """
+        Shifts the player to the left.
+        """
+        ram = self.env.get_ram()
+        if ram[42] == 184:
+            self.env.set_ram(29, 18)
+            self.env.set_ram(30, 25)
+
 
     def top_pins(self):
         """
@@ -69,7 +79,8 @@ class GameModifications:
         modif_mapping = {
             "top_pins": self.top_pins,
             "middle_pins": self.middle_pins,
-            "bottom_pins": self.bottom_pins
+            "bottom_pins": self.bottom_pins,
+            "shift_player": self.shift_player,
         }
 
         step_modifs = [modif_mapping[name]

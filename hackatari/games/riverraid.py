@@ -1,3 +1,51 @@
+from ocatari.ram.riverraid import riverraid_score
+
+def overright_score(env, score):
+    """
+    Returns the current score for River Raid. Each digit up to the hundreds of thousands position
+    has its own RAM position. However in the RAM is the digit value times 8 represented f.e.
+    ram value 24 represents a three on screen.
+
+    Args:
+        ram: current RAM representation of the game
+
+    Returns:
+        score (int): current score
+    """
+    is_zero = True
+    tenthousands = score // 10000
+    if tenthousands:
+        env.set_ram(79, 8 * tenthousands)
+        is_zero = False
+    else:
+        env.set_ram(79, 88)
+    score = score - tenthousands * 10000
+    thousands = score // 1000
+    if thousands or not is_zero:
+        env.set_ram(81, 8 * thousands)
+        is_zero = False
+    else:
+        env.set_ram(81, 88)
+    score = score - thousands * 1000
+    hundreds = score // 100
+    if hundreds or not is_zero:
+        env.set_ram(83, 8 * hundreds)
+        is_zero = False
+    else:
+        env.set_ram(83, 88)
+    score = score - hundreds * 100
+    tens = score // 10
+    if tens or not is_zero:
+        env.set_ram(85, 8 * tens)
+        is_zero = False
+    else:
+        env.set_ram(85, 88)
+    score = score - tens * 10
+    env.set_ram(87, 8 * score)
+    
+
+
+
 class GameModifications:
     """
     Encapsulates game modifications for managing active modifications and applying them.
@@ -75,6 +123,54 @@ class GameModifications:
             self.env.set_ram(i, 35)
         for i in range(44, 50):
             self.env.set_ram(i, 0)
+    
+    def exploding_fuels(self):
+        """
+        Makes the fuel deposits explode when they are hit.
+        """
+        ram = self.env.get_ram()
+        nsc = riverraid_score(ram)
+        diff = nsc - self.score
+        if diff == 80:
+            nsc = max(0, nsc - 160)
+            overright_score(self.env, nsc)
+        self.score = nsc
+    
+    def restricted_firing(self):
+        """
+        Makes the player only able to shoot bridges.
+        """
+        ram = self.env.get_ram()
+        bridge_present = False
+        corridor = False
+        for i in range(6):
+            obj_type = ram[32 + i]
+            if obj_type == 8:
+                bridge_present = True
+                break
+        for r in range(38, 43):
+            if ram[r] in [56, 57, 88, 117, 144, 169] or ram[r] == 7 and ram[r-24] == 1:
+                corridor = True
+                break
+        if not bridge_present and not corridor:
+            self.env.set_ram(50, 180)
+        if not ram[58]: # invisible player => game over
+            self.game_active = False
+            print('Game Inactive')
+        if ram[7]: # player is shooting or player is moving
+            self.game_active = True
+        self.score = riverraid_score(ram)
+        if self.game_active:
+            if ram[11] < self._last11:
+                self.score += 50
+                overright_score(self.env, self.score)
+            self._last11 = ram[11]
+            
+
+            
+        # for i in range(6):
+        #     obj_type = ram[32 + i]
+        #     if obj_type == 10:
 
     def _set_active_modifications(self, active_modifs):
         """
@@ -86,6 +182,9 @@ class GameModifications:
         """
         Returns the modification lists (step, reset, and post-detection) with active modifications.
         """
+        self.score = 0
+        self.game_active = False
+        self._last11 = 0
         modif_mapping = {
             "no_fuel": self.no_fuel,
             "red_river": self.red_river,
@@ -96,6 +195,8 @@ class GameModifications:
             "object_color_change01": self.ObjectColorChange01,
             "object_color_change02": self.ObjectColorChange02,
             "object_color_change03": self.ObjectColorChange03,
+            "exploding_fuels": self.exploding_fuels,
+            "restricted_firing": self.restricted_firing,
 
         }
 
