@@ -56,6 +56,21 @@ class GameModifications:
                 self.env.set_ram(r, 204)
                 self.env.set_ram(r+1, 0)
 
+    def small_pins(self):
+        """
+        Decreases pin size to 1 pixel.
+        """
+        ram = self.env.get_ram()
+        for r in range(97, 117):
+            if ram[r] == 2 and ram[r+1] == 2:
+                self.env.set_ram(r+1, 0)
+            elif ram[r] == 8 and ram[r+1] == 8:
+                self.env.set_ram(r+1, 0)
+            elif ram[r] == 34 and ram[r+1] == 34:
+                self.env.set_ram(r+1, 0)
+            elif ram[r] == 136 and ram[r+1] == 136:
+                self.env.set_ram(r+1, 0)
+
 
     def top_pins(self):
         """
@@ -72,7 +87,7 @@ class GameModifications:
 
     def middle_pins(self):
         """
-        Removes all but the top two pins
+        Removes all but the two middle pins
         """
         ram = self.env.get_ram()
         if ram[57] != 255:
@@ -86,7 +101,7 @@ class GameModifications:
 
     def bottom_pins(self):
         """
-        Removes all but the top two pins
+        Removes all but the bottom two pins
         """
         ram = self.env.get_ram()
         if ram[57] != 255:
@@ -109,6 +124,7 @@ class GameModifications:
             "bottom_pins": self.bottom_pins,
             "shift_player": self.shift_player,
             "horizontal_pins": self.horizontal_pins,
+            "small_pins": self.small_pins,
         }
 
         step_modifs = [modif_mapping[name]
