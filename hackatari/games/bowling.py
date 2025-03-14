@@ -25,7 +25,12 @@ class GameModifications:
         Shifts the player to the left.
         """
         ram = self.env.get_ram()
-        if ram[42] == 184:
+        all_down = True
+        for r in range(57, 67):
+            if ram[r] != 255:
+                all_down = False
+                break
+        if ram[42] == 184 and not all_down:
             self.env.set_ram(29, 20)
             self.env.set_ram(30, 27)
             player, ball = self.env.objects[0: 2]
