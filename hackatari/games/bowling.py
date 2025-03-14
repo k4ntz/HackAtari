@@ -11,6 +11,8 @@ class GameModifications:
         """
         self.env = env
         self.active_modifications = set()
+        self.tick = 0
+        self.direction = 1
 
     def _set_active_modifications(self, active_modifs):
         """
@@ -71,6 +73,36 @@ class GameModifications:
             elif ram[r] == 136 and ram[r+1] == 136:
                 self.env.set_ram(r+1, 0)
 
+    def moving_pins(self):
+        """
+        Moves all pins up and down.
+        """
+        ram = self.env.get_ram()
+        if self.tick & 64:
+            self.tick = 0
+            if self.direction == 2:
+                ran = list(reversed(range(90, 124)))
+                for i in range(47, 57):
+                    if ram[i] != 255:
+                        self.env.set_ram(i, ram[i]+1)
+            else:
+                ran = list(range(90, 124))
+                for i in range(47, 57):
+                    if ram[i] != 255:
+                        self.env.set_ram(i, ram[i]-1)
+            
+            i = 0
+            for r in ran:
+                if ram[r]:
+                    self.env.set_ram(ran[i-1], ram[r])
+                    self.env.set_ram(r, 0)
+                i+=1
+            if ram[56] == 1:
+                self.direction = 2
+            elif ram[53] == 31:
+                self.direction = 1
+        self.tick+=1
+
 
     def top_pins(self):
         """
@@ -125,6 +157,7 @@ class GameModifications:
             "shift_player": self.shift_player,
             "horizontal_pins": self.horizontal_pins,
             "small_pins": self.small_pins,
+            "moving_pins": self.moving_pins,
         }
 
         step_modifs = [modif_mapping[name]
