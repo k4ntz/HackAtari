@@ -112,7 +112,7 @@ class GameModifications:
                        for name in self.active_modifications if name in modif_mapping]
         reset_modifs = []
         if "random_city" in self.active_modifications:
-            reset_modifs.append(self.random_city_res)
+            reset_modifs.append(self.random_city)
         post_detection_modifs = []
         return step_modifs, reset_modifs, post_detection_modifs
 

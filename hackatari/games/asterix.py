@@ -17,7 +17,7 @@ class GameModifications:
         Sets RAM for the Obelix mode.
         """
         self.env.set_ram(54, 5)
-        self.speed += 4
+        # self.speed += 4
 
     def set_consumable_1(self):
         """

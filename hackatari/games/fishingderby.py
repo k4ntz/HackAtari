@@ -20,11 +20,11 @@ class GameModifications:
         """
         self.env.set_ram(75, 105)
 
-    def shark_no_movement_hard(self):
+    def shark_no_movement_middle(self):
         """
         Shark mode: no movement (hard).
         """
-        self.env.set_ram(75, 25)
+        self.env.set_ram(75, 75)
 
     def shark_teleport(self):
         """
@@ -80,8 +80,8 @@ class GameModifications:
         :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
         """
         modif_mapping = {
-            # "shark_no_movement_easy": self.shark_no_movement_easy,
-            # "shark_no_movement_hard": self.shark_no_movement_hard,
+            "shark_no_movement_easy": self.shark_no_movement_easy,
+            "shark_no_movement_middle": self.shark_no_movement_middle,
             "shark_teleport": self.shark_teleport,
             "shark_speed_mode": self.shark_speed_mode,
             "fish_on_player_side": self.fish_on_player_side,

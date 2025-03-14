@@ -67,6 +67,12 @@ class GameModifications:
         """
         self.env.set_ram(0, 2)
 
+    def set_level_3(self):
+        """
+        Sets the game level to 2.
+        """
+        self.env.set_ram(0, 3)
+
     def end_game(self):
         """
         Simulates an endgame state by spawning only a small cluster of pills.
@@ -105,6 +111,8 @@ class GameModifications:
                 self.active_modifications.add("set_level_1")
             elif mod == "set_level_2":
                 self.active_modifications.add("set_level_2")
+            elif mod == "set_level_3":
+                self.active_modifications.add("set_level_3")
             elif mod == "end_game":
                 self.end_game_pills = random.randint(59, 101)
                 self.active_modifications.add("end_game")
@@ -119,6 +127,7 @@ class GameModifications:
             "set_level_0": self.set_level_0,
             "set_level_1": self.set_level_1,
             "set_level_2": self.set_level_2,
+            "set_level_3": self.set_level_3,
             "end_game": self.end_game,
         }
 
