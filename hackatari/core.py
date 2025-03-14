@@ -146,6 +146,8 @@ class HackAtari(OCAtari):
             func()
         obs, reward, terminated, truncated, info = self._env.step(
             *args, **kwargs)
+        for func in self.step_modifs:
+            func()
         total_reward += float(reward)
         self.detect_objects()
         # import ipdb
