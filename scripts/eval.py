@@ -241,6 +241,9 @@ def main():
     log_file = args.log_file
     if log_file.endswith(".json"):
         log_file = log_file[:-5]
+    else:
+        print(f"log_file should be in the 'path/to/file.json' format. Exiting the evaluation!")
+        return
 
     if len(log_file) == 0:
         print(f"log_file should be in the 'path/to/file.json' format. Exiting the evaluation!")
