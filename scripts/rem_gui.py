@@ -93,6 +93,7 @@ class Renderer:
                 if reward != 0:
                     print(reward)
                     pass
+                # print(self.env.objects)
                 self.current_frame = self.env.render().copy()
             self._render()
         pygame.quit()
