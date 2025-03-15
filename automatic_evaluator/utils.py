@@ -9,10 +9,36 @@ from ocatari.utils import load_agent
 import os
 import aim
 
+
+def combine_means_and_stds(mu_list, sigma_list, n_list):
+    """
+    Combine multiple means and standard deviations using their respective sample sizes.
+
+    Args:
+        mu_list (list): List of means.
+        sigma_list (list): List of standard deviations.
+        n_list (list): List of sample sizes.
+
+    Returns:
+        tuple: Combined mean and combined standard deviation.
+    """
+    if not (len(mu_list) == len(sigma_list) == len(n_list)):
+        raise ValueError("All input lists must have the same length.")
+
+    total_n = sum(n_list)
+    combined_mean = sum(n * mu for mu, n in zip(mu_list, n_list)) / total_n
+    combined_variance = sum(
+        n * (sigma**2 + (mu - combined_mean)**2)
+        for mu, sigma, n in zip(mu_list, sigma_list, n_list)
+    ) / total_n
+    combined_std = np.sqrt(combined_variance)
+
+    return combined_mean, combined_std
+
 # Hyperparameters
 
 
-def eval_withRun(game:str, agents:list, modifs:list=[], game_mode:int=0, difficulty:int=0, obs_mode:str="dqn", window:int=4, frameskip:int = 4, dopamine_pooling:bool=False, reward_function:str="", episodes:int=10):
+def eval_withAimRun(game: str, agents: list, modifs: list = [], game_mode: int = 0, difficulty: int = 0, obs_mode: str = "dqn", window: int = 4, frameskip: int = 4, dopamine_pooling: bool = False, reward_function: str = "", episodes: int = 10):
     # Initialize environment
     env = HackAtari(
         game,
@@ -31,19 +57,32 @@ def eval_withRun(game:str, agents:list, modifs:list=[], game_mode:int=0, difficu
         repeat_action_probability=0.25,
         full_action_space=False,
     )
-    
-    # Initialize Aim
-    run = aim.Run(experiment=game)
 
+    
     avg_results = []
     std_results = []
     total_runs = []
 
     # Iterate through all agent models
     for agent_path in agents:
-        agent, policy = load_agent(agent_path, env, "cpu")
+        _, policy = load_agent(agent_path, env, "cpu")
         print(f"Loaded agent from {agent_path}")
-
+        
+        run = aim.Run(experiment=game)
+        run['hparams'] = {
+            'game': game,
+            'modifs': ' '.join(modifs),
+            'game_mode': game_mode,
+            'difficulty': difficulty,
+            'obs_mode': obs_mode,
+            'window': window,
+            'frameskip': frameskip,
+            'dopamine_pooling': dopamine_pooling,
+            'reward_function': reward_function,
+            'episodes': episodes,
+            'agent': agent_path  
+        }
+    
         rewards = []
         for episode in range(episodes):
             obs, _ = env.reset()
@@ -57,9 +96,9 @@ def eval_withRun(game:str, agents:list, modifs:list=[], game_mode:int=0, difficu
                 done = terminated or truncated
 
             rewards.append(episode_reward)
-            
-            run.track(name="reward", value=episode_reward, step=episode+1)
-            #print(f"Episode {episode + 1}: Reward = {episode_reward}")
+
+            run.track(name="Episode Reward", value=episode_reward, step=episode+1)
+            # print(f"Episode {episode + 1}: Reward = {episode_reward}")
 
         avg_reward = np.mean(rewards)
         std_reward = np.std(rewards)
@@ -74,20 +113,25 @@ def eval_withRun(game:str, agents:list, modifs:list=[], game_mode:int=0, difficu
         # print(f"Standard Deviation: {std_reward:.2f}")
         # print(f"Min Reward: {np.min(rewards)}")
         # print(f"Max Reward: {np.max(rewards)}")
-        run.track(name="avg_reward", value=avg_reward)
-        run.track(name="std_reward", value=std_reward)
-        run.track(name="min_reward", value=np.min(rewards))
-        run.track(name="max_reward", value=np.max(rewards))
-        #run.track(name="total_episodes", value=episodes)
-        #run.track(name="agent", value=agent_path)
+        run.track(name="Total Episodes", value=episodes)
+        run.track(name="Average Reward", value=avg_reward)
+        run.track(name="Standard Reward", value=std_reward)
+        run.track(name="Min Reward", value=np.min(rewards))
+        run.track(name="Max Reward", value=np.max(rewards))
+        # run.track(name="total_episodes", value=episodes)
+        # run.track(name="agent", value=agent_path)
+        
         print("--------------------------------------")
+        run.finalize()
 
-    # # Compute overall statistics
+    # Compute overall statistics
     # total_avg, total_std = combine_means_and_stds(
     #     avg_results, std_results, total_runs)
     # print("------------------------------------------------")
     # print(f"Overall Average Reward: {total_avg:.2f}")
     # print(f"Overall Standard Deviation: {total_std:.2f}")
+    # run.track(name="Overall Average Reward", value=total_avg)
+    # run.track(name="Overall Standard Deviation", value=total_std)
     # print("------------------------------------------------")
 
     env.close()
