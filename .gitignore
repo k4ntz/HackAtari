@@ -87,3 +87,6 @@ scripts/Plots
 
 # Reports
 reports
+
+# aim cache
+automatic_evaluator/.aim/
