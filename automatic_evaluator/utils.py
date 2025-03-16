@@ -7,7 +7,7 @@ import torch
 import gymnasium as gym
 from ocatari.utils import load_agent
 import os
-import aim
+from aim import Run
 
 
 def combine_means_and_stds(mu_list, sigma_list, n_list):
@@ -58,6 +58,25 @@ def eval_withAimRun(game: str, agents: list, modifs: list = [], game_mode: int =
         full_action_space=False,
     )
 
+    # preapre run
+    try: 
+        if run: run.close()
+    except NameError:
+        pass
+    
+    
+    hparams = {
+            'game': game,
+            'modifs': '+'.join(modifs), 
+            'game_mode': game_mode,
+            'difficulty': difficulty,
+            'obs_mode': obs_mode,
+            'window': window,
+            'frameskip': frameskip,
+            'dopamine_pooling': dopamine_pooling,
+            'reward_function': reward_function,
+            'episodes': episodes
+    }
     
     avg_results = []
     std_results = []
@@ -68,20 +87,13 @@ def eval_withAimRun(game: str, agents: list, modifs: list = [], game_mode: int =
         _, policy = load_agent(agent_path, env, "cpu")
         print(f"Loaded agent from {agent_path}")
         
-        run = aim.Run(experiment=game)
-        run['hparams'] = {
-            'game': game,
-            'modifs': ' '.join(modifs),
-            'game_mode': game_mode,
-            'difficulty': difficulty,
-            'obs_mode': obs_mode,
-            'window': window,
-            'frameskip': frameskip,
-            'dopamine_pooling': dopamine_pooling,
-            'reward_function': reward_function,
-            'episodes': episodes,
-            'agent': agent_path  
-        }
+        run = Run(experiment=f"Eval: {game}")
+        agent_name = "/".join(agent_path.split("/")[-2:])
+        
+        
+        _context = {"agent": agent_name}
+        hparams['agent'] = agent_name
+        run['hparams'] = hparams
     
         rewards = []
         for episode in range(episodes):
@@ -97,7 +109,7 @@ def eval_withAimRun(game: str, agents: list, modifs: list = [], game_mode: int =
 
             rewards.append(episode_reward)
 
-            run.track(name="Episode Reward", value=episode_reward, step=episode+1)
+            run.track(name="Episode Reward", value=episode_reward, step=episode+1, context={"agent": agent_name})
             # print(f"Episode {episode + 1}: Reward = {episode_reward}")
 
         avg_reward = np.mean(rewards)
@@ -114,15 +126,15 @@ def eval_withAimRun(game: str, agents: list, modifs: list = [], game_mode: int =
         # print(f"Min Reward: {np.min(rewards)}")
         # print(f"Max Reward: {np.max(rewards)}")
         run.track(name="Total Episodes", value=episodes)
-        run.track(name="Average Reward", value=avg_reward)
-        run.track(name="Standard Reward", value=std_reward)
+        run.track(name="Average Reward", value=avg_reward, context={"modifs": hparams['modifs']})
+        run.track(name="Standard Reward", value=std_reward, context={"modifs": hparams['modifs']})
         run.track(name="Min Reward", value=np.min(rewards))
         run.track(name="Max Reward", value=np.max(rewards))
         # run.track(name="total_episodes", value=episodes)
         # run.track(name="agent", value=agent_path)
         
         print("--------------------------------------")
-        run.finalize()
+        run.close()
 
     # Compute overall statistics
     # total_avg, total_std = combine_means_and_stds(
@@ -135,3 +147,5 @@ def eval_withAimRun(game: str, agents: list, modifs: list = [], game_mode: int =
     # print("------------------------------------------------")
 
     env.close()
+    
+    print("Done.")
