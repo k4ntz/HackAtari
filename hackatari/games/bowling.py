@@ -116,6 +116,13 @@ class GameModifications:
                     self.env.set_ram(i+10, 255)
             for i in range(97, 112):
                 self.env.set_ram(i, 0)
+    
+    def top_and_bottom_pins(self):
+        """
+        Removes middle pins
+        """
+        ram = self.env.get_ram()
+        # bjarne, please check this
 
     def middle_pins(self):
         """
@@ -154,10 +161,12 @@ class GameModifications:
             "top_pins": self.top_pins,
             "middle_pins": self.middle_pins,
             "bottom_pins": self.bottom_pins,
+            "top_and_bottom_pins": self.top_and_bottom_pins,
             "shift_player": self.shift_player,
             "horizontal_pins": self.horizontal_pins,
             "small_pins": self.small_pins,
             "moving_pins": self.moving_pins,
+
         }
 
         step_modifs = [modif_mapping[name]

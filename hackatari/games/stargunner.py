@@ -25,10 +25,6 @@ class GameModifications:
         Sets the mountains to static.
         """
         ram = self.env.get_ram()
-        print()
-        for i in range(42,70):
-            print(ram[i], end=", ")
-        print()
         for i, el in enumerate([240, 255, 255, 255, 255, 255, 255, 
                                 126, 60, 255, 249, 240, 224, 192, 
                                 128, 0, 0, 0, 255, 255, 255, 254, 
