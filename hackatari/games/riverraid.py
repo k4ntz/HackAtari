@@ -133,7 +133,7 @@ class GameModifications:
         diff = nsc - self.score
         if diff == 80:
             nsc = max(0, nsc - 160)
-            overright_score(self.env, nsc)
+            overright_score(self.env, int(nsc))
         self.score = nsc
     
     def restricted_firing(self):
@@ -157,7 +157,6 @@ class GameModifications:
             self.env.set_ram(50, 180)
         if not ram[58]: # invisible player => game over
             self.game_active = False
-            print('Game Inactive')
         if ram[7]: # player is shooting or player is moving
             self.game_active = True
         self.score = riverraid_score(ram)
