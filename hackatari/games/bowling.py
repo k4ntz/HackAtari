@@ -116,13 +116,6 @@ class GameModifications:
                     self.env.set_ram(i+10, 255)
             for i in range(97, 112):
                 self.env.set_ram(i, 0)
-    
-    def top_and_bottom_pins(self):
-        """
-        Removes middle pins
-        """
-        ram = self.env.get_ram()
-        # bjarne, please check this
 
     def middle_pins(self):
         """
@@ -151,6 +144,19 @@ class GameModifications:
             for i in range(102, 117):
                 self.env.set_ram(i, 0)
 
+    def top_bottom_pins(self):
+        """
+        Removes all but the top and bottom two pins
+        """
+        ram = self.env.get_ram()
+        if ram[57] != 255:
+            for i in range(57, 66):
+                if i != 60 and i != 62 and i != 63:
+                    self.env.set_ram(i, 255)
+                    self.env.set_ram(i+10, 255)
+            for i in range(102, 112):
+                self.env.set_ram(i, 0)
+
     def _fill_modif_lists(self):
         """
         Returns the modification lists (step, reset, and post-detection) with active modifications.
@@ -161,7 +167,7 @@ class GameModifications:
             "top_pins": self.top_pins,
             "middle_pins": self.middle_pins,
             "bottom_pins": self.bottom_pins,
-            "top_and_bottom_pins": self.top_and_bottom_pins,
+            "top_bottom_pins": self.top_bottom_pins,
             "shift_player": self.shift_player,
             "horizontal_pins": self.horizontal_pins,
             "small_pins": self.small_pins,

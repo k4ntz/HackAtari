@@ -19,6 +19,26 @@ class GameModifications:
         :param active_modifs: A list of active modification names.
         """
         self.active_modifications = set(active_modifs)
+
+    def static_bomber(self):
+        """
+        Stops the bomber at the top from moving
+        """
+        self.env.set_ram(31, 91)
+
+    def static_flyers(self):
+        """
+        Stops the bomber at the top from moving
+        """
+        ram = self.env.get_ram()
+        for i in range(74, 77):
+            if ram[i]:
+                self.env.set_ram(i, 91)
+                self.env.set_ram(i-3, 91)
+    
+    def remove_mountains(self):
+        for i in range(42, 69):
+            self.env.set_ram(i, 0)
     
     def static_mountains(self):
         """
@@ -38,6 +58,9 @@ class GameModifications:
         :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
         """
         modif_mapping = {
+            "static_bomber": self.static_bomber,
+            "static_flyers": self.static_flyers,
+            "remove_mountains": self.remove_mountains,
             "static_mountains": self.static_mountains,
         }
 
