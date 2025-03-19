@@ -50,6 +50,7 @@ class HackAtari(OCAtari):
 
         super().__init__(env_name, *args, **kwargs)
 
+        self.ale = self.env.env.ale
         # Initialize modifications and environment settings
         self.step_modifs, self.reset_modifs, self.post_detection_modifs = [], [], []
 
