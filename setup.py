@@ -26,6 +26,8 @@ setup(
         "notebook",
         "voila",
         "ipywidgets",
+        "torch",
+        "widgetsnbextension"
     ],
 )
 
