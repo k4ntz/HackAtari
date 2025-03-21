@@ -22,21 +22,50 @@ class GameModifications:
 
     def fog(self):
         """
-        Removes all but the top and bottom two pins
+        Constant fog weather
         """
         self.env.set_ram(94, 3)
 
     def snow(self):
         """
-        Removes all but the top and bottom two pins
+        Constant snow weather
         """
         self.env.set_ram(94, 2)
 
     def rain(self):
         """
-        Removes all but the top and bottom two pins
+        Constant rain weather
         """
         self.env.set_ram(94, 1)
+    
+    def tread_damage(self):
+        """
+        Tread sensor always damaged
+        """
+        ram = self.env.get_ram()
+        self.env.set_ram(118, ram[118]|1)
+    
+    def canon_damage(self):
+        """
+        Canon sensor always damaged
+        """
+        ram = self.env.get_ram()
+        self.env.set_ram(118, ram[118]|2)
+    
+    def no_radar(self):
+        """
+        Disables radar
+        """
+        ram = self.env.get_ram()
+        self.env.set_ram(118, ram[118]|4)
+    
+    def vision_damage(self):
+        """
+        Vision sensor always damaged
+        """
+        ram = self.env.get_ram()
+        self.env.set_ram(118, ram[118]|8)
+
 
     def _fill_modif_lists(self):
         """
@@ -48,6 +77,10 @@ class GameModifications:
             "fog": self.fog,
             "snow": self.snow,
             "rain": self.rain,
+            "no_radar": self.no_radar,
+            "tread_damage": self.tread_damage,
+            "canon_damage": self.canon_damage,
+            "vision_damage": self.vision_damage,
         }
 
         step_modifs = [modif_mapping[name]
