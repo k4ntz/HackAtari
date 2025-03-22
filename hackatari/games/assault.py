@@ -1,6 +1,8 @@
 import random
 
+
 # Warning: Doesn't work right now.
+
 
 class GameModifications:
     """
@@ -81,4 +83,3 @@ def modif_funcs(env, active_modifs):
     modifications = GameModifications(env)
     modifications._set_active_modifications(active_modifs)
     return modifications._fill_modif_lists()
-    

@@ -1,6 +1,8 @@
 import random
 
+
 # Warning: Doesn't work right now.
+
 
 class GameModifications:
     """
