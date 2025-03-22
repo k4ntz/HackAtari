@@ -1,21 +1,10 @@
-from hackatari import HackAtari, HumanPlayable
 import numpy as np
-import cv2
-import pygame
-import torch
-import gymnasium as gym
-from ocatari.utils import load_agent
-import os
-import time
 import json
 import gzip
 import shutil
-import argparse
-from typing import Literal
-from utils import HackAtariArgumentParser
+from typing import Literal, List, Dict
 
-# Disable graphics window (SDL) for headless execution
-os.environ["SDL_VIDEODRIVER"] = "dummy"
+from log_data import LogData
 
 def log_episode_data(log_file, episode_data):
     """appends new episode data at the end of the log json
@@ -206,116 +195,41 @@ def get_log_data(episode_data, data_type: Literal["time", "action", "reward"]):
 
     return all_episode_data
 
-def main():
-    """Main function to run HackAtari experiments with different agents."""
-    parser = HackAtariArgumentParser(description="HackAtari Experiment Runner")
-
-    # Game and environment parameters
-    parser.add_argument("-g", "--game", type=str,
-                        default="Seaquest", help="Game to be run")
-    parser.add_argument("-obs", "--obs_mode", type=str,
-                        default="dqn", help="Observation mode (ori, dqn, obj)")
-    parser.add_argument("-w", "--window", type=int, default=4,
-                        help="Buffer window size (default = 4)")
-    parser.add_argument("-f", "--frameskip", type=int, default=4,
-                        help="Frames skipped after each action (default = 4)")
-    parser.add_argument("-dp", "--dopamine_pooling", action='store_true',
-                        help="Enable dopamine-like frameskipping")
-    parser.add_argument("-m", "--modifs", nargs="+",
-                        default=[], help="List of modifications to apply")
-    parser.add_argument("-rf", "--reward_function", type=str,
-                        default="", help="Custom reward function path")
-    parser.add_argument("-a", "--agents", nargs='+',
-                        required=True, help="List of trained agent model paths")
-    parser.add_argument("-mo", "--game_mode", type=int,
-                        default=0, help="Alternative ALE game mode")
-    parser.add_argument("-d", "--difficulty", type=int,
-                        default=0, help="Alternative ALE difficulty")
-    parser.add_argument("-e", "--episodes", type=int,
-                        default=10, help="Number of episodes to run per agent")
-    parser.add_argument("-lf", "--log_file", type=str,
-                        default="log.json", help="Path of the output json log file")
-
-    args = parser.parse_args()
-
-    log_file = args.log_file
-    if log_file.endswith(".json"):
-        log_file = log_file[:-5]
-    else:
-        print(f"log_file should be in the 'path/to/file.json' format. Exiting the evaluation!")
-        return
-
-    if len(log_file) == 0:
-        print(f"log_file should be in the 'path/to/file.json' format. Exiting the evaluation!")
-        return
+def format_run_label(model_path: str, modifications: List[str]) -> str:
+    """Create consistent run labels"""
+    # mod_str = get_modifications(modifications)
+    # print(mod_str)
+    return f"{model_path}\nMods: {modifications}"
 
 
-    # if args.modifs:
-    #     log_file = log_file + "_mod_" + "_".join(args.modifs)
-
-    compressed_file = log_file + "_comp.gz"
-    log_file = log_file + ".json"
-
-
-    # Initialize environment
-    env = HackAtari(
-        args.game,
-        args.modifs,
-        args.reward_function,
-        dopamine_pooling=args.dopamine_pooling,
-        game_mode=args.game_mode,
-        difficulty=args.difficulty,
-        render_mode="None",
-        obs_mode=args.obs_mode,
-        mode="ram",
-        hud=False,
-        render_oc_overlay=True,
-        buffer_window_size=args.window,
-        frameskip=args.frameskip,
-        repeat_action_probability=0.25,
-        full_action_space=False,
-    )
-
-    # Iterate through all agent models
-    for agent_path in args.agents:
-        agent, policy = load_agent(agent_path, env, "cpu")
+def process_logs(logs: List[Dict], selected_game: str, model_path) -> List[LogData]:
+    """Process raw logs into structured LogData objects"""
+    processed = []
+    
+    for log_entry in logs:
+        # Extract raw episode data
+        episodes = log_entry["log"]
         
-        print(f"Runing for episodes: {args.episodes}")
-        for episode in range(args.episodes):
-            obs, _ = env.reset()
-            done = False
-            current_episodes_rewards = []
-            current_episodes_times = []
-            current_episodes_actions = []
-            
-            while not done:
-                step_start_time = time.time()
+        processed.append(LogData(
+            modifications=log_entry["modifications"],
+            model_path=model_path,
+            game=log_entry["game"],
+            rewards=[e["current_episodes_rewards"] for e in episodes],
+            actions=[e['current_episodes_actions'] for e in episodes],
+            times=[e['current_episodes_times'] for e in episodes],
+            epoch_rewards=[sum(e["current_episodes_rewards"]) for e in episodes],
+            epoch_times=[sum(e["current_episodes_times"]) for e in episodes],
+            run_label=str(log_entry["modifications"]),
+        ))
+    
+    return processed
 
-                action = policy(torch.Tensor(obs).unsqueeze(0))[0]
-                obs, reward, terminated, truncated, _ = env.step(action)
-                current_episodes_rewards.append(reward)
-                done = terminated or truncated
+def load_logs(log_infos: List[Dict]):
+    logs = []
+    for log_info in log_infos:
+        log_name = log_info["log_name"]
+        decompress_log_data(log_name.replace(".json", "_comp.gz"), log_name)
+        log = read_log_data(log_name)    
+        logs.append({"log": log, "modifications": log_info["modifications"], "game": log_info["game"], "model": log_info["model"]})
 
-                step_end_time = time.time()
-                current_episodes_times.append(step_end_time - step_start_time)
-                
-                current_episodes_actions.append(action)
-
-            episode_data = {
-                "agent_path": agent_path,
-                "current_episodes_rewards": current_episodes_rewards,
-                "current_episodes_times": current_episodes_times,
-                "current_episodes_actions": current_episodes_actions
-            }
-            log_episode_data(log_file, episode_data)
-
-    env.close()
-
-    episode_data = read_log_data(log_file)
-    print_metrics(episode_data, args.episodes)
-    compress_log_data(log_file, compressed_file)
-    os.remove(log_file)
-
-if __name__ == "__main__":
-    main()
-
+    return logs
