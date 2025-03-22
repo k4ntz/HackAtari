@@ -249,8 +249,13 @@ def main():
         print(f"log_file should be in the 'path/to/file.json' format. Exiting the evaluation!")
         return
 
+
+    # if args.modifs:
+    #     log_file = log_file + "_mod_" + "_".join(args.modifs)
+
     compressed_file = log_file + "_comp.gz"
     log_file = log_file + ".json"
+
 
     # Initialize environment
     env = HackAtari(
@@ -275,6 +280,7 @@ def main():
     for agent_path in args.agents:
         agent, policy = load_agent(agent_path, env, "cpu")
         
+        print(f"Runing for episodes: {args.episodes}")
         for episode in range(args.episodes):
             obs, _ = env.reset()
             done = False
