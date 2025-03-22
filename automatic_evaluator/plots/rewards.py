@@ -67,8 +67,11 @@ def _get_sorted_modifications(all_logs: List[LogData]) -> List[str]:
         sorted_mods = sorted(unique_mods, key=lambda x: x.lower())
     return sorted_mods
 
-def plot_reward_modif_distribution(all_logs: List[LogData], selected_game: str) -> None:
+def plot_reward_modif_distribution(all_logs: List[LogData], selected_game: str):
     """Plot reward distribution with identical parameters"""
+    if all_logs == []:
+        return
+
     unique_mods = _get_sorted_modifications(all_logs)
     palette = sns.color_palette(STYLE["palette"], n_colors=len(unique_mods))
     
@@ -106,6 +109,9 @@ def plot_reward_modif_distribution(all_logs: List[LogData], selected_game: str) 
 
 def plot_acummulated_reward(all_logs: List[LogData], sigma: float=20.0) -> None:
     """Plot accumulated rewards with standardized styling"""
+    if all_logs == []:
+        return
+
     fig, ax = plt.subplots(figsize=STYLE["figure_size"])
     unique_mods = _get_sorted_modifications(all_logs)
     palette = sns.color_palette(STYLE["palette"], n_colors=len(unique_mods))
@@ -155,6 +161,9 @@ def plot_acummulated_reward(all_logs: List[LogData], sigma: float=20.0) -> None:
 
 def plot_non_filtered_smoothed_accumulated_rewards(all_logs: List[LogData], sigma: float=20.0) -> None:
     """Plot non-filtered rewards with standardized styling"""
+    if all_logs == []:
+        return
+
     fig, ax = plt.subplots(figsize=STYLE["figure_size"])
     unique_mods = _get_sorted_modifications(all_logs)
     palette = sns.color_palette(STYLE["palette"], n_colors=len(unique_mods))
@@ -200,6 +209,9 @@ def plot_non_filtered_smoothed_accumulated_rewards(all_logs: List[LogData], sigm
 
 def plot_reward_progression(all_logs: List[LogData], selected_game: str):
     """Plot reward progression with standardized styling"""
+    if all_logs == []:
+        return
+
     unique_mods = _get_sorted_modifications(all_logs)
     palette = sns.color_palette(STYLE["palette"], n_colors=len(unique_mods))
     color_map = {mod: color for mod, color in zip(unique_mods, palette)}
@@ -247,6 +259,9 @@ def plot_reward_progression(all_logs: List[LogData], selected_game: str):
 ########### Unused Functions (adjusted for completeness) ###########
 
 def plot_non_filtered_accumulated_rewards(all_logs: List[LogData]) -> None:
+    if all_logs == []:
+        return
+
     fig, ax = plt.subplots(figsize=(10, 6))
     unique_mods = _get_sorted_modifications(all_logs)
     

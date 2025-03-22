@@ -34,6 +34,9 @@ def _get_sorted_modifications(all_logs: List[LogData]) -> List[str]:
 
 def plot_time_boxplot(all_logs: List[LogData]) -> None:
     """Plot time distribution comparison with list data handling"""
+    if all_logs == []:
+        return
+
     unique_mods = _get_sorted_modifications(all_logs)
     palette = sns.color_palette(STYLE["palette"], n_colors=len(unique_mods))
     
@@ -78,6 +81,9 @@ def plot_time_boxplot(all_logs: List[LogData]) -> None:
 
 def plot_time_distribution(all_logs: List[LogData]) -> None:
     """Plot time distribution with list-of-lists handling"""
+    if all_logs == []:
+        return
+
     unique_mods = _get_sorted_modifications(all_logs)
     palette = sns.color_palette(STYLE["palette"], n_colors=len(unique_mods))
     

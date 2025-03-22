@@ -1,9 +1,12 @@
 from hackatari import HackAtari
 import numpy as np
 import torch
-import gymnasium as gym
 from ocatari.utils import load_agent
 import os
+
+import time
+
+import eval
 
 # Disable graphics window (SDL) for headless execution
 os.environ["SDL_VIDEODRIVER"] = "dummy"
@@ -52,6 +55,7 @@ def eval_run(game='pong',
         repeat_action_probability = 0.25,
         full_action_space = False,
         episodes = 1,
+        log_file = 'logs.json',
     ):
     """Main function to run HackAtari experiments with different agents."""
     # Initialize environment
@@ -77,47 +81,55 @@ def eval_run(game='pong',
     std_results = []
     total_runs = []
 
+    if log_file.endswith(".json"):
+        log_file = log_file[:-5]
+    else:
+        print(f"log_file should be in the 'path/to/file.json' format. Exiting the evaluation!")
+        return
+
+    if len(log_file) == 0:
+        print(f"log_file should be in the 'path/to/file.json' format. Exiting the evaluation!")
+        return
+
+
+    compressed_file = log_file + "_comp.gz"
+    log_file = log_file + ".json"
     # Iterate through all agent models
     for agent_path in agents:
         agent, policy = load_agent(agent_path, env, "cpu")
-        print(f"Loaded agent from {agent_path}")
-
-        rewards = []
+        
+        print(f"Runing for episodes: {episodes}")
         for episode in range(episodes):
             obs, _ = env.reset()
             done = False
-            episode_reward = 0
-
+            current_episodes_rewards = []
+            current_episodes_times = []
+            current_episodes_actions = []
+            
             while not done:
+                step_start_time = time.time()
+
                 action = policy(torch.Tensor(obs).unsqueeze(0))[0]
                 obs, reward, terminated, truncated, _ = env.step(action)
-                episode_reward += reward
+                current_episodes_rewards.append(reward)
                 done = terminated or truncated
 
-            rewards.append(episode_reward)
-            print(f"Episode {episode + 1}: Reward = {episode_reward}")
+                step_end_time = time.time()
+                current_episodes_times.append(step_end_time - step_start_time)
+                
+                current_episodes_actions.append(action)
 
-        avg_reward = np.mean(rewards)
-        std_reward = np.std(rewards)
-        avg_results.append(avg_reward)
-        std_results.append(std_reward)
-        total_runs.append(episodes)
-
-        print("\nSummary:")
-        print(f"Agent: {agent_path}")
-        print(f"Total Episodes: {episodes}")
-        print(f"Average Reward: {avg_reward:.2f}")
-        print(f"Standard Deviation: {std_reward:.2f}")
-        print(f"Min Reward: {np.min(rewards)}")
-        print(f"Max Reward: {np.max(rewards)}")
-        print("--------------------------------------")
-
-    # Compute overall statistics
-    total_avg, total_std = combine_means_and_stds(
-        avg_results, std_results, total_runs)
-    print("------------------------------------------------")
-    print(f"Overall Average Reward: {total_avg:.2f}")
-    print(f"Overall Standard Deviation: {total_std:.2f}")
-    print("------------------------------------------------")
+            episode_data = {
+                "agent_path": agent_path,
+                "current_episodes_rewards": current_episodes_rewards,
+                "current_episodes_times": current_episodes_times,
+                "current_episodes_actions": current_episodes_actions
+            }
+            eval.log_episode_data(log_file, episode_data)
 
     env.close()
+
+    episode_data = eval.read_log_data(log_file)
+    eval.print_metrics(episode_data, episodes)
+    eval.compress_log_data(log_file, compressed_file)
+    os.remove(log_file)

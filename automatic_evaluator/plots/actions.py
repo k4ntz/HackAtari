@@ -22,6 +22,9 @@ def action_distribution_barchart(all_logs: List[LogData], selected_game: str):
     """
     Generate comparative action frequency bar charts with unified dynamic scaling
     """
+    if all_logs == []:
+        return
+
     # Get all unique actions and modifications
     all_actions = sorted({a for log in all_logs for ep in log.actions for a in ep})
     mod_labels = [log.run_label for log in all_logs]
@@ -104,6 +107,9 @@ def plot_action_transition_heatmaps(all_logs: List[LogData], selected_game: str)
     :param all_logs: List of processed LogData objects
     :param selected_game: Name of the game being analyzed
     """
+    if all_logs == []:
+        return
+
     # Get all unique actions across all runs
     all_actions = sorted({a for log in all_logs for ep in log.actions for a in ep})
     action_labels = [str(a) for a in all_actions]
@@ -184,6 +190,9 @@ def plot_action_transition_heatmaps_corr(all_logs: List[LogData], selected_game:
     :param all_logs: List of processed LogData objects
     :param selected_game: Name of the game being analyzed
     """
+    if all_logs == []:
+        return
+
     # Get all unique actions
     all_actions = sorted({a for log in all_logs for ep in log.actions for a in ep})
     action_labels = [str(a) for a in all_actions]

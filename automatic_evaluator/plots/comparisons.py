@@ -36,6 +36,9 @@ def plot_action_reward_correlation(all_logs: List[LogData], selected_game: str):
     """
     Plot correlation heatmaps with multi-row layout and parallel colorbar
     """
+    if all_logs == []:
+        return
+
     # Calculate layout dimensions
     n_mods = len(all_logs)
     ncols = min(2, n_mods)  # Max 3 per row
@@ -170,6 +173,9 @@ def plot_action_reward_correlation(all_logs: List[LogData], selected_game: str):
 
 def plot_reward_vs_time(all_logs: List[LogData]) -> None:
     """Plot reward vs time correlation colored by modification"""
+    if all_logs == []:
+        return
+
     unique_mods = _get_sorted_modifications(all_logs)
     palette = sns.color_palette(STYLE["palette"], n_colors=len(unique_mods))
     color_map = {mod: color for mod, color in zip(unique_mods, palette)}
