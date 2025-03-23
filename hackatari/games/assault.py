@@ -1,6 +1,9 @@
 import random
 
 
+# Warning: Doesn't work right now.
+
+
 class GameModifications:
     """
     Encapsulates game modifications for managing active modifications and applying them.
