@@ -27,7 +27,7 @@ setup(
         "voila",
         "ipywidgets",
         "torch",
-        "widgetsnbextension"
+        "widgetsnbextension",
         "aim"
     ],
 )
