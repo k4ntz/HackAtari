@@ -20,41 +20,6 @@ from automatic_evaluator.log_data import LogData
 from automatic_evaluator.plots.style import STYLE
 
 
-def generate_rewards_table(all_logs: List[LogData], selected_game: str) -> None:
-    """Generate a simplified single-table analysis with 'None' first, others sorted by Avg descending."""
-    stats = []
-    for log in all_logs:
-        rewards = log.epoch_rewards
-        stats.append({
-            "Configuration": log.run_label.replace("\n", " - "),
-            "Avg": np.mean(rewards),
-            "Max": np.max(rewards),
-            "Min": np.min(rewards),
-            "Std": np.std(rewards),
-            "Episodes": len(rewards)
-        })
-    
-    df = pd.DataFrame(stats)
-    # Split 'None' and sort others by Avg descending
-    none_mask = df['Configuration'] == 'None'
-    none_df = df[none_mask]
-    others_df = df[~none_mask].sort_values("Avg", ascending=False)
-    df = pd.concat([none_df, others_df])
-    
-    formatted_df = df.copy()
-    formatted_df["Avg"] = df["Avg"].map("{:.2f}".format)
-    formatted_df["Std"] = df["Std"].map("{:.2f}".format)
-    formatted_df["Max"] = df["Max"].map("{:.0f}".format)
-    formatted_df["Min"] = df["Min"].map("{:.0f}".format)
-    
-    result = f"""
-        # {selected_game} - Performance Summary
-
-        {formatted_df.to_markdown(index=False)}
-    """
-    display(Markdown(result))
-
-
 def _get_sorted_modifications(all_logs: List[LogData]) -> List[str]:
     """Helper to sort modifications with 'None' first, then others alphabetically."""
     unique_mods = {log.run_label for log in all_logs}
@@ -67,25 +32,67 @@ def _get_sorted_modifications(all_logs: List[LogData]) -> List[str]:
         sorted_mods = sorted(unique_mods, key=lambda x: x.lower())
     return sorted_mods
 
-def plot_reward_modif_distribution(all_logs: List[LogData], selected_game: str) -> None:
-    """Plot reward distribution with identical parameters"""
+def plot_reward_modif_distribution(all_logs: List[LogData], selected_game: str):
+    """Plot reward distribution with identical parameters and display statistics"""
+    if not all_logs:
+        return
+
     unique_mods = _get_sorted_modifications(all_logs)
     palette = sns.color_palette(STYLE["palette"], n_colors=len(unique_mods))
     
+    # Create DataFrame from logs
     df = pd.DataFrame([
         {"Modification": log.run_label, "Reward": reward} 
         for log in all_logs 
         for reward in log.epoch_rewards
     ])
     
-    plt.figure(figsize=STYLE["tall_figure_size"])
+    # Calculate summary statistics for each modification
+    stats = df.groupby('Modification')['Reward'].agg(
+        ['mean', 'median', 'std', 'min', 'max', 'count']
+    ).reset_index()
+    stats = stats.round(2)
+    stats.columns = [
+        'Modification', 'Mean', 'Median', 'Std Dev', 
+        'Minimum', 'Maximum', 'Episode Count'
+    ]
     
-    # Create boxplot with same parameters
+    # Order stats according to unique_mods
+    stats['Modification'] = pd.Categorical(
+        stats['Modification'], 
+        categories=unique_mods, 
+        ordered=True
+    )
+    stats = stats.sort_values('Modification')
+    
+    # Generate and display Markdown analysis
+    markdown_text = f"""
+### Term Definitions:
+- **Modification**: A specific alteration to the game environment that affects the agent's gameplay.
+- **Run**: A single training run with a specific model and game modification.
+- **Episode**: A single playthrough of the game, starting from the initial state. One run consists of multiple episodes.
+- **Step**: A single action taken by the agent in the game environment during an episode.
+- **Reward**: The score obtained by the agent after completing a step or episode.
+
+
+### Reward Distribution Analysis for {selected_game}
+
+This plot compares the reward distributions across different modifications of the game **{selected_game}**. Each boxplot represents the spread of episode rewards (summed reward of all steps within a single episode) for a specific modification, showcasing the median (central line), interquartile range (box), and potential outliers (dots).
+
+**Key Statistics:**
+
+{stats.to_markdown(index=False)}
+"""
+    display(Markdown(markdown_text))
+    
+    # Create the plot
+    plt.figure(figsize=STYLE["tall_figure_size"])
     sns.boxplot(
         data=df,
         y="Modification",
         x="Reward",
-        order=unique_mods,  # Reverse order for vertical alignment
+        order=unique_mods,
+        hue_order=unique_mods,
         palette=palette,
         width=0.6,
         linewidth=1.5,
@@ -94,8 +101,8 @@ def plot_reward_modif_distribution(all_logs: List[LogData], selected_game: str) 
     )
     
     # Styling
-    plt.title(f"Reward Distribution: {selected_game}", fontsize=STYLE["title_fontsize"])
-    plt.xlabel("Episode Reward", fontsize=STYLE["axis_label_fontsize"])
+    plt.title(f"Distribution of Aggregated Rewards per Episode", fontsize=STYLE["title_fontsize"])
+    plt.xlabel("Aggregated Episode Reward", fontsize=STYLE["axis_label_fontsize"])
     plt.ylabel("")
     plt.grid(**STYLE["grid"])
     plt.axvline(0, **STYLE["zero_line"])
@@ -104,15 +111,34 @@ def plot_reward_modif_distribution(all_logs: List[LogData], selected_game: str) 
     plt.show()
     
 
-def plot_acummulated_reward(all_logs: List[LogData], sigma: float=20.0) -> None:
-    """Plot accumulated rewards with standardized styling"""
+def plot_cumulative_reward_per_episode(all_logs: List[LogData], sigma: float=20.0) -> None:
+    """Plot cumulative rewards from episode start with clear differentiation"""
+    if not all_logs:
+        return
+
+    # Explanatory Markdown connecting to previous plots
+    markdown_text = f"""
+### Cumulative Reward Progression Within Episodes
+
+This plot shows how rewards accumulate *from the start of each episode* for different configurations. Unlike the previous step-level analysis that aggregated across episodes, this visualization:
+
+- Reveals how reward potential builds up during single episodes
+- Highlights early-stage decisions that impact final outcomes
+
+_Smoothing (σ={sigma}) helps identify general trends in cumulative gains._
+"""
+    display(Markdown(markdown_text))
+
+    # Visualization setup
     fig, ax = plt.subplots(figsize=STYLE["figure_size"])
     unique_mods = _get_sorted_modifications(all_logs)
     palette = sns.color_palette(STYLE["palette"], n_colors=len(unique_mods))
     color_map = {mod: color for mod, color in zip(unique_mods, palette)}
     
-    ax.set_title("Step-wise Accumulated Rewards Across Episodes", fontsize=STYLE["title_fontsize"])
+    ax.set_title("Cumulative Reward Development Within Episodes", 
+                fontsize=STYLE["title_fontsize"])
     
+    # Data processing
     for mod in unique_mods:
         log = next(log for log in all_logs if log.run_label == mod)
         step_counts = [len(ep) for ep in log.rewards]
@@ -134,9 +160,10 @@ def plot_acummulated_reward(all_logs: List[LogData], sigma: float=20.0) -> None:
             linewidth=2
         )
 
-    # Apply standardized formatting
-    ax.set_xlabel("Step Index in Episode", fontsize=STYLE["axis_label_fontsize"])
-    ax.set_ylabel("Smoothed Accumulated Reward", fontsize=STYLE["axis_label_fontsize"])
+    # Standardized styling
+    ax.set_xlabel("Step in Episode", fontsize=STYLE["axis_label_fontsize"])
+    ax.set_ylabel("Cumulative Episode Reward", 
+                 fontsize=STYLE["axis_label_fontsize"])
     ax.legend(
         title=STYLE["legend"]["title"],
         bbox_to_anchor=STYLE["legend"]["bbox_to_anchor"],
@@ -154,23 +181,48 @@ def plot_acummulated_reward(all_logs: List[LogData], sigma: float=20.0) -> None:
 
 
 def plot_non_filtered_smoothed_accumulated_rewards(all_logs: List[LogData], sigma: float=20.0) -> None:
-    """Plot non-filtered rewards with standardized styling"""
+    """Plot step-level accumulated rewards with contextual explanation"""
+    if not all_logs:  # Handle empty input
+        return
+
+    # Generate connecting Markdown analysis
+    markdown_text = f"""
+### Step-Level Accumulated Reward Analysis
+
+This visualization drills down into individual steps, showing the smoothed sum of rewards aggregated (summed) *at each step* across all episodes. This reveals:
+
+- **Critical decision points**: Steps with consistently high/low rewards, identifying the trends
+- **Action impact**: How individual agent decisions affect long-term outcomes
+
+It is worth mentioning that some game modifications have lower step counts due to shorter episodes. This can lead to some lines ending before others.
+
+_Smoothing (σ={sigma}) reduces noise while preserving trend patterns._
+"""
+    display(Markdown(markdown_text))
+
+    # Visualization setup
     fig, ax = plt.subplots(figsize=STYLE["figure_size"])
     unique_mods = _get_sorted_modifications(all_logs)
     palette = sns.color_palette(STYLE["palette"], n_colors=len(unique_mods))
     color_map = {mod: color for mod, color in zip(unique_mods, palette)}
     
-    ax.set_title("Non-Filtered & Smoothed Accumulated Rewards", fontsize=STYLE["title_fontsize"])
+    ax.set_title("Smoothed Aggregated Rewards Per Step", 
+                fontsize=STYLE["title_fontsize"])
 
+    # Data processing and plotting
     for mod in unique_mods:
         log = next(log for log in all_logs if log.run_label == mod)
         max_length = max(len(ep) for ep in log.rewards)
         reward_matrix = np.zeros((len(log.rewards), max_length))
+        
+        # Create step matrix
         for i, ep in enumerate(log.rewards):
             reward_matrix[i, :len(ep)] = ep
         
+        # Calculate accumulated rewards per step
         accumulated_rewards = np.sum(reward_matrix, axis=0)
         smoothed = gaussian_filter1d(accumulated_rewards, sigma=sigma)
+        
         ax.plot(
             np.arange(1, len(smoothed) + 1),
             smoothed,
@@ -179,9 +231,10 @@ def plot_non_filtered_smoothed_accumulated_rewards(all_logs: List[LogData], sigm
             linewidth=2
         )
 
-    # Apply standardized formatting
-    ax.set_xlabel("Steps", fontsize=STYLE["axis_label_fontsize"])
-    ax.set_ylabel("Smoothed Accumulated Reward", fontsize=STYLE["axis_label_fontsize"])
+    # Standardized styling
+    ax.set_xlabel("Step", fontsize=STYLE["axis_label_fontsize"])
+    ax.set_ylabel("Smoothed Aggregated Reward", 
+                 fontsize=STYLE["axis_label_fontsize"])
     ax.legend(
         title=STYLE["legend"]["title"],
         bbox_to_anchor=STYLE["legend"]["bbox_to_anchor"],
@@ -197,9 +250,20 @@ def plot_non_filtered_smoothed_accumulated_rewards(all_logs: List[LogData], sigm
     plt.show()
 
 
-
 def plot_reward_progression(all_logs: List[LogData], selected_game: str):
-    """Plot reward progression with standardized styling"""
+    """Plot reward progression with standardized styling and contextual description"""
+    if not all_logs:  # Handle empty input
+        return
+
+    # Generate connecting Markdown analysis
+    markdown_text = f"""
+### Reward Progression Analysis for {selected_game}
+
+Building on the distribution analysis, this plot shows how rewards evolve across episodes for each modification of **{selected_game}**. The lines represent aggregated (summed) rewards across the episode, revealing performance trends over multiple episodes.
+"""
+    display(Markdown(markdown_text))
+
+    # Data processing and visualization
     unique_mods = _get_sorted_modifications(all_logs)
     palette = sns.color_palette(STYLE["palette"], n_colors=len(unique_mods))
     color_map = {mod: color for mod, color in zip(unique_mods, palette)}
@@ -228,11 +292,12 @@ def plot_reward_progression(all_logs: List[LogData], selected_game: str):
         palette=color_map
     )
     
-    # Apply standardized formatting
+    # Standardized styling
     ax.axhline(0, **STYLE["zero_line"])
-    plt.title(f"Reward Progression Across Evaluations\n{selected_game}", fontsize=STYLE["title_fontsize"])
-    plt.xlabel("Evaluation Episode", fontsize=STYLE["axis_label_fontsize"])
-    plt.ylabel("Episode Reward", fontsize=STYLE["axis_label_fontsize"])
+    plt.title(f"Reward Progression Across Episodes", 
+             fontsize=STYLE["title_fontsize"])
+    plt.xlabel("Episode", fontsize=STYLE["axis_label_fontsize"])
+    plt.ylabel("Aggregated Reward", fontsize=STYLE["axis_label_fontsize"])
     plt.grid(True, **STYLE["grid"])
     ax.legend(
         title=STYLE["legend"]["title"],
