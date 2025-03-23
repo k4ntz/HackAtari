@@ -92,7 +92,7 @@ def eval_run(game='pong',
         return
 
 
-    compressed_file = log_file + "_comp.gz"
+    compressed_file = log_file + ".gz"
     log_file = log_file + ".json"
     # Iterate through all agent models
     for agent_path in agents:
