@@ -36,7 +36,9 @@ def plot_action_reward_correlation(all_logs: List[LogData], selected_game: str):
     """
     Plot correlation heatmaps with multi-row layout and parallel colorbar
     """
-    # Add action-reward correlation Markdown
+    if all_logs == []:
+        return
+    
     markdown_text = f"""
 ### Action-Reward Relationship Analysis
 
@@ -183,8 +185,8 @@ _Color intensity shows occurrence frequency (log scale), annotations show exact 
 
 
 def plot_reward_vs_time(all_logs: List[LogData]) -> None:
-    """Plot reward vs time correlation with statistical analysis"""
-    if not all_logs:
+    """Plot reward vs time correlation colored by modification"""
+    if all_logs == []:
         return
 
     unique_mods = _get_sorted_modifications(all_logs)

@@ -22,7 +22,7 @@ def action_distribution_barchart(all_logs: List[LogData], selected_game: str):
     """
     Generate action preference analysis with strategic insights
     """
-    if not all_logs:  # Handle empty input
+    if all_logs == []:
         return
 
     markdown_text = f"""
@@ -118,6 +118,9 @@ def plot_action_transition_heatmaps(all_logs: List[LogData], selected_game: str)
     Plot transition COUNT heatmaps between consecutive actions for each run
     """
 
+    if all_logs == []:
+        return
+
     markdown_text = f"""
 ### Action Transition Patterns
 
@@ -205,6 +208,8 @@ def plot_action_transition_heatmaps_corr(all_logs: List[LogData], selected_game:
     """
     Plot action transition CORRELATION heatmaps for each run
     """
+    if all_logs == []:
+        return
 
     markdown_text = f"""
 ### Action Transition Correlations

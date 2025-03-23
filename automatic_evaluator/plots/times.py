@@ -32,8 +32,8 @@ def _get_sorted_modifications(all_logs: List[LogData]) -> List[str]:
 
 
 def plot_time_boxplot(all_logs: List[LogData]) -> None:
-    """Plot time distribution comparison with performance context"""
-    if not all_logs:
+    """Plot time distribution comparison with list data handling"""
+    if all_logs == []:
         return
 
     unique_mods = _get_sorted_modifications(all_logs)
@@ -133,6 +133,9 @@ This plot complements reward metrics by showing temporal efficiency across modif
 
 def plot_time_distribution(all_logs: List[LogData]) -> None:
     """Plot time distribution with list-of-lists handling"""
+    if all_logs == []:
+        return
+
     unique_mods = _get_sorted_modifications(all_logs)
     palette = sns.color_palette(STYLE["palette"], n_colors=len(unique_mods))
     

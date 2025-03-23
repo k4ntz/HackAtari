@@ -33,8 +33,8 @@ def _get_sorted_modifications(all_logs: List[LogData]) -> List[str]:
     return sorted_mods
 
 def plot_reward_modif_distribution(all_logs: List[LogData], selected_game: str):
-    """Plot reward distribution with identical parameters and display statistics"""
-    if not all_logs:
+    """Plot reward distribution with identical parameters"""
+    if all_logs == []:
         return
 
     unique_mods = _get_sorted_modifications(all_logs)
@@ -111,12 +111,11 @@ This plot compares the reward distributions across different modifications of th
     plt.show()
     
 
-def plot_cumulative_reward_per_episode(all_logs: List[LogData], sigma: float=20.0) -> None:
+def plot_acummulated_reward(all_logs: List[LogData], sigma: float=20.0) -> None:
     """Plot cumulative rewards from episode start with clear differentiation"""
-    if not all_logs:
+    if all_logs == []:
         return
-
-    # Explanatory Markdown connecting to previous plots
+    
     markdown_text = f"""
 ### Cumulative Reward Progression Within Episodes
 
@@ -129,7 +128,6 @@ _Smoothing (σ={sigma}) helps identify general trends in cumulative gains._
 """
     display(Markdown(markdown_text))
 
-    # Visualization setup
     fig, ax = plt.subplots(figsize=STYLE["figure_size"])
     unique_mods = _get_sorted_modifications(all_logs)
     palette = sns.color_palette(STYLE["palette"], n_colors=len(unique_mods))
@@ -182,10 +180,9 @@ _Smoothing (σ={sigma}) helps identify general trends in cumulative gains._
 
 def plot_non_filtered_smoothed_accumulated_rewards(all_logs: List[LogData], sigma: float=20.0) -> None:
     """Plot step-level accumulated rewards with contextual explanation"""
-    if not all_logs:  # Handle empty input
+    if all_logs == []:
         return
 
-    # Generate connecting Markdown analysis
     markdown_text = f"""
 ### Step-Level Accumulated Reward Analysis
 
@@ -252,10 +249,9 @@ _Smoothing (σ={sigma}) reduces noise while preserving trend patterns._
 
 def plot_reward_progression(all_logs: List[LogData], selected_game: str):
     """Plot reward progression with standardized styling and contextual description"""
-    if not all_logs:  # Handle empty input
+    if all_logs == []:
         return
 
-    # Generate connecting Markdown analysis
     markdown_text = f"""
 ### Reward Progression Analysis for {selected_game}
 
@@ -263,7 +259,6 @@ Building on the distribution analysis, this plot shows how rewards evolve across
 """
     display(Markdown(markdown_text))
 
-    # Data processing and visualization
     unique_mods = _get_sorted_modifications(all_logs)
     palette = sns.color_palette(STYLE["palette"], n_colors=len(unique_mods))
     color_map = {mod: color for mod, color in zip(unique_mods, palette)}
@@ -312,6 +307,9 @@ Building on the distribution analysis, this plot shows how rewards evolve across
 ########### Unused Functions (adjusted for completeness) ###########
 
 def plot_non_filtered_accumulated_rewards(all_logs: List[LogData]) -> None:
+    if all_logs == []:
+        return
+
     fig, ax = plt.subplots(figsize=(10, 6))
     unique_mods = _get_sorted_modifications(all_logs)
     
