@@ -38,6 +38,20 @@ def plot_action_reward_correlation(all_logs: List[LogData], selected_game: str):
     """
     if all_logs == []:
         return
+    
+    markdown_text = f"""
+### Action-Reward Relationship Analysis
+
+This visualization reveals how often specific actions led to particular reward values. Key insights:
+
+- **Common combinations**: Bright areas show frequent action-reward pairs
+- **Ineffective actions**: Dark gray areas indicate never-seen combinations
+- **Reward consistency**: Vertical patterns show actions with predictable outcomes
+- **Modification differences**: Compare how environment changes affect reward distributions
+
+_Color intensity shows occurrence frequency (log scale), annotations show exact counts._
+"""
+    display(Markdown(markdown_text))
 
     # Calculate layout dimensions
     n_mods = len(all_logs)
@@ -170,7 +184,6 @@ def plot_action_reward_correlation(all_logs: List[LogData], selected_game: str):
     plt.show()
 
 
-
 def plot_reward_vs_time(all_logs: List[LogData]) -> None:
     """Plot reward vs time correlation colored by modification"""
     if all_logs == []:
@@ -180,62 +193,104 @@ def plot_reward_vs_time(all_logs: List[LogData]) -> None:
     palette = sns.color_palette(STYLE["palette"], n_colors=len(unique_mods))
     color_map = {mod: color for mod, color in zip(unique_mods, palette)}
     
-    plt.figure(figsize=STYLE["figure_size"])
-    
-    # Process each modification separately
+    # Prepare data and calculate statistics
+    stats_data = []
+    plot_data = []
+
     for mod in unique_mods:
         mod_rewards = []
         mod_times = []
         
         for log in all_logs:
             if log.run_label == mod:
-                # Flatten nested rewards and times
+                # Process rewards and times
                 rewards = log.epoch_rewards
                 times = log.times
                 
-                # Handle list of lists
                 if rewards and isinstance(rewards[0], (list, np.ndarray)):
-                    rewards = [sum(episode) for episode in rewards]
+                    rewards = [sum(ep) for ep in rewards]
                 if times and isinstance(times[0], (list, np.ndarray)):
-                    times = [sum(episode) for episode in times]
+                    times = [sum(ep) for ep in times]
                 
-                # Pair rewards and times
                 min_length = min(len(rewards), len(times))
                 mod_rewards.extend(rewards[:min_length])
                 mod_times.extend(times[:min_length])
         
         if mod_rewards and mod_times:
-            sns.scatterplot(
-                x=mod_rewards,
-                y=mod_times,
-                color=color_map[mod],
-                edgecolor='w',
-                alpha=0.7,
-                s=40,
-                label=mod
-            )
-    
-    # Add global regression line
-    all_rewards = []
-    all_times = []
-    for log in all_logs:
-        rewards = log.epoch_rewards
-        times = log.times
-        if rewards and isinstance(rewards[0], (list, np.ndarray)):
-            rewards = [sum(episode) for episode in rewards]
-        if times and isinstance(times[0], (list, np.ndarray)):
-            times = [sum(episode) for episode in times]
-        min_length = min(len(rewards), len(times))
-        all_rewards.extend(rewards[:min_length])
-        all_times.extend(times[:min_length])
-    
-    sns.regplot(
-        x=all_rewards,
-        y=all_times,
-        scatter=False,
-        color='black',
-        line_kws={'linestyle': '--'}
+            # Calculate statistics
+            mean_reward = np.mean(mod_rewards)
+            mean_time = np.mean(mod_times)
+            try:
+                corr_coef = np.corrcoef(mod_rewards, mod_times)[0,1]
+            except:
+                corr_coef = np.nan
+                
+            stats_data.append({
+                'Modification': mod,
+                'Episodes': len(mod_rewards),
+                'Mean Reward': mean_reward,
+                'Mean Duration': mean_time,
+                'R-Time Correlation': corr_coef
+            })
+            
+            # Store for plotting
+            plot_data.extend([
+                {'Modification': mod, 'Reward': r, 'Duration': t}
+                for r, t in zip(mod_rewards, mod_times)
+            ])
+
+    # Create and format stats table
+    stats_df = pd.DataFrame(stats_data)
+    stats_df = stats_df.round(3)
+    stats_df['Mean Duration'] = stats_df['Mean Duration'].apply(
+        lambda x: f"{x:.4f}s" if x < 1 else f"{x:.2f}s"
     )
+    
+    # Generate Markdown analysis
+    markdown_text = f"""
+### Reward-Duration Relationship Analysis
+
+This plot explores the correlation between episode rewards and their durations. Key aspects:
+
+- **Point distribution**: Cluster locations show common reward-duration combinations
+- **Regression line**: Black dashed line shows global trend
+- **Color coding**: Different modifications' performance patterns
+
+**Statistical Summary:**
+
+{stats_df.to_markdown(index=False)}
+
+**Interpretation Guide:**
+- Positive correlation: Higher rewards take longer to achieve
+- Negative correlation: Efficient high-reward episodes
+- Near-zero: No clear time-reward relationship
+"""
+    display(Markdown(markdown_text))
+
+    # Create plot from collected data
+    plt.figure(figsize=STYLE["figure_size"])
+    df = pd.DataFrame(plot_data)
+    
+    if not df.empty:
+        sns.scatterplot(
+            data=df,
+            x="Reward",
+            y="Duration",
+            hue="Modification",
+            palette=palette,
+            edgecolor='w',
+            alpha=0.7,
+            s=40
+        )
+        
+        # Global regression line
+        sns.regplot(
+            x=df["Reward"],
+            y=df["Duration"],
+            scatter=False,
+            color='black',
+            line_kws={'linestyle': '--'}
+        )
     
     # Styling
     plt.title("Reward vs Duration Correlation", fontsize=STYLE["title_fontsize"])
