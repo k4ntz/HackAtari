@@ -228,7 +228,7 @@ def load_logs(log_infos: List[Dict]):
     logs = []
     for log_info in log_infos:
         log_name = log_info["log_name"]
-        decompress_log_data(log_name.replace(".json", "_comp.gz"), log_name)
+        decompress_log_data(log_name.replace(".json", ".gz"), log_name)
         log = read_log_data(log_name)    
         logs.append({"log": log, "modifications": log_info["modifications"], "game": log_info["game"], "model": log_info["model"]})
 

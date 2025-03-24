@@ -16,29 +16,36 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter1d
 from automatic_evaluator.log_data import LogData
-
+from automatic_evaluator.plots.style import STYLE
 
 def action_distribution_barchart(all_logs: List[LogData], selected_game: str):
     """
-    Generate comparative action frequency bar charts with unified dynamic scaling
+    Generate action preference analysis with strategic insights
     """
     if all_logs == []:
         return
 
-    # Get all unique actions and modifications
+    markdown_text = f"""
+### Action Analysis for {selected_game}
+
+This visualization reveals the agent's decision-making patterns across different modifications. The bar charts show:
+
+- **Absolute action frequencies**: Total times each action was chosen
+- **Strategic biases**: Preferred/dispreferred actions per configuration. Different modifications are assumed to have different distributions of actions
+"""
+    display(Markdown(markdown_text))
+
+    # Data preparation
     all_actions = sorted({a for log in all_logs for ep in log.actions for a in ep})
     mod_labels = [log.run_label for log in all_logs]
     
-    # Calculate global maximum action count
-    max_count = 1
-    for log in all_logs:
-        action_counts = Counter(a for ep in log.actions for a in ep)
-        if action_counts:
-            current_max = max(action_counts.values())
-            if current_max > max_count:
-                max_count = current_max
+    # Calculate global maximum for consistent scaling
+    max_count = max(
+        max(Counter(a for ep in log.actions for a in ep).values(), default=0)
+        for log in all_logs
+    ) if all_logs else 1
 
-    # Set up 2-column layout
+    # Visualization setup
     n_mods = len(all_logs)
     ncols = 2
     nrows = (n_mods + ncols - 1) // ncols
@@ -47,20 +54,23 @@ def action_distribution_barchart(all_logs: List[LogData], selected_game: str):
                            figsize=(14, 5*nrows),
                            gridspec_kw={'wspace': 0.3, 'hspace': 0.5})
     
-    fig.suptitle(f"Action Frequency Distribution - {selected_game}", 
-                fontsize=16, y=0.95)
+    fig.suptitle(f"Action Selection Count", 
+                fontsize=STYLE["title_fontsize"], y=0.95)
 
-    # Create consistent color palette
-    palette = sns.color_palette("husl", n_colors=len(all_actions))
+    # Use consistent palette
+    palette = sns.color_palette(STYLE["palette"], n_colors=len(all_actions))
 
+    # Create subplot for each modification
     for idx, log in enumerate(all_logs):
         ax = axes.flat[idx] if n_mods > 1 else axes
         
-        # Count actions
         action_counts = Counter(a for ep in log.actions for a in ep)
         counts = [action_counts.get(a, 0) for a in all_actions]
+        total_actions = sum(counts)
         
-        # Create bar plot with unified scale
+        # Create percentage labels
+        percentages = [f'{(c/total_actions)*100:.1f}%' for c in counts]
+        
         bars = ax.bar(
             x=range(len(all_actions)),
             height=counts,
@@ -69,30 +79,32 @@ def action_distribution_barchart(all_logs: List[LogData], selected_game: str):
             linewidth=0.5
         )
         
-        # Add value labels
-        for bar in bars:
+        # Dual labels: absolute counts + percentages
+        for bar, percentage in zip(bars, percentages):
             height = bar.get_height()
             ax.text(bar.get_x() + bar.get_width()/2, 
                     height, 
-                    f'{height:,}',
+                    f'{height:,}\n({percentage})',
                     ha='center', 
                     va='bottom',
                     fontsize=8)
 
-        # Formatting with unified scale
-        ax.set_title(log.run_label, fontsize=12, pad=12)
+        ax.set_title(f"{log.run_label}",
+                   fontsize=12, pad=12)
         ax.set_xticks(range(len(all_actions)))
-        ax.set_xticklabels(all_actions, ha='right', fontsize=9)
-        ax.set_ylim(0, max_count * 1.1)  # Unified y-axis limit
-        ax.yaxis.grid(True, linestyle='--', alpha=0.6)
-        ax.set_ylabel("Action Count")
+        ax.set_xticklabels(all_actions, 
+                         rotation=0, 
+                         ha='right', 
+                         fontsize=9)
+        ax.set_ylim(0, max_count * 1.15)  # Breathing room for labels
+        ax.yaxis.grid(True, **STYLE["grid"])
+        ax.set_ylabel("Action Count", fontsize=STYLE["axis_label_fontsize"])
 
-        # Remove unnecessary spines
+        # Apply consistent spine styling
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
 
-
-    # Hide empty subplots
+    # Clean empty subplots
     for j in range(len(all_logs), nrows*ncols):
         axes.flat[j].axis('off')
 
@@ -100,17 +112,28 @@ def action_distribution_barchart(all_logs: List[LogData], selected_game: str):
     plt.subplots_adjust(top=0.9, right=0.92)
     plt.show()
 
+    
 def plot_action_transition_heatmaps(all_logs: List[LogData], selected_game: str):
     """
     Plot transition COUNT heatmaps between consecutive actions for each run
-    
-    :param all_logs: List of processed LogData objects
-    :param selected_game: Name of the game being analyzed
     """
+
     if all_logs == []:
         return
 
-    # Get all unique actions across all runs
+    markdown_text = f"""
+### Action Transition Patterns
+
+These heatmaps reveal temporal relationships between agent decisions. Key patterns to observe:
+
+- **Common transitions**: Bright squares show frequent action sequences
+- **Action loops**: Diagonal patterns indicate repeated same-action choices
+- **Modification differences**: Compare how environment changes affect decision chains
+
+Color intensity represents transition frequency (log scale) between consecutive steps.
+"""
+    display(Markdown(markdown_text))
+
     all_actions = sorted({a for log in all_logs for ep in log.actions for a in ep})
     action_labels = [str(a) for a in all_actions]
     
@@ -120,7 +143,7 @@ def plot_action_transition_heatmaps(all_logs: List[LogData], selected_game: str)
     nrows = (n_mods + ncols - 1) // ncols
     
     fig, axes = plt.subplots(nrows, ncols, figsize=(5*ncols, 4*nrows))
-    fig.suptitle(f"Action Transition Counts: {selected_game}", fontsize=16, y=1.02)
+    fig.suptitle(f"Action Transition Counts", fontsize=16, y=1.02)
     
     # Find global maximum for color scaling
     max_count = 1
@@ -181,19 +204,27 @@ def plot_action_transition_heatmaps(all_logs: List[LogData], selected_game: str)
     plt.show()
 
 
-
-
 def plot_action_transition_heatmaps_corr(all_logs: List[LogData], selected_game: str):
     """
     Plot action transition CORRELATION heatmaps for each run
-    
-    :param all_logs: List of processed LogData objects
-    :param selected_game: Name of the game being analyzed
     """
     if all_logs == []:
         return
 
-    # Get all unique actions
+    markdown_text = f"""
+### Action Transition Correlations
+
+This analysis reveals statistical relationships between consecutive actions, complementing the transition frequency heatmaps. The correlation values (Pearson's r) show:
+
+- **Positive values**: Actions that tend to follow each other more than random chance
+- **Negative values**: Actions that systematically avoid preceding each other
+- **Neutral values**: No significant temporal relationship
+
+_Note: Correlations measure linear relationships, not causal effects._
+"""
+    display(Markdown(markdown_text))
+
+    # Original visualization code remains unchanged below
     all_actions = sorted({a for log in all_logs for ep in log.actions for a in ep})
     action_labels = [str(a) for a in all_actions]
     
