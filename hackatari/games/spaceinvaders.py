@@ -41,11 +41,17 @@ class GameModifications:
         """
         self.env.set_ram(27, 35)
 
-    def relocate_shields_off_by_one(self):
+    def shift_shields_one(self):
         """
-        Relocates the shields to a medium position.
+        Shifts the shields to the right by one pixel.
         """
         self.env.set_ram(27, 44)
+
+    def shift_shields_three(self):
+        """
+        Shifts the shields to the right by three pixels.
+        """
+        self.env.set_ram(27, 46)
 
     def relocate_shields_right(self):
         """
@@ -91,6 +97,7 @@ class GameModifications:
             # "curved_shots_strong": self.curved_shots_strong,
             "controlable_missile": self.controlable_missile,
             "no_danger": self.no_danger,
+            "relocate_shields_off_by_three": self.relocate_shields_off_by_three,
         }
 
         step_modifs = [modif_mapping[name]

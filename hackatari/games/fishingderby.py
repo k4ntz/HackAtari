@@ -54,9 +54,10 @@ class GameModifications:
             if self.env.get_ram()[69 + i] > 86:
                 self.env.set_ram(69 + i, 44)
     
-    def fish_on_different_sides(self):
+    def swap_fish_sides(self):
         """
-        Fish mode: every two fish is on the player's side. Every other fish is on the enemy's side.
+        Swap fish sides, the fish that were on the player side are now on the enemy's 
+        one and vice versa.
         """
         for i in range(6):
             if i % 2==0:

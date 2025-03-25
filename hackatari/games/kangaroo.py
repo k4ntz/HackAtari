@@ -88,6 +88,14 @@ class GameModifications:
         Changes the level to 2.
         """
         self.env.set_ram(36, 2)
+    
+    def no_danger(self):
+        """
+        Disables all dangers in the game.
+        """
+        self.disable_coconut()
+        self.disable_thrown_coconut()
+        self.disable_monkeys()
 
     def _set_active_modifications(self, active_modifs):
         """
@@ -114,6 +122,7 @@ class GameModifications:
             "change_level_0": self.change_level_0,
             "change_level_1": self.change_level_1,
             "change_level_2": self.change_level_2,
+            "no_danger": self.no_danger,
         }
 
         step_modifs = [modif_mapping[name]

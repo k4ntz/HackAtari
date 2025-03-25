@@ -43,6 +43,27 @@ class GameModifications:
         for i in range(3):
             if ram[24 + i] == 253:
                 self.env.set_ram(24 + i, 254)
+    
+    def two_police_cars(self):
+        """
+        Replaces 2 banks with police cars. Robbed banks give 50 points.
+        """
+        ram = self.env.get_ram()
+        nb_police = 0
+        for i in range(3):
+            if ram[24 + i] == 254:
+                nb_police += 1
+        if nb_police < 2:
+            for i in range(3):
+                if (ram[29+i] < 47 or ram[29 + i] > 120) and 25 < ram[9+i] < 71:
+                    continue
+                if ram[24 + i] == 253:
+                    self.env.set_ram(24 + i, 254)
+                    self.env.set_ram(83, 4)
+                    nb_police += 1
+                if nb_police == 2:
+                    break
+            
 
     def random_city(self):
         """
@@ -58,17 +79,6 @@ class GameModifications:
                 random.shuffle(self.remaining_towns)
             self.towns_visited.append(picked_city)
             self.env.set_ram(0, picked_city)
-
-    # def random_city_res(self):
-    #     """
-    #     Resets the city randomizer.
-    #     """
-    #     self.remaining_towns = [i for i in range(256)]
-    #     random.shuffle(self.remaining_towns)
-    #     picked_city = self.remaining_towns.pop(0)
-    #     self.current_town = picked_city
-    #     self.towns_visited.append(picked_city)
-    #     self.env.set_ram(0, picked_city)
 
     def revisit_city(self):
         """
@@ -104,6 +114,7 @@ class GameModifications:
             "unlimited_gas": self.unlimited_gas,
             "no_police": self.no_police,
             "only_police": self.only_police,
+            "two_police_cars": self.two_police_cars,
             "random_city": self.random_city,
             "revisit_city": self.revisit_city,
         }

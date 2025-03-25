@@ -12,18 +12,18 @@ class GameModifications:
         self.env = env
         self.active_modifications = set()
 
-    def change_enemies(self):
+    def pig_enemies(self):
         """
-        Changes the enemies to the second version.
+        Make enemies become pigs.
         """
         ram = self.env.get_ram()
         for i in range(7):
             if ram[73 + i] & 32:
                 self.env.set_ram(73 + i, ram[73 + i] | 16)
 
-    def change_player(self):
+    def paint_roller_player(self):
         """
-        Changes the player to the second version.
+        Changes the player to a paint roller.
         """
         ram = self.env.get_ram()
         for i in range(7):
@@ -45,8 +45,8 @@ class GameModifications:
         :return: List of step modifications.
         """
         modif_mapping = {
-            "change_enemy": self.change_enemies,
-            "change_player": self.change_player,
+            "pig_enemies": self.pig_enemies,
+            "paint_roller_player": self.paint_roller_player,
         }
 
         step_modifs = [modif_mapping[name]
