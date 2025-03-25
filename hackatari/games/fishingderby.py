@@ -53,6 +53,18 @@ class GameModifications:
         for i in range(6):
             if self.env.get_ram()[69 + i] > 86:
                 self.env.set_ram(69 + i, 44)
+    
+    def fish_on_different_sides(self):
+        """
+        Fish mode: every two fish is on the player's side. Every other fish is on the enemy's side.
+        """
+        for i in range(6):
+            if i % 2==0:
+                if self.env.get_ram()[69 + i] > 86:
+                    self.env.set_ram(69 + i, 44)
+            else:
+                if self.env.get_ram()[69+i] < 70:
+                    self.env.set_ram(69+i, 116)
 
     def fish_in_middle(self):
         """
@@ -86,6 +98,7 @@ class GameModifications:
             "shark_speed_mode": self.shark_speed_mode,
             "fish_on_player_side": self.fish_on_player_side,
             "fish_in_middle": self.fish_in_middle,
+            "fish_on_different_sides": self.fish_on_different_sides,
         }
 
         step_modifs = [modif_mapping[name]

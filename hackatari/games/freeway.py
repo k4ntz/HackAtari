@@ -24,7 +24,7 @@ class GameModifications:
         counter = random.choices([0, 1, 2, 3], weights=[
                                  0.1, 0.3, 0.3, 0.3], k=1)[0]
         random_car = random.randint(33, 42)
-        self.env.set_ram(random_car, 100 if counter > 0 else 0)
+        self.env.set_ram(random_car, 8 if counter > 0 else 0)
 
     def align_all_cars(self):
         """
@@ -33,6 +33,22 @@ class GameModifications:
         car_all = random.choices([0, 1], weights=[0.6, 0.4], k=1)[0]
         for car_pos in range(33, 43):
             self.env.set_ram(car_pos, 100 if car_all > 0 else 0)
+    
+    def reverse_car_speed_bottom(self):
+        """
+        Reverses the speed of the bottom car (the fastest becomes the slowest and vice versa).
+        """
+        for i in range(5):
+            val = self.env.get_ram()[1] % (i+1)
+            self.env.set_ram(33+i, val)
+    
+    def reverse_car_speed_top(self):
+        """
+        Reverses the speed of the top car (the fastest becomes the slowest and vice versa).
+        """
+        for i in range(5):
+            val = self.env.get_ram()[1] % (i+1)
+            self.env.set_ram(42-i, val)
 
     def stop_all_cars(self):
         """
@@ -98,6 +114,7 @@ class GameModifications:
             self.env.set_ram(car, color)
 
     clock_counter = 0
+
     def phantom_mode(self):
         """
         Each car changes color from black to invisible approximately every second.
@@ -165,7 +182,9 @@ class GameModifications:
             "strobo_mode": self.strobo_mode,
             "phantom_mode": self.phantom_mode,
             "blinking_mode": self.blinking_mode,
-            "speed_mode": self.speed_mode
+            "speed_mode": self.speed_mode,
+            "reverse_car_speed_bottom": self.reverse_car_speed_bottom,
+            "reverse_car_speed_top": self.reverse_car_speed_top,
         }
 
         step_modifs = [modif_mapping[name]

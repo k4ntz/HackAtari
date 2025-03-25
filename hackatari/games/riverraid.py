@@ -136,6 +136,13 @@ class GameModifications:
             overright_score(self.env, int(nsc))
         self.score = nsc
     
+    def unlimited_lives(self):
+        """
+        The number of lives will always stay 3.
+        """
+        self.env.set_ram(64, 24)
+        
+    
     def restricted_firing(self):
         """
         Makes the player only able to shoot in critical situation, facing a bridge 
@@ -197,6 +204,7 @@ class GameModifications:
             "object_color_change03": self.ObjectColorChange03,
             "exploding_fuels": self.exploding_fuels,
             "restricted_firing": self.restricted_firing,
+            "unlimited_lives": self.unlimited_lives,
 
         }
 
