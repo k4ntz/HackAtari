@@ -12,6 +12,12 @@ except ImportError:
         return text
     print("Warning: termcolor not installed. Colored output will not be available.")
 
+from hackatari.ale_mods import (
+    ALEColorSwap,
+    ALEInpainting,
+    assert_colorswaps,
+)
+
 # Suppress unnecessary warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -52,21 +58,31 @@ class HackAtari(OCAtari):
 
         self.ale = self.env.env.ale
         # Initialize modifications and environment settings
+        self.done = False
+
         self.step_modifs, self.reset_modifs, self.post_detection_modifs = [], [], []
+        self.inpainting_modifs, self.place_above_modifs = [], []
 
         # Load modification functions dynamically
         try:
             modif_module = importlib.import_module(
                 f"hackatari.games.{self.game_name.lower()}")
-            step_modifs, reset_modifs, post_detection_modifs = modif_module.modif_funcs(
+            step_modifs, reset_modifs, post_detection_modifs, inpainting_modifs, place_above_modifs = modif_module.modif_funcs(
                 self, modifs)
             self.step_modifs.extend(step_modifs)
             self.reset_modifs.extend(reset_modifs)
             self.post_detection_modifs.extend(post_detection_modifs)
+            self.inpainting_modifs.extend(inpainting_modifs)
+            self.place_above_modifs.extend(place_above_modifs)
 
         except ModuleNotFoundError as e:
             print(colored(
                 f"Error: {e}. No modifications available for {self.game_name}.", "yellow"))
+
+        if self.inpainting_modifs:
+            self.env.env.ale = ALEInpainting(
+                self.env.env.ale, self.inpainting_modifs, self.place_above_modifs
+            )
 
         self.dopamine_pooling = dopamine_pooling and self._frameskip > 1
 
