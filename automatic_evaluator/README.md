@@ -36,4 +36,5 @@ pip install "gymnasium[atari, accept-rom-license]"
 jupyter notebook automatic_evaluator/Evaluator.ipynb
 ```
 
-4. The Jupyter notebook will open and all you have to do is run all cells of the notebook and at the end, there will be UI with options such as to select the model path, the game to test, the modifications etc.
+4. The Jupyter notebook will open. To run the interactive web page renderd with Voila you will need to press the small graph Icon in the top right corner of the notebook.
+![Voila Icon](./voila.png)
