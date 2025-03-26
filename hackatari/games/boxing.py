@@ -174,6 +174,7 @@ class GameModifications:
         """
         Resets the "once" variable to its initial value.
         """
+        print("Ja")
         self.once = 2
 
     def _set_active_modifications(self, active_modifs):
@@ -191,29 +192,46 @@ class GameModifications:
         :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
         """
         modif_mapping = {
-            "one_armed": self.one_armed,
-            "gravity": self.gravity,
-            "drunken_boxing": self.drunken_boxing,
-            "color_player_black": self.color_player_black,
-            "color_player_white": self.color_player_white,
-            "color_player_red": self.color_player_red,
-            "color_player_blue": self.color_player_blue,
-            "color_player_green": self.color_player_green,
-            "color_enemy_black": self.color_enemy_black,
-            "color_enemy_white": self.color_enemy_white,
-            "color_enemy_red": self.color_enemy_red,
-            "color_enemy_blue": self.color_enemy_blue,
-            "color_enemy_green": self.color_enemy_green,
-            "switch_positions": self.switch_positions,
+        
+            "step_modifs": {
+                "one_armed": self.one_armed,
+                "gravity": self.gravity,
+                "drunken_boxing": self.drunken_boxing,
+                "color_player_black": self.color_player_black,
+                "color_player_white": self.color_player_white,
+                "color_player_red": self.color_player_red,
+                "color_player_blue": self.color_player_blue,
+                "color_player_green": self.color_player_green,
+                "color_enemy_black": self.color_enemy_black,
+                "color_enemy_white": self.color_enemy_white,
+                "color_enemy_red": self.color_enemy_red,
+                "color_enemy_blue": self.color_enemy_blue,
+                "color_enemy_green": self.color_enemy_green,
+                "switch_positions": self.switch_positions,
+            },
+            "reset_modifs": {
+                "switch_positions": self.reset_once
+            },
+            "post_detection_modifs": {
+            },
+            "inpainting_modifs": {
+            },
+            "place_above_modifs": {
+            }
         }
 
-        step_modifs = [modif_mapping[name]
-                       for name in self.active_modifications if name in modif_mapping]
-        reset_modifs = []
-        if "switch_positions" in self.active_modifications:
-            reset_modifs.append(self.reset_once)
-        post_detection_modifs = []
-        return step_modifs, reset_modifs, post_detection_modifs
+        step_modifs = [modif_mapping["step_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["step_modifs"]]
+        reset_modifs = [modif_mapping["reset_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["reset_modifs"]]
+        post_detection_modifs = [modif_mapping["post_detection_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["post_detection_modifs"]]
+        inpainting_modifs = [modif_mapping["inpainting_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["inpainting_modifs"]]
+        place_above_modifs = [modif_mapping["place_above_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["place_above_modifs"]]
+        
+        return step_modifs, reset_modifs, post_detection_modifs, inpainting_modifs, place_above_modifs
 
 
 def modif_funcs(env, active_modifs):

@@ -99,29 +99,42 @@ class GameModifications:
         :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
         """
         modif_mapping = {
-            "player_color_white": self.player_color_white,
-            "player_color_green": self.player_color_green,
-            "player_color_red": self.player_color_red,
-            "player_color_yellow": self.player_color_yellow,
-            "player_color_purple": self.player_color_purple,
-            "player_color_blue": self.player_color_blue,
-            "enemy_color_white": self.enemy_color_white,
-            "enemy_color_green": self.enemy_color_green,
-            "enemy_color_red": self.enemy_color_red,
-            "enemy_color_yellow": self.enemy_color_yellow,
-            "enemy_color_purple": self.enemy_color_purple,
-            "enemy_color_blue": self.enemy_color_blue,
+            "step_modifs": {
+            },
+            "reset_modifs": {
+                "player_color_white": self.player_color_white,
+                "player_color_green": self.player_color_green,
+                "player_color_red": self.player_color_red,
+                "player_color_yellow": self.player_color_yellow,
+                "player_color_purple": self.player_color_purple,
+                "player_color_blue": self.player_color_blue,
+                "enemy_color_white": self.enemy_color_white,
+                "enemy_color_green": self.enemy_color_green,
+                "enemy_color_red": self.enemy_color_red,
+                "enemy_color_yellow": self.enemy_color_yellow,
+                "enemy_color_purple": self.enemy_color_purple,
+                "enemy_color_blue": self.enemy_color_blue,
+            },
+            "post_detection_modifs": {
+            },
+            "inpainting_modifs": {
+            },
+            "place_above_modifs": {
+            }
         }
 
-        step_modifs = []
-        reset_modifs = []
-        post_detection_modifs = []
-
-        for mod in self.active_modifications:
-            if mod in modif_mapping:
-                reset_modifs.append(modif_mapping[mod])
-
-        return step_modifs, reset_modifs, post_detection_modifs
+        step_modifs = [modif_mapping["step_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["step_modifs"]]
+        reset_modifs = [modif_mapping["reset_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["reset_modifs"]]
+        post_detection_modifs = [modif_mapping["post_detection_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["post_detection_modifs"]]
+        inpainting_modifs = [modif_mapping["inpainting_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["inpainting_modifs"]]
+        place_above_modifs = [modif_mapping["place_above_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["place_above_modifs"]]
+        
+        return step_modifs, reset_modifs, post_detection_modifs, inpainting_modifs, place_above_modifs
 
 
 def modif_funcs(env, active_modifs):

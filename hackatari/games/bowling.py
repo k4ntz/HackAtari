@@ -164,22 +164,38 @@ class GameModifications:
         :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
         """
         modif_mapping = {
-            "top_pins": self.top_pins,
-            "middle_pins": self.middle_pins,
-            "bottom_pins": self.bottom_pins,
-            "top_bottom_pins": self.top_bottom_pins,
-            "shift_player": self.shift_player,
-            "horizontal_pins": self.horizontal_pins,
-            "small_pins": self.small_pins,
-            "moving_pins": self.moving_pins,
-
+            "step_modifs": {
+                "top_pins": self.top_pins,
+                "middle_pins": self.middle_pins,
+                "bottom_pins": self.bottom_pins,
+                "top_bottom_pins": self.top_bottom_pins,
+                "shift_player": self.shift_player,
+                "horizontal_pins": self.horizontal_pins,
+                "small_pins": self.small_pins,
+                "moving_pins": self.moving_pins,
+            },
+            "reset_modifs": {
+            },
+            "post_detection_modifs": {
+            },
+            "inpainting_modifs": {
+            },
+            "place_above_modifs": {
+            }
         }
 
-        step_modifs = [modif_mapping[name]
-                       for name in self.active_modifications if name in modif_mapping]
-        reset_modifs = []
-        post_detection_modifs = []
-        return step_modifs, reset_modifs, post_detection_modifs
+        step_modifs = [modif_mapping["step_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["step_modifs"]]
+        reset_modifs = [modif_mapping["reset_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["reset_modifs"]]
+        post_detection_modifs = [modif_mapping["post_detection_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["post_detection_modifs"]]
+        inpainting_modifs = [modif_mapping["inpainting_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["inpainting_modifs"]]
+        place_above_modifs = [modif_mapping["place_above_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["place_above_modifs"]]
+        
+        return step_modifs, reset_modifs, post_detection_modifs, inpainting_modifs, place_above_modifs
 
 
 def modif_funcs(env, active_modifs):

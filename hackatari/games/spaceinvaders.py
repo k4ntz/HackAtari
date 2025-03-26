@@ -80,24 +80,41 @@ class GameModifications:
         Returns the modification lists (step, reset, and post-detection) with active modifications.
         """
         modif_mapping = {
-            "disable_shield_left": self.disable_shield_left,
-            "disable_shield_middle": self.disable_shield_middle,
-            "disable_shield_right": self.disable_shield_right,
-            "relocate_shields_slight_left": self.relocate_shields_slight_left,
-            "relocate_shields_off_by_one": self.relocate_shields_off_by_one,
-            "relocate_shields_right": self.relocate_shields_right,
-            # "curved_shots_weak": self.curved_shots_weak,
-            # "curved_shots_medium": self.curved_shots_medium,
-            # "curved_shots_strong": self.curved_shots_strong,
-            "controlable_missile": self.controlable_missile,
-            "no_danger": self.no_danger,
+            "step_modifs": {
+                "disable_shield_left": self.disable_shield_left,
+                "disable_shield_middle": self.disable_shield_middle,
+                "disable_shield_right": self.disable_shield_right,
+                "relocate_shields_slight_left": self.relocate_shields_slight_left,
+                "relocate_shields_off_by_one": self.relocate_shields_off_by_one,
+                "relocate_shields_right": self.relocate_shields_right,
+                # "curved_shots_weak": self.curved_shots_weak,
+                # "curved_shots_medium": self.curved_shots_medium,
+                # "curved_shots_strong": self.curved_shots_strong,
+                "controlable_missile": self.controlable_missile,
+                "no_danger": self.no_danger,
+            },
+            "reset_modifs": {
+            },
+            "post_detection_modifs": {
+            },
+            "inpainting_modifs": {
+            },
+            "place_above_modifs": {
+            }
         }
 
-        step_modifs = [modif_mapping[name]
-                       for name in self.active_modifications if name in modif_mapping]
-        reset_modifs = []
-        post_detection_modifs = []
-        return step_modifs, reset_modifs, post_detection_modifs
+        step_modifs = [modif_mapping["step_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["step_modifs"]]
+        reset_modifs = [modif_mapping["reset_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["reset_modifs"]]
+        post_detection_modifs = [modif_mapping["post_detection_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["post_detection_modifs"]]
+        inpainting_modifs = [modif_mapping["inpainting_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["inpainting_modifs"]]
+        place_above_modifs = [modif_mapping["place_above_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["place_above_modifs"]]
+        
+        return step_modifs, reset_modifs, post_detection_modifs, inpainting_modifs, place_above_modifs
 
 
 def modif_funcs(env, active_modifs):

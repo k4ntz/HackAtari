@@ -113,6 +113,7 @@ class GameModifications:
         """
         Randomizes the starting position of the player.
         """
+        self.random_start = True
         pot_start_pos = [
             (49, 154),
             (110, 154),
@@ -124,7 +125,7 @@ class GameModifications:
             (111, 43),
             (111, 21),
         ]
-
+        print(self.random_start)
         rndinit = 7
         for i, el in enumerate(self.INIT_RAM):
             if i not in [35, 36]:  # lives & scores
@@ -149,17 +150,38 @@ class GameModifications:
         :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
         """
         modif_mapping = {
-            "no_barrel": self.no_barrel,
-            "double_barrel": self.double_barrel,
-            "unlimited_time": self.unlimited_time,
-            # "change_level_0": self.change_level_0,
-            # "change_level_1": self.change_level_1,
-            # "change_level_2": self.change_level_2,
-            "random_start": self.random_start_step,
+            "step_modifs": {
+                "no_barrel": self.no_barrel,
+                "double_barrel": self.double_barrel,
+                "unlimited_time": self.unlimited_time,
+                # "change_level_0": self.change_level_0,
+                # "change_level_1": self.change_level_1,
+                # "change_level_2": self.change_level_2,
+                "random_start": self.random_start_step,
+            },
+            "reset_modifs": {
+                "random_start": self._randomize_pos
+            },
+            "post_detection_modifs": {
+            },
+            "inpainting_modifs": {
+            },
+            "place_above_modifs": {
+            }
         }
 
-        step_modifs = []
-        reset_modifs = []
+        step_modifs = [modif_mapping["step_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["step_modifs"]]
+        reset_modifs = [modif_mapping["reset_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["reset_modifs"]]
+        post_detection_modifs = [modif_mapping["post_detection_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["post_detection_modifs"]]
+        inpainting_modifs = [modif_mapping["inpainting_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["inpainting_modifs"]]
+        place_above_modifs = [modif_mapping["place_above_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["place_above_modifs"]]
+        
+        return step_modifs, reset_modifs, post_detection_modifs, inpainting_modifs, place_above_modifs
 
         for mod in self.active_modifications:
             if mod in modif_mapping:

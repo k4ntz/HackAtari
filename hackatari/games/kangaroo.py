@@ -104,24 +104,40 @@ class GameModifications:
         :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
         """
         modif_mapping = {
-            "disable_monkeys": self.disable_monkeys,
-            "disable_coconut": self.disable_coconut,
-            "disable_thrown_coconut": self.disable_thrown_coconut,
-            "unlimited_time": self.unlimited_time,
-            "set_kangaroo_position_floor1": self.set_kangaroo_position_floor1,
-            "set_kangaroo_position_floor2": self.set_kangaroo_position_floor2,
-            "randomize_kangaroo_position": self.randomize_kangaroo_position,
-            "change_level_0": self.change_level_0,
-            "change_level_1": self.change_level_1,
-            "change_level_2": self.change_level_2,
+            "step_modifs": {
+                "disable_monkeys": self.disable_monkeys,
+                "disable_coconut": self.disable_coconut,
+                "disable_thrown_coconut": self.disable_thrown_coconut,
+                "unlimited_time": self.unlimited_time,
+                "set_kangaroo_position_floor1": self.set_kangaroo_position_floor1,
+                "set_kangaroo_position_floor2": self.set_kangaroo_position_floor2,
+                "randomize_kangaroo_position": self.randomize_kangaroo_position,
+                "change_level_0": self.change_level_0,
+                "change_level_1": self.change_level_1,
+                "change_level_2": self.change_level_2,
+            },
+            "reset_modifs": {
+            },
+            "post_detection_modifs": {
+            },
+            "inpainting_modifs": {
+            },
+            "place_above_modifs": {
+            }
         }
 
-        step_modifs = [modif_mapping[name]
-                       for name in self.active_modifications if name in modif_mapping]
-        reset_modifs = []
-        post_detection_modifs = []
-
-        return step_modifs, reset_modifs, post_detection_modifs
+        step_modifs = [modif_mapping["step_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["step_modifs"]]
+        reset_modifs = [modif_mapping["reset_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["reset_modifs"]]
+        post_detection_modifs = [modif_mapping["post_detection_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["post_detection_modifs"]]
+        inpainting_modifs = [modif_mapping["inpainting_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["inpainting_modifs"]]
+        place_above_modifs = [modif_mapping["place_above_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["place_above_modifs"]]
+        
+        return step_modifs, reset_modifs, post_detection_modifs, inpainting_modifs, place_above_modifs
 
     def _set_kangaroo_position(self, pos_x, pos_y):
         """

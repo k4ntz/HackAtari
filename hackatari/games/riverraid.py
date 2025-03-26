@@ -186,25 +186,41 @@ class GameModifications:
         self.game_active = False
         self._last11 = 0
         modif_mapping = {
-            "no_fuel": self.no_fuel,
-            "red_river": self.red_river,
-            "linear_river": self.LinearRiver,
-            "game_color_change01": self.GameColorChange01,
-            "game_color_change02": self.GameColorChange02,
-            "game_color_change03": self.GameColorChange03,
-            "object_color_change01": self.ObjectColorChange01,
-            "object_color_change02": self.ObjectColorChange02,
-            "object_color_change03": self.ObjectColorChange03,
-            "exploding_fuels": self.exploding_fuels,
-            "restricted_firing": self.restricted_firing,
-
+            "step_modifs": {
+                "no_fuel": self.no_fuel,
+                "red_river": self.red_river,
+                "linear_river": self.LinearRiver,
+                "game_color_change01": self.GameColorChange01,
+                "game_color_change02": self.GameColorChange02,
+                "game_color_change03": self.GameColorChange03,
+                "object_color_change01": self.ObjectColorChange01,
+                "object_color_change02": self.ObjectColorChange02,
+                "object_color_change03": self.ObjectColorChange03,
+                "exploding_fuels": self.exploding_fuels,
+                "restricted_firing": self.restricted_firing,
+            },
+            "reset_modifs": {
+            },
+            "post_detection_modifs": {
+            },
+            "inpainting_modifs": {
+            },
+            "place_above_modifs": {
+            }
         }
 
-        step_modifs = [modif_mapping[name]
-                       for name in self.active_modifications if name in modif_mapping]
-        reset_modifs = []
-        post_detection_modifs = []
-        return step_modifs, reset_modifs, post_detection_modifs
+        step_modifs = [modif_mapping["step_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["step_modifs"]]
+        reset_modifs = [modif_mapping["reset_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["reset_modifs"]]
+        post_detection_modifs = [modif_mapping["post_detection_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["post_detection_modifs"]]
+        inpainting_modifs = [modif_mapping["inpainting_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["inpainting_modifs"]]
+        place_above_modifs = [modif_mapping["place_above_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["place_above_modifs"]]
+        
+        return step_modifs, reset_modifs, post_detection_modifs, inpainting_modifs, place_above_modifs
 
 
 def modif_funcs(env, active_modifs):
