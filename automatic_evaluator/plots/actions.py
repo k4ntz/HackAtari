@@ -52,7 +52,9 @@ This visualization reveals the agent's decision-making patterns across different
     
     fig, axes = plt.subplots(nrows, ncols, 
                            figsize=(14, 5*nrows),
-                           gridspec_kw={'wspace': 0.3, 'hspace': 0.5})
+                           gridspec_kw={'wspace': 0.3, 'hspace': 0.5},
+                           squeeze=False,
+    )
     
     fig.suptitle(f"Action Selection Count", 
                 fontsize=STYLE["title_fontsize"], y=0.95)
@@ -62,7 +64,7 @@ This visualization reveals the agent's decision-making patterns across different
 
     # Create subplot for each modification
     for idx, log in enumerate(all_logs):
-        ax = axes.flat[idx] if n_mods > 1 else axes
+        ax = axes.flat[idx]
         
         action_counts = Counter(a for ep in log.actions for a in ep)
         counts = [action_counts.get(a, 0) for a in all_actions]
@@ -142,7 +144,7 @@ Color intensity represents transition frequency (log scale) between consecutive 
     ncols = min(2, n_mods)
     nrows = (n_mods + ncols - 1) // ncols
     
-    fig, axes = plt.subplots(nrows, ncols, figsize=(5*ncols, 4*nrows))
+    fig, axes = plt.subplots(nrows, ncols, figsize=(5*ncols, 4*nrows), squeeze=False)
     fig.suptitle(f"Action Transition Counts", fontsize=16, y=1.02)
     
     # Find global maximum for color scaling
@@ -164,7 +166,7 @@ Color intensity represents transition frequency (log scale) between consecutive 
     
     # Plotting
     for idx, (log, matrix) in enumerate(zip(all_logs, transition_matrices)):
-        ax = axes.flat[idx] if n_mods > 1 else axes
+        ax = axes.flat[idx]
         
         sns.heatmap(
             matrix,
@@ -233,7 +235,7 @@ _Note: Correlations measure linear relationships, not causal effects._
     ncols = min(2, n_mods)
     nrows = (n_mods + ncols - 1) // ncols
     
-    fig, axes = plt.subplots(nrows, ncols, figsize=(5*ncols, 4*nrows))
+    fig, axes = plt.subplots(nrows, ncols, figsize=(5*ncols, 4*nrows), squeeze=False)
     fig.suptitle(f"Action Transition Correlations: {selected_game}", fontsize=16, y=1.02)
     
     # Precompute all correlation matrices
@@ -256,7 +258,7 @@ _Note: Correlations measure linear relationships, not causal effects._
     
     # Plotting
     for idx, (log, corr_matrix) in enumerate(zip(all_logs, corr_matrices)):
-        ax = axes.flat[idx] if n_mods > 1 else axes
+        ax = axes.flat[idx]
         
         sns.heatmap(
             corr_matrix,
