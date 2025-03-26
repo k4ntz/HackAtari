@@ -158,6 +158,13 @@ class GameModifications:
         Changes the enemy's color to green.
         """
         self.env.set_ram(2, self.colors[4])
+    
+    def classic_colors(self):
+        """
+        Changes the player to red and enemy to blue.
+        """
+        self.env.set_ram(1, self.colors[2])
+        self.env.set_ram(2, self.colors[3])
 
     def switch_positions(self):
         """
@@ -204,6 +211,7 @@ class GameModifications:
             "color_enemy_red": self.color_enemy_red,
             "color_enemy_blue": self.color_enemy_blue,
             "color_enemy_green": self.color_enemy_green,
+            "classic_colors": self.classic_colors,
             "switch_positions": self.switch_positions,
         }
 

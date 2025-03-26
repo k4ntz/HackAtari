@@ -53,15 +53,19 @@ class GameModifications:
         for i in range(3):
             if ram[24 + i] == 254:
                 nb_police += 1
-        if nb_police < 2:
+        if nb_police < 2: # change 2 banks to police cars
             for i in range(3):
                 if (ram[29+i] < 47 or ram[29 + i] > 120) and 25 < ram[9+i] < 71:
+                    if ram[9+i] == 41:
+                        self.env.set_ram(29+i, 84)
                     continue
                 if ram[24 + i] == 253:
                     self.env.set_ram(24 + i, 254)
                     self.env.set_ram(83, 4)
                     nb_police += 1
                 if nb_police == 2:
+                    if ram[11] == 41:
+                        self.env.set_ram(31, 84)
                     break
             
 
