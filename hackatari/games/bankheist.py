@@ -56,16 +56,26 @@ class GameModifications:
         if nb_police < 2: # change 2 banks to police cars
             for i in range(3):
                 if (ram[29+i] < 47 or ram[29 + i] > 120) and 25 < ram[9+i] < 71:
-                    if ram[9+i] == 41:
-                        self.env.set_ram(29+i, 84)
+                    if ram[9+i] == 41 or ram[9+i] == 49: # move closeby banks
+                        if ram[0] == 9 or ram[0] == 25:
+                            self.env.set_ram(29+i, 104)      
+                        elif ram[0] == 15 or ram[0] == 31:
+                            self.env.set_ram(29+i, 76)
+                        else:                  
+                            self.env.set_ram(29+i, 84)
                     continue
                 if ram[24 + i] == 253:
                     self.env.set_ram(24 + i, 254)
                     self.env.set_ram(83, 4)
                     nb_police += 1
                 if nb_police == 2:
-                    if ram[11] == 41:
-                        self.env.set_ram(31, 84)
+                    if ram[11] == 41 or ram[11] == 49:
+                        if ram[0] == 9 or ram[0] == 25:
+                            self.env.set_ram(31, 104)      
+                        elif ram[0] == 15 or ram[0] == 31:
+                            self.env.set_ram(31, 76)
+                        else:                  
+                            self.env.set_ram(31, 84)
                     break
             
 
