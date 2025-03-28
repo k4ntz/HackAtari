@@ -1,4 +1,15 @@
 import random
+from ocatari.ram._helper_methods import _convert_number
+
+def _encode_number(n):
+    """
+    Encodes a two-digit decimal number into a pseudo-BCD format
+    used by some Atari games, where each nibble is a digit.
+    Any digit > 9 is clamped to 9.
+    """
+    tens = min(n // 10, 9)
+    ones = min(n % 10, 9)
+    return (tens << 4) | ones
 
 
 class GameModifications:
@@ -19,6 +30,25 @@ class GameModifications:
         random.shuffle(self.remaining_towns)
         self.current_town = 0
         self.player_x = 0
+    
+    def write_score_to_ram(self, score):
+        """
+        Converts a decimal score into the format used by the game RAM and writes it into ram[88], ram[89], ram[90].
+
+        :param score: Integer score to encode (max 999999)
+        :param ram: List or bytearray representing the RAM
+        """
+        # Clamp score to 6 digits max (because 3 * 2 digits)
+        score = min(score, 999999)
+
+        # Break score into 3 parts: units, hundreds, ten-thousands
+        unit = score % 100
+        hundred = (score // 100) % 100
+        tenthousand = (score // 10000) % 100
+
+        self.env.set_ram(90, _encode_number(unit))
+        self.env.set_ram(89, _encode_number(hundred))
+        self.env.set_ram(88, _encode_number(tenthousand))
 
     def unlimited_gas(self):
         """
@@ -50,6 +80,12 @@ class GameModifications:
         """
         ram = self.env.get_ram()
         nb_police = 0
+        score = _convert_number(ram[90]) + \
+                100 * _convert_number(ram[89]) + \
+                10000 * _convert_number(ram[88])
+        if self.score != score:
+            self.score = score + 50
+            self.write_score_to_ram(self.score)
         for i in range(3):
             if ram[24 + i] == 254:
                 nb_police += 1
@@ -57,25 +93,15 @@ class GameModifications:
             for i in range(3):
                 if (ram[29+i] < 47 or ram[29 + i] > 120) and 25 < ram[9+i] < 71:
                     if ram[9+i] == 41 or ram[9+i] == 49: # move closeby banks
-                        if ram[0] == 9 or ram[0] == 25:
-                            self.env.set_ram(29+i, 104)      
-                        elif ram[0] == 15 or ram[0] == 31:
-                            self.env.set_ram(29+i, 76)
-                        else:                  
-                            self.env.set_ram(29+i, 84)
+                        self.env.set_ram(71+i, 1)
                     continue
                 if ram[24 + i] == 253:
                     self.env.set_ram(24 + i, 254)
-                    self.env.set_ram(83, 4)
+                    # self.env.set_ram(83, 4)
                     nb_police += 1
                 if nb_police == 2:
                     if ram[11] == 41 or ram[11] == 49:
-                        if ram[0] == 9 or ram[0] == 25:
-                            self.env.set_ram(31, 104)      
-                        elif ram[0] == 15 or ram[0] == 31:
-                            self.env.set_ram(31, 76)
-                        else:                  
-                            self.env.set_ram(31, 84)
+                        self.env.set_ram(73, 1)      
                     break
             
 
@@ -135,6 +161,7 @@ class GameModifications:
 
         step_modifs = [modif_mapping[name]
                        for name in self.active_modifications if name in modif_mapping]
+        self.score = 0
         reset_modifs = []
         if "random_city" in self.active_modifications:
             reset_modifs.append(self.random_city)
