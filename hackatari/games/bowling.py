@@ -104,6 +104,7 @@ class GameModifications:
         self.tick+=1
 
 
+    
     def top_pins(self):
         """
         Removes all but the top two pins
