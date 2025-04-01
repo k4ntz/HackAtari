@@ -1,0 +1,79 @@
+import random
+
+class GameModifications:
+    """
+    Encapsulates game modifications for managing active modifications and applying them.
+    """
+
+    def __init__(self, env):
+        """
+        Initializes the modification handler with the given environment.
+
+        :param env: The game environment to modify.
+        """
+        self.env = env
+        self.active_modifications = set()
+        self.egg_states = [255, 14, 255, 148, 190, 24, 255, 144, 255, 12, 255, 68, 127,
+                           255, 192, 255, 164, 244, 96, 255, 36, 255, 192, 255, 136, 248]
+
+    def last_egg(self):
+        """
+        Removes all eggs but one.
+        """
+        ram = self.env.get_ram()
+        if ram[65] and ram[90]:
+            self.last_egg_reset()
+
+    def last_egg_reset(self):
+        """
+        If a level starts, all eggs are removed and only one is added to the game.
+        """
+        # remove all eggs
+        for i in range(65, 91):
+            self.env.set_ram(i, 0)
+        
+        # randomly pick a ram position form the eggs
+        state = random.choice(range(0, 26))
+        # pick a bit, bits 2-8 determine if an egg is present
+        bit = random.choice(range(2,8))
+
+        # if true then the egg would be in a wall
+        if not self.egg_states[state]&(2**bit):
+            # just choose egg bit until it is not in the wall
+            while not self.egg_states[state]&(2**bit):
+                bit = random.choice(range(2,8))
+
+        # set egg bit at egg ramposition
+        self.env.set_ram(65+state, 2**bit)
+
+        # ram position 91 tracks amount of eggs collected, 106 eggs required to finish the level
+        self.env.set_ram(91, 105)
+
+
+    def _set_active_modifications(self, active_modifs):
+        """
+        Specifies which modifications are active.
+
+        :param active_modifs: A list of active modification names.
+        """
+        self.active_modifications = set(active_modifs)
+
+    def _fill_modif_lists(self):
+        """
+        Returns the step modification list with active modifications.
+
+        :return: List of step modifications.
+        """
+        modif_mapping = {
+            "last_egg": self.last_egg,
+        }
+
+        step_modifs = [modif_mapping[name]
+                       for name in self.active_modifications if name in modif_mapping]
+        return step_modifs, [], []
+
+
+def modif_funcs(env, active_modifs):
+    modifications = GameModifications(env)
+    modifications._set_active_modifications(active_modifs)
+    return modifications._fill_modif_lists()

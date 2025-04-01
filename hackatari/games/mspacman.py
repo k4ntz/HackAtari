@@ -250,7 +250,6 @@ class GameModifications:
             elif mod == "set_level_3":
                 self.active_modifications.add("set_level_3")
             elif mod == "end_game":
-                self.end_game_pills = random.randint(59, 101)
                 self.active_modifications.add("end_game")
             elif mod == "maze_man":
                 self.toggle_cyan = self.toggle_orange = self.toggle_red = self.toggle_pink = True
