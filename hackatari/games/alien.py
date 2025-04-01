@@ -21,6 +21,17 @@ class GameModifications:
         Removes all eggs but one.
         """
         ram = self.env.get_ram()
+        if ram[11] != 128 and ram[11] != 0:
+            self.env.set_ram(11, 0)
+            self.env.set_ram(9, 0)
+            for i in range(3):
+                s_ram = 7-(2*i)
+                if ram[s_ram] == 128 or ram[s_ram] < 72:
+                    self.env.set_ram(s_ram, (ram[s_ram]+8)&127)
+                    break
+                else:
+                    self.env.set_ram(s_ram, 0)
+
         if ram[65] and ram[90]:
             self.last_egg_reset()
 
