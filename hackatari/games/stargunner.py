@@ -28,7 +28,7 @@ class GameModifications:
 
     def static_flyers(self):
         """
-        Stops the bomber at the top from moving
+        Sets the fling_enemies at the same position
         """
         ram = self.env.get_ram()
         for i in range(74, 77):

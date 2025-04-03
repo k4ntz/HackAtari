@@ -99,7 +99,7 @@ class GameModifications:
             "shark_speed_mode": self.shark_speed_mode,
             "fish_on_player_side": self.fish_on_player_side,
             "fish_in_middle": self.fish_in_middle,
-            "fish_on_different_sides": self.fish_on_different_sides,
+            "swap_fish_sides": self.swap_fish_sides,
         }
 
         step_modifs = [modif_mapping[name]
