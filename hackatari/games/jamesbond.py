@@ -50,6 +50,12 @@ class GameModifications():
         self.env.objects[1].x += 2
         self.env.objects[1].y += 1
 
+    def infinite_lives(self):
+        """
+        Makes the player character jump constantly.
+        """
+        self.env.set_ram(6, 5)
+
     def _set_active_modifications(self, active_modifs):
         """
         Specifies which modifications are active.
@@ -67,6 +73,7 @@ class GameModifications():
             "straight_shots": self.straight_shots,
             "fast_backward": self.fast_backward,
             "mobile_player": self.mobile_player,
+            "infinite_lives": self.infinite_lives,
         }
 
         step_modifs = [modif_mapping[name]

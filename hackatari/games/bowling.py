@@ -179,13 +179,17 @@ class GameModifications:
         strike = 0
         diff = score - self.score
         if diff > 10:
-            strike = 10
+            spare = 1
             diff -= 10
         if diff > 10:
+            spare = 0
+            strike = 1
             diff /= 2
         if diff == 8 or diff == 9:
-            print("Score: ", score, ">", score-8)
-            score -= 8
+            if strike:
+                score -= 2*8
+            else:
+                score -= 8
             self.write_score_to_ram(score)
         self.score = score
     
