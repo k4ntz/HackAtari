@@ -17,8 +17,9 @@ The modes are:
 ## Amidar:
 | Command | Effect                                                                               |
 |---------|--------------------------------------------------------------------------------------|
-| change_enemy  | Changes enemies into pigs |
-| change_player | Changes player into snake |
+| pig_enemies           | Changes enemies into pigs |
+| paint_roller_player   | Changes player into paint roller |
+| unlimited_lives       | The player never loses any lives |
 
 ## Asterix:
 | Command | Effect                                                                               |

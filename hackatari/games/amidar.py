@@ -30,6 +30,13 @@ class GameModifications:
             if not ram[73 + i] & 32:
                 self.env.set_ram(73 + i, ram[73 + i] | 16)
 
+    def unlimited_lives(self):
+        """
+        The player never loses any lives.
+        """
+        ram = self.env.get_ram()
+        self.env.set_ram(86, ram[86] | 3)
+
     def _set_active_modifications(self, active_modifs):
         """
         Specifies which modifications are active.
@@ -47,6 +54,7 @@ class GameModifications:
         modif_mapping = {
             "pig_enemies": self.pig_enemies,
             "paint_roller_player": self.paint_roller_player,
+            "unlimited_lives": self.unlimited_lives
         }
 
         step_modifs = [modif_mapping[name]
