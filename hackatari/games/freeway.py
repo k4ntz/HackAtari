@@ -33,7 +33,7 @@ class GameModifications:
         car_all = random.choices([0, 1], weights=[0.6, 0.4], k=1)[0]
         for car_pos in range(33, 43):
             self.env.set_ram(car_pos, 100 if car_all > 0 else 0)
-    
+
     def reverse_car_speed_bottom(self):
         """
         Reverses the speed of the bottom car (the fastest becomes the slowest and vice versa).
@@ -41,7 +41,7 @@ class GameModifications:
         for i in range(5):
             val = self.env.get_ram()[1] % (i+1)
             self.env.set_ram(33+i, val)
-    
+
     def reverse_car_speed_top(self):
         """
         Reverses the speed of the top car (the fastest becomes the slowest and vice versa).
@@ -57,9 +57,9 @@ class GameModifications:
         for car_stop in range(33, 43):
             self.env.set_ram(car_stop, 100)
         for new_pos_down in range(108, 113):
-            self.env.set_ram(new_pos_down, 15)
+            self.env.set_ram(new_pos_down, 35)
         for new_pos_down in range(113, 118):
-            self.env.set_ram(new_pos_down, 150)
+            self.env.set_ram(new_pos_down, 55)
 
     def all_black_cars(self):
         """
@@ -96,7 +96,7 @@ class GameModifications:
         for car in range(77, 87):
             self.env.set_ram(car, 145)
 
-    #### My modifications
+    # My modifications
 
     def invisible_mode(self):
         """
@@ -120,7 +120,7 @@ class GameModifications:
         Each car changes color from black to invisible approximately every second.
         """
         for car in range(77, 87):
-            # global clock_counter -> braucht man hier nicht, da durch self schon angegeben wird, dass 
+            # global clock_counter -> braucht man hier nicht, da durch self schon angegeben wird, dass
             # die Variable außerhalb der Methode gemeint ist.
             if self.clock_counter % 60 == 0:
                 self.env.set_ram(car, 1)
@@ -142,7 +142,7 @@ class GameModifications:
         """
         Each car drives with speed 2 (default)
         """
-        speed = 2 # default
+        speed = 2  # default
         ram = self.env.get_ram()
         for car_x in range(108, 113):
             x_value = ram[car_x]
@@ -151,9 +151,8 @@ class GameModifications:
             x_value = ram[car_x]
             new_x = x_value-speed
             if new_x < 0:
-                new_x = 0 # to prevent negative x-koordinates
+                new_x = 0  # to prevent negative x-koordinates
             self.env.set_ram(car_x, new_x)
-
 
     def _set_active_modifications(self, active_modifs):
         """

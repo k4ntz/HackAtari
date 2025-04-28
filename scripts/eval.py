@@ -1,3 +1,4 @@
+
 from hackatari import HackAtari, HumanPlayable
 import numpy as np
 import cv2
@@ -15,6 +16,11 @@ from stable_baselines3.common.atari_wrappers import (
     NoopResetEnv,
 )
 import rliable.metrics as rlm
+
+import time
+
+# Get the current time in a human-readable format
+current_time = time.strftime("%Y-%m-%d-%H-%M", time.localtime())
 
 # Disable graphics window (SDL) for headless execution
 os.environ["SDL_VIDEODRIVER"] = "dummy"
@@ -38,8 +44,8 @@ atari_scores = {
     'choppercommand': (811.0, 7387.8),
     'crazyclimber': (10780.5, 35829.4),
     'defender': (2874.5, 18688.9),
-    'demon_attack': (152.1, 1971.0),
-    'double_dunk': (-18.6, -16.4),
+    'demonattack': (152.1, 1971.0),
+    'doubledunk': (-18.6, -16.4),
     'enduro': (0.0, 860.5),
     'fishingderby': (-91.7, -38.7),
     'freeway': (0.0, 29.6),
@@ -47,13 +53,13 @@ atari_scores = {
     'gopher': (257.6, 2412.5),
     'gravitar': (173.0, 3351.4),
     'hero': (1027.0, 30826.4),
-    'ice_hockey': (-11.2, 0.9),
+    'icehockey': (-11.2, 0.9),
     'jamesbond': (29.0, 302.8),
     'kangaroo': (52.0, 3035.0),
     'krull': (1598.0, 2665.5),
     'kungfumaster': (258.5, 22736.3),
     'montezumarevenge': (0.0, 4753.3),
-    'ms_pacman': (307.3, 6951.6),
+    'mspacman': (307.3, 6951.6),
     'namethisgame': (2292.3, 8049.0),
     'phoenix': (761.4, 7242.6),
     'pitfall': (-229.4, 6463.7),
@@ -115,8 +121,12 @@ def main():
                         default="", help="Use a masking wrapper")
     parser.add_argument("-out", "--output", type=str,
                         default="results.json", help="Output file for results")
+    parser.add_argument("-eps", "--epsilon", type=float,
+                        default=0, help="Epsilon that random actions is sampled")
 
     args = parser.parse_args()
+
+    run_name = f"{args.game}_{current_time}"
 
     env = HackAtari(
         args.game, args.modifs, args.reward_function,
@@ -129,6 +139,25 @@ def main():
 
     if "FIRE" in env.unwrapped.get_action_meanings():
         env = FireResetEnv(env)
+
+    # env = EpisodicLifeEnv(env)
+    env = NoopResetEnv(env, noop_max=30)
+
+    from ocatari_wrappers import BinaryMaskWrapper, PixelMaskWrapper, ObjectTypeMaskWrapper, ObjectTypeMaskPlanesWrapper, PixelMaskPlanesWrapper
+
+    wrapper_mapping = {
+        "binary": BinaryMaskWrapper,
+        "pixels": PixelMaskWrapper,
+        "classes": ObjectTypeMaskWrapper,
+        "planes": ObjectTypeMaskPlanesWrapper,
+    }
+
+    if args.wrapper in wrapper_mapping:
+        env = wrapper_mapping[args.wrapper](env)
+    elif args.wrapper.endswith("+pixels"):
+        base_wrapper = args.wrapper.split("+")[0]
+        if base_wrapper in wrapper_mapping:
+            env = wrapper_mapping[base_wrapper](env, include_pixels=True)
 
     results = {}
 
@@ -143,7 +172,10 @@ def main():
             episode_reward = 0
 
             while not done:
-                action = policy(torch.Tensor(obs).unsqueeze(0))[0]
+                if np.random.rand() < args.epsilon:
+                    action = env.action_space.sample()
+                else:
+                    action = policy(torch.Tensor(obs).unsqueeze(0))[0]
                 obs, reward, terminated, truncated, _ = env.step(action)
 
                 episode_reward += reward
@@ -152,27 +184,37 @@ def main():
             rewards.append(episode_reward)
             print(f"Episode {episode + 1}: Reward = {episode_reward}")
 
+        hns_rewards = []
+        for rew in rewards:
+            hns_rewards.append(calculate_hns(rew, args.game))
+
+        median_reward = np.median(rewards)
+        hns_median = np.median(hns_rewards)
         avg_reward = np.mean(rewards)
         std_reward = np.std(rewards)
-        median_reward = np.median(rewards)
-        hns_reward = calculate_hns(avg_reward, args.game)
+        hns_reward = np.mean(hns_rewards)
         iqm_reward = rlm.aggregate_iqm(np.array(rewards))
-        hns_iqm = calculate_hns(iqm_reward, args.game)
+        hns_iqm = rlm.aggregate_iqm(np.array(hns_rewards))
+        std_hns = np.std(hns_rewards)
+        results = {}
 
-        results[agent_path] = {
-            "obs_mode": args.obs_mode,
-            "wrapper": args.wrapper,
-            "modifs": args.modifs,
+        results[run_name] = {
+            "model": agent_path,
             "episode_rewards": rewards,
-            "average_reward": avg_reward,
-            "hns_reward": hns_reward,
+            "hns_rewards": hns_rewards,
+            "mean_reward": avg_reward,
+            "std_reward": std_reward,
             "median_reward": median_reward,
             "iqm_reward": iqm_reward,
+            "hns_mean": hns_reward,
+            "hns_std": std_hns,
+            "hns_median": hns_median,
             "hns_iqm": hns_iqm,
-            "std_reward": std_reward,
             "min_reward": np.min(rewards),
             "max_reward": np.max(rewards),
-            "total_episodes": args.episodes
+            "human": atari_scores[args.game.lower()][1],
+            "random": atari_scores[args.game.lower()][0],
+            "Args": vars(args),
         }
 
         print(f"\nSummary for {agent_path}:")
@@ -182,8 +224,16 @@ def main():
         print(f"HNS (IQM): {hns_iqm:.2f}")
         print("--------------------------------------")
 
-    with open(args.output, "w") as f:
-        json.dump(results, f, indent=4)
+        try:
+            with open(args.output, "r") as f:
+                existing_results = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            existing_results = []
+
+        existing_results.append(results)
+
+        with open(args.output, "w") as f:
+            json.dump(existing_results, f, indent=4)
 
     env.close()
 

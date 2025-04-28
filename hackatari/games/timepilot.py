@@ -20,36 +20,30 @@ class GameModifications:
         """
         self.active_modifications = set(active_modifs)
 
-    def static_bomber(self):
+    def level_2(self):
         """
-        Stops the bomber at the top from moving
+        Start at level 2
         """
-        self.env.set_ram(31, 91)
+        self.env.set_ram(21, 1)
 
-    def static_flyers(self):
+    def level_3(self):
         """
-        Sets the fling_enemies at the same position
+        Start at level 3
         """
-        ram = self.env.get_ram()
-        for i in range(74, 77):
-            if ram[i]:
-                self.env.set_ram(i, 91)
-                self.env.set_ram(i-3, 91)
-    
-    def remove_mountains(self):
-        for i in range(42, 69):
-            self.env.set_ram(i, 0)
-    
-    def static_mountains(self):
+        self.env.set_ram(21, 2)
+
+    def level_4(self):
         """
-        Sets the mountains to static.
+        Start at level 4
         """
-        ram = self.env.get_ram()
-        for i, el in enumerate([240, 255, 255, 255, 255, 255, 255, 
-                                126, 60, 255, 249, 240, 224, 192, 
-                                128, 0, 0, 0, 255, 255, 255, 254, 
-                                252, 248, 240, 224, 192, 5]):
-            self.env.set_ram(42+i, el)
+        self.env.set_ram(21, 3)
+
+    def level_5(self):
+        """
+        Start at level 5
+        """
+        self.env.set_ram(21, 4)
+
 
     def _fill_modif_lists(self):
         """
@@ -58,15 +52,15 @@ class GameModifications:
         :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
         """
         modif_mapping = {
-            "static_bomber": self.static_bomber,
-            "static_flyers": self.static_flyers,
-            "remove_mountains": self.remove_mountains,
-            "static_mountains": self.static_mountains,
+            "level_1": self.level_2,
+            "level_1": self.level_3,
+            "level_1": self.level_4,
+            "level_1": self.level_5,
         }
 
-        step_modifs = [modif_mapping[name]
+        step_modifs = []
+        reset_modifs = [modif_mapping[name]
                        for name in self.active_modifications if name in modif_mapping]
-        reset_modifs = []
         post_detection_modifs = []
         return step_modifs, reset_modifs, post_detection_modifs
 

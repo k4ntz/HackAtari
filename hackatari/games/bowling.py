@@ -1,3 +1,15 @@
+from ocatari.ram._helper_methods import _convert_number
+
+def _encode_number(n):
+    """
+    Encodes a two-digit decimal number into a pseudo-BCD format
+    used by some Atari games, where each nibble is a digit.
+    Any digit > 9 is clamped to 9.
+    """
+    tens = min(n // 10, 9)
+    ones = min(n % 10, 9)
+    return (tens << 4) | ones
+
 class GameModifications:
     """
     Encapsulates game modifications for managing active modifications and applying them.
@@ -117,6 +129,9 @@ class GameModifications:
                     self.env.set_ram(i+10, 255)
             for i in range(97, 112):
                 self.env.set_ram(i, 0)
+        self._modif_score()
+
+
 
     def middle_pins(self):
         """
@@ -157,6 +172,38 @@ class GameModifications:
                     self.env.set_ram(i+10, 255)
             for i in range(102, 112):
                 self.env.set_ram(i, 0)
+    
+    def _modif_score(self):
+        ram = self.env.get_ram()
+        score = _convert_number(ram[33]) + 100 * _convert_number(ram[38])
+        strike = 0
+        diff = score - self.score
+        if diff > 10:
+            spare = 1
+            diff -= 10
+        if diff > 10:
+            spare = 0
+            strike = 1
+            diff /= 2
+        if diff == 8 or diff == 9:
+            if strike:
+                score -= 2*8
+            else:
+                score -= 8
+            self.write_score_to_ram(score)
+        self.score = score
+    
+    def write_score_to_ram(self, score):
+        """
+        Writes the score to the RAM.
+
+        :param score: The score to write.
+        """
+        unit = score % 100
+        hundred = (score // 100) % 100
+
+        self.env.set_ram(33, _encode_number(unit))
+        self.env.set_ram(38, _encode_number(hundred))
 
     def _fill_modif_lists(self):
         """
@@ -164,6 +211,7 @@ class GameModifications:
 
         :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
         """
+        self.score = 0
         modif_mapping = {
             "top_pins": self.top_pins,
             "middle_pins": self.middle_pins,
