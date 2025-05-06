@@ -112,7 +112,7 @@ class GameModifications:
             "enemy_color_purple": self.enemy_color_purple,
             "enemy_color_blue": self.enemy_color_blue,
         }
-
+        
         step_modifs = []
         reset_modifs = []
         post_detection_modifs = []
