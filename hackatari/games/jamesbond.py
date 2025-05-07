@@ -50,9 +50,9 @@ class GameModifications():
         self.env.objects[1].x += 2
         self.env.objects[1].y += 1
 
-    def infinite_lives(self):
+    def unlimited_lives(self):
         """
-        Makes the player character jump constantly.
+        The players lives do not decrease.
         """
         self.env.set_ram(6, 5)
 

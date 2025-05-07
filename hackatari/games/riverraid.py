@@ -113,7 +113,7 @@ class GameModifications:
         """
         self.env.set_ram(119, 184)
 
-    def LinearRiver(self):
+    def linear_river(self):
         """
         Makes the river straight, however objects still spwan at their normal position making them unreachable in the worst case
         """
@@ -195,7 +195,7 @@ class GameModifications:
         modif_mapping = {
             "no_fuel": self.no_fuel,
             "red_river": self.red_river,
-            "linear_river": self.LinearRiver,
+            "linear_river": self.linear_river,
             "game_color_change01": self.GameColorChange01,
             "game_color_change02": self.GameColorChange02,
             "game_color_change03": self.GameColorChange03,

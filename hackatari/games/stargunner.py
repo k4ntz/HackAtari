@@ -28,7 +28,7 @@ class GameModifications:
 
     def static_flyers(self):
         """
-        Sets the fling_enemies at the same position
+        Sets the fling enemies at the same position
         """
         ram = self.env.get_ram()
         for i in range(74, 77):

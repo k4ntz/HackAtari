@@ -18,14 +18,14 @@ class GameModifications:
         """
         self.env.set_ram(75, 39)
 
-    def infinite_time(self):
+    def unlimited_time(self):
         """
         Provides unlimited time to clear the level.
         """
         self.env.set_ram(27, 32)
         self.env.set_ram(28, 1)
 
-    def infinite_lives(self):
+    def unlimited_lives(self):
         """
         Always sets the player lives to max, making them infinite.
         """
@@ -47,8 +47,8 @@ class GameModifications:
         """
         modif_mapping = {
             "no_damage": self.no_damage,
-            "infinite_time": self.infinite_time,
-            "infinite_lives": self.infinite_lives,
+            "unlimited_time": self.unlimited_time,
+            "unlimited_lives": self.unlimited_lives,
         }
 
         step_modifs = [modif_mapping[name]

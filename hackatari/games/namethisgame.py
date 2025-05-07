@@ -12,13 +12,13 @@ class GameModifications:
         self.env = env
         self.active_modifications = set()
 
-    def endless_oxygen(self):
+    def unlimited_oxygen(self):
         """
         Player can no longer run out of oxygen. Will not be set at max, so oxygen can always be picked up.
         """
         self.env.set_ram(113, 255)
 
-    def infinite_lives(self):
+    def unlimited_lives(self):
         """
         Always maximizes the treasure value (represents the remaining lives).
         """
@@ -82,8 +82,8 @@ class GameModifications:
         :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
         """
         modif_mapping = {
-            "endless_oxygen": self.endless_oxygen,
-            "infinite_lives": self.infinite_lives,
+            "unlimited_oxygen": self.unlimited_oxygen,
+            "unlimited_lives": self.unlimited_lives,
             "double_wave_length": self.double_wave_length,
             "quick_start": self.quick_start,
             "octopus_start": self.octopus_start,

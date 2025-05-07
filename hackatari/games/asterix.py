@@ -21,7 +21,7 @@ class GameModifications:
 
     def set_consumable_1(self):
         """
-        Sets the consumale to pink (100points)
+        Sets the consumable to pink (100points)
         """
         self.env.set_ram(54, 1)
 
