@@ -20,6 +20,12 @@ class GameModifications:
         """
         self.active_modifications = set(active_modifs)
 
+    def level_1(self):
+        """
+        Start at level 1
+        """
+        self.env.set_ram(21, 0)
+
     def level_2(self):
         """
         Start at level 2
@@ -52,10 +58,11 @@ class GameModifications:
         :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
         """
         modif_mapping = {
-            "level_1": self.level_2,
-            "level_1": self.level_3,
-            "level_1": self.level_4,
-            "level_1": self.level_5,
+            "level_1": self.level_1,
+            "level_2": self.level_2,
+            "level_3": self.level_3,
+            "level_4": self.level_4,
+            "level_5": self.level_5,
         }
 
         step_modifs = []

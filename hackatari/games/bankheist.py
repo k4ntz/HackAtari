@@ -52,7 +52,7 @@ class GameModifications:
 
     def unlimited_gas(self):
         """
-        Provides unlimited gas for all enemies.
+        Provides unlimited gas to the player.
         """
         self.env.set_ram(86, 0)
 

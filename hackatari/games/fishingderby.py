@@ -54,7 +54,7 @@ class GameModifications:
             if self.env.get_ram()[69 + i] > 86:
                 self.env.set_ram(69 + i, 44)
 
-    def swap_fish_sides(self):
+    # def swap_fish_sides(self):
 
     def fished_on_each_sides1(self):
         """
@@ -114,7 +114,7 @@ class GameModifications:
             "shark_speed_mode": self.shark_speed_mode,
             "fish_on_player_side": self.fish_on_player_side,
             "fish_in_middle": self.fish_in_middle,
-            "fish_on_different_sides": self.swap_fish_sides,
+            # "fish_on_different_sides": self.swap_fish_sides,
         }
 
         step_modifs = [modif_mapping[name]
