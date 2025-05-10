@@ -12,7 +12,7 @@ Runs the Kangaroo environment in different modes (DQN, Object, Original) and vis
 """
 
 # Configuration
-ENV_ID = "Kangaroo"
+ENV_ID = "Pong"
 SEED = 42
 FRAMESKIP = 4
 MODIFICATIONS = [""]
@@ -57,7 +57,7 @@ def run_environment(env_id, obs_mode, seed, frameskip, modifs):
     # Simulate 100 steps with a fixed action
     obss = []
     for f in range(90):
-        action = 6  # Fixed action for consistency
+        action = 0  # Fixed action for consistency
         obs, _, _, _, _ = env.step(action)
         if f % 4 == 0:
             obss.append(obs)
@@ -67,7 +67,7 @@ def run_environment(env_id, obs_mode, seed, frameskip, modifs):
     return merge_last_observations(obss)
 
 
-def save_and_display_image(obs, filename):
+def save_image(obs, filename):
     """Displays and saves an observation as an image."""
     # fig, ax = plt.subplots(figsize=(10, 10))
     obs = np.repeat(np.repeat(obs, 3, axis=0), 3, axis=1)  # Upsample for better visibility

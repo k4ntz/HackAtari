@@ -15,33 +15,33 @@ def overright_score(env, score):
     is_zero = True
     tenthousands = score // 10000
     if tenthousands:
-        env.set_ram(79, 8 * tenthousands)
+        env.set_ram(79, int(8 * tenthousands))
         is_zero = False
     else:
         env.set_ram(79, 88)
     score = score - tenthousands * 10000
     thousands = score // 1000
     if thousands or not is_zero:
-        env.set_ram(81, 8 * thousands)
+        env.set_ram(81, int(8 * thousands))
         is_zero = False
     else:
         env.set_ram(81, 88)
     score = score - thousands * 1000
     hundreds = score // 100
     if hundreds or not is_zero:
-        env.set_ram(83, 8 * hundreds)
+        env.set_ram(83, int(8 * hundreds))
         is_zero = False
     else:
         env.set_ram(83, 88)
     score = score - hundreds * 100
     tens = score // 10
     if tens or not is_zero:
-        env.set_ram(85, 8 * tens)
+        env.set_ram(85, int(8 * tens))
         is_zero = False
     else:
         env.set_ram(85, 88)
     score = score - tens * 10
-    env.set_ram(87, 8 * score)
+    env.set_ram(87, int(8 * score))
     
 
 

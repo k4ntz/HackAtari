@@ -2,9 +2,9 @@ import numpy as np
 import pygame
 from ocatari.core import OCAtari, UPSCALE_FACTOR
 from tqdm import tqdm
-
+import cv2
+import os
 from utils import HackAtariArgumentParser
-
 
 # from hackatari.utils import load_color_swaps
 from hackatari.core import HackAtari
@@ -22,6 +22,25 @@ RAM_N_COLS = 8
 RAM_CELL_WIDTH = 115
 RAM_CELL_HEIGHT = 45
 
+
+def save_image(obs, filename):
+    """Displays and saves an observation as an image."""
+    obs = np.repeat(np.repeat(obs, 3, axis=0), 3, axis=1)  # Upsample for better visibility
+    os.makedirs("screenshots", exist_ok=True)
+    i = 1
+    while os.path.exists(f"screenshots/{filename}"):
+        filename = filename.replace(".png", f"_{i}.png")
+        i += 1
+    cv2.imwrite(f"screenshots/{filename}", cv2.cvtColor(obs, cv2.COLOR_BGR2RGB), [cv2.IMWRITE_PNG_COMPRESSION, 0])
+    print(f"Image saved as screenshots/{filename}")
+
+def merge_last_observations(obss):
+    """Merges the last 3 observations with progressive transparenct to create a single image and a movement illusion."""
+    merged_obs = np.zeros_like(obss[0]).astype(np.float64)
+    alphas = [0.1, 0.2, 0.7]  # Transparency values for each observation
+    for alpha, obs in zip(alphas, obss[-3:]):
+        merged_obs += alpha * obs
+    return merged_obs.astype(np.uint8)
 
 class Renderer:
     window: pygame.Surface
@@ -69,6 +88,7 @@ class Renderer:
         self.current_active_cell_input: str = ""
         self.no_render = no_render
         self.red_render = []
+        self.obss = []
 
     def _init_pygame(self, sample_image):
         pygame.init()
@@ -85,6 +105,7 @@ class Renderer:
 
     def run(self):
         self.running = True
+        fcount = 0
         while self.running:
             self._handle_user_input()
             if not self.paused:
@@ -95,6 +116,9 @@ class Renderer:
                     pass
                 # print(self.env.objects)
                 self.current_frame = self.env.render().copy()
+                if fcount % 1 == 0:
+                    self.obss.append(self.env.ale.getScreenRGB())
+                fcount += 1
             self._render()
         pygame.quit()
 
@@ -158,9 +182,16 @@ class Renderer:
 
                 if event.key == pygame.K_r:  # 'R': reset
                     self.env.reset()
+                
+                if event.key == pygame.K_i:  # 'I': save image
+                    if self.paused:
+                        image = merge_last_observations(self.obss)
+                        save_image(image, f"image_{self.env.game_name}.png")
+                        print(f"Image saved in image_{self.env.game_name}.png.")
 
                 elif event.key == pygame.K_ESCAPE and self.active_cell_idx is not None:
                     self._unselect_active_cell()
+                
 
                 elif [
                     x for x in self.keys2actions.keys() if event.key in x
