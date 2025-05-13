@@ -38,12 +38,3 @@ python run.py -g Kangaroo -m random_init disable_monkeys # Starts Kangaroo with 
 See [the documentation](https://hackatari.readthedocs.io/en/latest/)
 or [this markdown file](modification_list.md) for more information on the available modifications.
 
-## Cite our work
-```bibtex
-@article{delfosse2024hackatari,
-  title={HackAtari: Atari Learning Environments for Robust and Continual Reinforcement Learning},
-  author={Delfosse, Quentin and Bl{\"u}ml, Jannis and Gregori, Bjarne and Kersting, Kristian},
-  journal={arXiv preprint arXiv:2406.03997},
-  year={2024}
-}
-```
