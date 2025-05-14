@@ -56,7 +56,6 @@ class GameModifications:
         """
         Randomizes orientation of enemies. They are no longer aligned.
         """
-        print("AHHHHHHH")
         ram = self.env.get_ram()
         if ram[45] == ram[46]:
             for i in range(4):
@@ -78,7 +77,7 @@ class GameModifications:
             "random_orientation": self.random_orientation,
         }
 
-        step_modifs = ["random_orientation" in self.active_modifications]
+        step_modifs = [self.random_orientation] if "random_orientation" in self.active_modifications else []
         reset_modifs = [modif_mapping[name]
                        for name in self.active_modifications if name in modif_mapping]
         post_detection_modifs = []

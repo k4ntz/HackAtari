@@ -73,7 +73,7 @@ class GameModifications():
             "straight_shots": self.straight_shots,
             "fast_backward": self.fast_backward,
             "mobile_player": self.mobile_player,
-            "infinite_lives": self.infinite_lives,
+            "unlimited_lives": self.unlimited_lives,
         }
 
         step_modifs = [modif_mapping[name]
