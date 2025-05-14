@@ -1,3 +1,5 @@
+import random
+
 class GameModifications:
     """
     Encapsulates game modifications for managing active modifications and applying them.
@@ -49,7 +51,17 @@ class GameModifications:
         Start at level 5
         """
         self.env.set_ram(21, 4)
-
+    
+    def random_orientation(self):
+        """
+        Randomizes orientation of enemies. They are no longer aligned.
+        """
+        print("AHHHHHHH")
+        ram = self.env.get_ram()
+        if ram[45] == ram[46]:
+            for i in range(4):
+                orientation = random.randint(0, 7)
+                self.env.set_ram(45+i, orientation)
 
     def _fill_modif_lists(self):
         """
@@ -63,9 +75,10 @@ class GameModifications:
             "level_3": self.level_3,
             "level_4": self.level_4,
             "level_5": self.level_5,
+            "random_orientation": self.random_orientation,
         }
 
-        step_modifs = []
+        step_modifs = ["random_orientation" in self.active_modifications]
         reset_modifs = [modif_mapping[name]
                        for name in self.active_modifications if name in modif_mapping]
         post_detection_modifs = []
