@@ -32,15 +32,8 @@ Welcome to HackAtari's documentation!
 
 Cite our work
 =============
-If you are using HackAtari for your scientific work, please cite us:
+If you are using HackAtari for your scientific work, please cite us.
 
-.. code:: bibtex
-   
-   @inproceedings{Delfosse2023HackAtariIV,
-      title={HackAtari: Introducing Variations to Atari Reinforcement Learning Environments},
-      author={Quentin Delfosse and Jannis Bluml and Bjarne Gregori and Kristian Kersting},
-      year={2024}
-   }
 
 
 Requirements
