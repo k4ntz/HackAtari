@@ -74,11 +74,12 @@ pip install rliable
 ```
 
 1. **Choose Your Modification(s)**  
-   See [modification_list.md](modification_list.md) or print them in code:
-   ```python
-   from hackatari.core import HackAtari
-   env = HackAtari('Pong')
-   print(env.available_modifications)
+See [modification_list.md](modification_list.md) or print them in code:
+```python
+from hackatari.core import HackAtari
+env = HackAtari('Pong')
+print(env.available_modifications)
+```
 
 2. **Use the eval script**
 
@@ -125,7 +126,7 @@ Enable human-interactive play (keyboard) with the `-hu` flag in `run.py`, or dir
 Override the environment's reward signal by providing your own reward function script (see `examples/` for a template). Pass the path via `-r` in `run.py` or as the `rewardfunc_path` argument:
 
 ```python
-env = HackAtari('Pong', rewardfunc_path='my_custom_reward.py')
+env = HackAtari('Pong', rewardfunc_path='path_to_my_custom_reward.py')
 ```
 
 The reward function should be a Python function:
@@ -138,9 +139,9 @@ def reward_function(env) -> float:
 
 ## Documentation & Further Resources
 
-- [**Documentation**](https://hackatari.readthedocs.io/en/latest/)
+- [Documentation](https://hackatari.readthedocs.io/en/latest/)
 - [List of modifications](modification_list.md)
-- [OCAtari documentation](https://ocatari.readthedocs.io/en/latest/)
+- [OCAtari documentation](https://oc-atari.readthedocs.io/en/latest/)
 
 For in-depth API and modding reference, see the above links.
 
