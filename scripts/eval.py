@@ -143,21 +143,21 @@ def main():
     # env = EpisodicLifeEnv(env)
     env = NoopResetEnv(env, noop_max=30)
 
-    from ocatari_wrappers import BinaryMaskWrapper, PixelMaskWrapper, ObjectTypeMaskWrapper, ObjectTypeMaskPlanesWrapper, PixelMaskPlanesWrapper
+    # from ocatari_wrappers import BinaryMaskWrapper, PixelMaskWrapper, ObjectTypeMaskWrapper, ObjectTypeMaskPlanesWrapper, PixelMaskPlanesWrapper
 
-    wrapper_mapping = {
-        "binary": BinaryMaskWrapper,
-        "pixels": PixelMaskWrapper,
-        "classes": ObjectTypeMaskWrapper,
-        "planes": ObjectTypeMaskPlanesWrapper,
-    }
+    # wrapper_mapping = {
+    #     "binary": BinaryMaskWrapper,
+    #     "pixels": PixelMaskWrapper,
+    #     "classes": ObjectTypeMaskWrapper,
+    #     "planes": ObjectTypeMaskPlanesWrapper,
+    # }
 
-    if args.wrapper in wrapper_mapping:
-        env = wrapper_mapping[args.wrapper](env)
-    elif args.wrapper.endswith("+pixels"):
-        base_wrapper = args.wrapper.split("+")[0]
-        if base_wrapper in wrapper_mapping:
-            env = wrapper_mapping[base_wrapper](env, include_pixels=True)
+    # if args.wrapper in wrapper_mapping:
+    #     env = wrapper_mapping[args.wrapper](env)
+    # elif args.wrapper.endswith("+pixels"):
+    #     base_wrapper = args.wrapper.split("+")[0]
+    #     if base_wrapper in wrapper_mapping:
+    #         env = wrapper_mapping[base_wrapper](env, include_pixels=True)
 
     results = {}
 

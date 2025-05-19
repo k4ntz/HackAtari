@@ -1,3 +1,18 @@
+"""
+core.py
+
+This module extends the OCAtari framework to provide HackAtari, an object-centric
+Atari Learning Environment with support for custom modifications, reward functions,
+and human playability. It includes:
+
+- HackAtari: Main environment class with modifiable step/reset logic and reward functions.
+- HumanPlayable: Subclass for human-interactive play using pygame.
+- _available_modifications: Utility to list available modifications for a game.
+
+Dependencies:
+- numpy, pygame, importlib, sys, warnings, cv2, termcolor (optional), ocatari.core
+"""
+
 import numpy as np
 import pygame
 import importlib
@@ -21,6 +36,12 @@ class HackAtari(OCAtari):
     """
     HackAtari extends the Atari Learning Environment (ALE) by enabling object-centric observations
     and providing various environment modifications.
+
+    Features:
+    - Dynamic loading of game-specific modifications.
+    - Support for custom reward functions.
+    - Dopamine-style frame pooling.
+    - Game mode and difficulty configuration.
     """
 
     def __init__(
@@ -37,12 +58,14 @@ class HackAtari(OCAtari):
         """
         Initialize the Atari environment with optional modifications.
 
-        :param env_name: Name of the Atari game environment
-        :param modifs: List of modifications applied to the environment
-        :param rewardfunc_path: Path to a custom reward function
-        :param dopamine_pooling: Whether to use Dopamine-style frame pooling
-        :param game_mode: Specific mode setting for the ALE
-        :param difficulty: Difficulty level for the ALE
+        :param env_name: Name of the Atari game environment.
+        :param modifs: List of modifications applied to the environment.
+        :param rewardfunc_path: Path to a custom reward function (or list of paths).
+        :param dopamine_pooling: Whether to use Dopamine-style frame pooling.
+        :param game_mode: Specific mode setting for the ALE.
+        :param difficulty: Difficulty level for the ALE.
+        :param args: Additional positional arguments for OCAtari.
+        :param kwargs: Additional keyword arguments for OCAtari.
         """
         self._frameskip = kwargs.get("frameskip", 4)  # Default frameskip to 4
         # Override frameskip to 1 for custom step handling
@@ -50,7 +73,7 @@ class HackAtari(OCAtari):
 
         super().__init__(env_name, *args, **kwargs)
 
-        self.ale = self.env.env.ale
+        self.ale = self.env.unwrapped.ale
         # Initialize modifications and environment settings
         self.step_modifs, self.reset_modifs, self.post_detection_modifs = [], [], []
 
@@ -84,15 +107,19 @@ class HackAtari(OCAtari):
                     spec = importlib.util.spec_from_file_location(
                         "reward_function", path
                     )
+                    if spec is None:
+                        raise ImportError(f"Cannot load spec from {path}")
                     module = importlib.util.module_from_spec(spec)
                     sys.modules["reward_function"] = module
                     spec.loader.exec_module(module)
                     self.new_reward_func.append(module.reward_function)
             else:
-                print(f"Changed reward function to {rewardfunc_path}")
                 spec = importlib.util.spec_from_file_location(
                     "reward_function", rewardfunc_path
                 )
+                if spec is None:
+                    raise ImportError(
+                        f"Cannot load spec from {rewardfunc_path}")
                 module = importlib.util.module_from_spec(spec)
                 sys.modules["reward_function"] = module
                 spec.loader.exec_module(module)
@@ -120,16 +147,28 @@ class HackAtari(OCAtari):
 
     def step(self, *args, **kwargs):
         """
-        Take a step in the game environment after altering the ram.
+        Step through the environment, applying modifications and optional Dopamine-style pooling.
+
+        The step logic consists of:
+        - Applying step modifications before each ALE step.
+        - Repeating for (frameskip - 1) steps, accumulating rewards.
+        - On each step, breaking if terminated/truncated.
+        - If dopamine pooling is enabled, saving each observation.
+        - Final step: repeat modification application, collect reward, then run post-detection modifications and fill buffers.
+        - Return processed observation in the required mode ("dqn", "obj", etc). If pooling, pool last two frames by max operation.
+
+        Returns:
+            tuple: (obs, total_reward, terminated, truncated, info)
         """
         frameskip = self._frameskip
         total_reward = 0.0
         terminated = truncated = False
         if self.dopamine_pooling:
-            last_two_obs = []
-            last_two_org = []
+            last_two_obs = []  # Grayscale 84x84
+            last_two_org = []  # RGB
 
-        for i in range(frameskip-1):
+        # Frame skipping (step through the environment several times per step call)
+        for _ in range(frameskip - 1):
             for func in self.step_modifs:
                 func()
             obs, reward, terminated, truncated, info = self._env.step(
@@ -137,12 +176,12 @@ class HackAtari(OCAtari):
             total_reward += float(reward)
             if terminated or truncated:
                 break
+            if self.dopamine_pooling:
+                last_two_obs.append(cv2.resize(cv2.cvtColor(self.getScreenRGB(
+                ), cv2.COLOR_RGB2GRAY), (84, 84), interpolation=cv2.INTER_AREA))
+                last_two_org.append(self.getScreenRGB())
 
-        if self.dopamine_pooling:
-            last_two_obs.append(cv2.resize(cv2.cvtColor(self.getScreenRGB(
-            ), cv2.COLOR_RGB2GRAY), (84, 84), interpolation=cv2.INTER_AREA))
-            last_two_org.append(self.getScreenRGB())
-
+        # Final step for this overall step()
         for func in self.step_modifs:
             func()
         obs, reward, terminated, truncated, info = self._env.step(
@@ -151,57 +190,58 @@ class HackAtari(OCAtari):
             func()
         total_reward += float(reward)
         self.detect_objects()
-        # import ipdb
-        # ipdb.set_trace()
         for func in self.post_detection_modifs:
             func()
-
         self._fill_buffer()
 
-        # import ipdb
-        # ipdb.set_trace()
+        # Prepare returned obs for appropriate mode
         if self.obs_mode == "dqn":
             obs = np.array(self._state_buffer_dqn)
         elif self.obs_mode == "obj":
             obs = np.array(self._state_buffer_ns)
 
+        # Dopamine-style pooling for last two frames (if enabled)
         if self.dopamine_pooling:
             last_two_obs.append(cv2.resize(cv2.cvtColor(self.getScreenRGB(
             ), cv2.COLOR_RGB2GRAY), (84, 84), interpolation=cv2.INTER_AREA))
             last_two_org.append(self.getScreenRGB())
-
-        if self.dopamine_pooling:
             merged_obs = np.maximum.reduce(last_two_obs)
             merged_org = np.maximum.reduce(last_two_org)
-
-            if self.create_dqn_stack:
+            # Update state buffers and output obs
+            if self.create_dqn_stack and self._state_buffer_dqn is not None:
                 self._state_buffer_dqn[-1] = merged_obs
-            if self.create_rgb_stack:
+            if self.create_rgb_stack and self._state_buffer_rgb is not None:
                 self._state_buffer_rgb[-1] = merged_org
-
             if self.obs_mode == "dqn":
                 obs[-1] = merged_obs
             else:
-                # dopamine pooling works with either "dqn" or "ori" obs_mode.
                 obs = merged_org
 
         return obs, total_reward, terminated, truncated, info
 
     def step_with_lm_reward(self, action):
         """
-        Perform a step in the environment while applying a custom reward function.
+        Step using a custom (external) reward function, combining all rewards as the environment reward.
+
+        Args:
+            action (int): Action to take in the environment.
+        Returns:
+            tuple: (obs, reward, truncated, terminated, info)
+                - obs: Environment observation
+                - reward: Sum of all custom rewards (for this one step)
+                - truncated: Boolean if truncated
+                - terminated: Boolean if terminated
+                - info: dict with 'all_rewards' (list of rewards) and 'org_return' (cumulative ALE reward)
         """
         obs, game_reward, truncated, terminated, info = self._step(action)
         self.org_reward = game_reward
         self.org_return += game_reward
         try:
-            rewards = []
-            for reward_func in self.new_reward_func:
-                rewards.append(reward_func(self))
+            rewards = [reward_func(self)
+                       for reward_func in self.new_reward_func]
         except Exception as e:
-            print("Error in new_reward_func: ", e)
+            print("Error in new_reward_func:", e)
             rewards = [0]
-
         info["all_rewards"] = rewards
         reward = sum(rewards)
         info["org_return"] = self.org_return
@@ -210,6 +250,8 @@ class HackAtari(OCAtari):
     def reset(self, *args, **kwargs):
         """
         Reset the environment and apply reset modifications.
+
+        :return: (obs, info)
         """
         obs, info = super().reset(*args, **kwargs)
         self.org_reward = 0
@@ -224,17 +266,35 @@ class HackAtari(OCAtari):
 
     @property
     def available_modifications(self):
+        """
+        List available modifications for the current game.
+
+        :return: String listing available modifications.
+        """
         return _available_modifications(self.game_name)
 
 
 class HumanPlayable(HackAtari):
     """
     Enables human play mode for the Atari game by handling user input and rendering.
+
+    Features:
+    - Keyboard-based action mapping.
+    - Pause, reset, and quit controls.
+    - Real-time rendering with overlays.
     """
 
     def __init__(self, game, modifs=[], rewardfunc_path="", game_mode=None, difficulty=None, *args, **kwargs):
         """
         Initialize a human-playable Atari game instance.
+
+        :param game: Name of the Atari game.
+        :param modifs: List of modifications.
+        :param rewardfunc_path: Path to custom reward function.
+        :param game_mode: Game mode for ALE.
+        :param difficulty: Difficulty for ALE.
+        :param args: Additional positional arguments.
+        :param kwargs: Additional keyword arguments.
         """
         kwargs["render_mode"] = "human"
         kwargs["render_oc_overlay"] = True
@@ -245,7 +305,7 @@ class HumanPlayable(HackAtari):
                          game_mode=game_mode, difficulty=difficulty, *args, **kwargs)
 
         self.reset()
-        self.render(self._state_buffer_rgb[-1])
+        self.render(self._state_buffer_rgb[-1])  # type: ignore
         self.print_reward = bool(rewardfunc_path)
         self.paused = False
         self.current_keys_down = set()
@@ -267,13 +327,15 @@ class HumanPlayable(HackAtari):
                 _, reward, _, _, _ = self.step(action)
                 if self.print_reward and reward:
                     print(reward)
-                self.render(self._state_buffer_rgb[-1])
+                self.render(self._state_buffer_rgb[-1])  # type: ignore
 
         pygame.quit()
 
     def _get_action(self):
         """
-        _get_action: Gets the action corresponding to the current key press.
+        Get the action corresponding to the current key press.
+
+        :return: Action integer for the environment.
         """
         pressed_keys = list(self.current_keys_down)
         pressed_keys.sort()
@@ -287,7 +349,7 @@ class HumanPlayable(HackAtari):
 
     def _handle_user_input(self):
         """
-        _handle_user_input: Handles user input for the BoxingExtendedHuman environment.
+        Handles user input for the environment, including pause, reset, and quit.
         """
         self.current_mouse_pos = np.asarray(pygame.mouse.get_pos())
 
@@ -315,6 +377,12 @@ class HumanPlayable(HackAtari):
 
 
 def _available_modifications(game_name):
+    """
+    List available modifications for a given game.
+
+    :param game_name: Name of the Atari game.
+    :return: String listing available modifications and their docstrings.
+    """
     modif_module = importlib.import_module(
         f"hackatari.games.{game_name.lower()}")
     modifs_list = [mod for mod in dir(
