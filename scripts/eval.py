@@ -9,9 +9,8 @@ from ocatari.utils import load_agent
 import os
 import argparse
 import json
-from utils import HackAtariArgumentParser
+from hackatari.utils import HackAtariArgumentParser
 from stable_baselines3.common.atari_wrappers import (
-    EpisodicLifeEnv,
     FireResetEnv,
     NoopResetEnv,
 )
@@ -140,29 +139,11 @@ def main():
     if "FIRE" in env.unwrapped.get_action_meanings():
         env = FireResetEnv(env)
 
-    # env = EpisodicLifeEnv(env)
     env = NoopResetEnv(env, noop_max=30)
-
-    # from ocatari_wrappers import BinaryMaskWrapper, PixelMaskWrapper, ObjectTypeMaskWrapper, ObjectTypeMaskPlanesWrapper, PixelMaskPlanesWrapper
-
-    # wrapper_mapping = {
-    #     "binary": BinaryMaskWrapper,
-    #     "pixels": PixelMaskWrapper,
-    #     "classes": ObjectTypeMaskWrapper,
-    #     "planes": ObjectTypeMaskPlanesWrapper,
-    # }
-
-    # if args.wrapper in wrapper_mapping:
-    #     env = wrapper_mapping[args.wrapper](env)
-    # elif args.wrapper.endswith("+pixels"):
-    #     base_wrapper = args.wrapper.split("+")[0]
-    #     if base_wrapper in wrapper_mapping:
-    #         env = wrapper_mapping[base_wrapper](env, include_pixels=True)
-
     results = {}
 
     for agent_path in args.agents:
-        agent, policy = load_agent(agent_path, env, "cpu")
+        _, policy = load_agent(agent_path, env, "cpu")
         print(f"Loaded agent from {agent_path}")
 
         rewards = []

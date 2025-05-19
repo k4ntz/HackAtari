@@ -61,6 +61,17 @@ class GameModifications:
         for new_pos_down in range(113, 118):
             self.env.set_ram(new_pos_down, 55)
 
+    def stop_all_cars_edge(self):
+        """
+        Stops all cars and repositions some to predefined positions.
+        """
+        for car_stop in range(33, 43):
+            self.env.set_ram(car_stop, 100)
+        for new_pos_down in range(108, 113):
+            self.env.set_ram(new_pos_down, 15)
+        for new_pos_down in range(113, 118):
+            self.env.set_ram(new_pos_down, 150)
+
     def all_black_cars(self):
         """
         Colors all cars black.
@@ -170,7 +181,8 @@ class GameModifications:
         """
         modif_mapping = {
             "stop_random_car": self.stop_random_car,
-            "stop_all_cars": self.stop_all_cars,
+            "stop_all_cars_tunnel": self.stop_all_cars,
+            "stop_all_cars_edge": self.stop_all_cars_edge,
             "align_all_cars": self.align_all_cars,
             "all_black_cars": self.all_black_cars,
             "all_white_cars": self.all_white_cars,

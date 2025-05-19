@@ -1,96 +1,105 @@
 import random
 import os
+import argparse
 import numpy as np
 import matplotlib.pyplot as plt
-from hackatari import HackAtari
 import cv2
-# import ocatari_wrappers as ow
+from ocatari.utils import load_agent
+from hackatari import HackAtari
 
 """
-Script to explore how RAM values change across different observation modes in HackAtari.
-Runs the Kangaroo environment in different modes (DQN, Object, Original) and visualizes the results.
+Script to visualize how RAM (or other) observations change across different modes in HackAtari.
+Allows command-line configuration for environment, observation mode, modifications, steps, etc.
 """
 
-# Configuration
-ENV_ID = "Pong"
-SEED = 42
-FRAMESKIP = 4
-MODIFICATIONS = [""]
-# Different observation modes to compare
-OBSERVATION_MODES = ["ori"]
-wrapper = ""
-# Seeding for reproducibility
-os.environ['PYTHONHASHSEED'] = str(SEED)
-random.seed(SEED)
-np.random.seed(SEED)
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Visualize RAM/obs changes across HackAtari modes."
+    )
+    parser.add_argument('-g', '--game', type=str,
+                        default='Pong', help='Atari environment/game name')
+    parser.add_argument('-m', '--modification', type=str,
+                        default='', help='Environment modification (or empty)')
+    parser.add_argument('-o', '--obs_mode', type=str, default='ori',
+                        help='Observation mode (e.g. dqn, obj, ori, ram)')
+    parser.add_argument('-f', '--frameskip', type=int,
+                        default=4, help='Frameskip (default: 4)')
+    parser.add_argument('-s', '--seed', type=int, default=42,
+                        help='Random seed (default: 42)')
+    parser.add_argument('--steps', type=int, default=90,
+                        help='Number of steps (default: 90)')
+    parser.add_argument('--action', type=int, default=0,
+                        help='Action to repeat (default: 0/NOOP)')
+    parser.add_argument('--save_dir', type=str, default='.',
+                        help='Directory to save images')
+    return parser.parse_args()
 
 
-def run_environment(env_id, obs_mode, seed, frameskip, modifs):
-    """Runs the HackAtari environment with the specified parameters and returns the final observation."""
+def run_environment(env_id, obs_mode, seed, frameskip, modifs, steps, action):
+    """Runs the HackAtari environment and returns the final merged observation."""
     env = HackAtari(
         env_id, hud=False, modifs=modifs, render_mode="human", mode="ram",
         render_oc_overlay=True, obs_mode=obs_mode, frameskip=frameskip, create_buffer_stacks=["ori"]
     )
-
     env.action_space.seed(seed)
-    env.reset(seed=seed)
-    for i, action in enumerate(env.unwrapped.get_action_meanings()):
-        print(f"Action {i}: {action}")
+    obs = env.reset(seed=seed)
 
-    # if wrapper == "binary":
-    #     env = ow.BinaryMaskWrapper(env)
-    # elif wrapper == "pixels":
-    #     env = ow.PixelMaskWrapper(env)
-    # elif wrapper == "classes":
-    #     env = ow.ObjectTypeMaskWrapper(env)
-    # elif wrapper == "planes":
-    #     env = ow.ObjectTypeMaskPlanesWrapper(env)
-    # elif wrapper == "binary+pixels":
-    #     env = ow.BinaryMaskWrapper(env, include_pixels=True)
-    # elif wrapper == "pixels+pixels":
-    #     env = ow.PixelMaskWrapper(env, include_pixels=True)
-    # elif wrapper == "classes+pixels":
-    #     env = ow.ObjectTypeMaskWrapper(env, include_pixels=True)
-    # elif wrapper == "planes+pixels":
-    #     env = ow.ObjectTypeMaskPlanesWrapper(env, include_pixels=True)
-
-    # Simulate 100 steps with a fixed action
+    # Print available actions
+    for i, act in enumerate(env.unwrapped.get_action_meanings()):
+        print(f"Action {i}: {act}")
     obss = []
-    for f in range(90):
-        action = 0  # Fixed action for consistency
+    for f in range(steps):
+        action = env.action_space.sample()
         obs, _, _, _, _ = env.step(action)
-        if f % 4 == 0:
+        if f % frameskip == 0:
             obss.append(obs)
-
     env.close()
-
     return merge_last_observations(obss)
 
 
-def save_image(obs, filename):
-    """Displays and saves an observation as an image."""
-    # fig, ax = plt.subplots(figsize=(10, 10))
-    obs = np.repeat(np.repeat(obs, 3, axis=0), 3, axis=1)  # Upsample for better visibility
-    # ax.imshow(obs, cmap="gray")
-    # ax.set_title(filename[:-4])  # Remove extension for title
-    # ax.axis("off")
-    cv2.imwrite(filename, cv2.cvtColor(obs, cv2.COLOR_BGR2RGB), [cv2.IMWRITE_PNG_COMPRESSION, 0])
-    print(f"Image saved as {filename}")
-    # plt.show()
-
 def merge_last_observations(obss):
-    """Merges the last 3 observations with progressive transparenct to create a single image and a movement illusion."""
-    merged_obs = np.zeros_like(obss[0])
-    alphas = [0.2, 0.3, 0.5]  # Transparency values for each observation
+    """
+    Merges the last 3 observations with transparency to create a single image showing recent movement.
+    """
+    merged_obs = np.zeros_like(obss[0], dtype=np.float32)
+    alphas = [0.2, 0.3, 0.5]  # Transparency values
     for alpha, obs in zip(alphas, obss[-3:]):
-        merged_obs = cv2.addWeighted(merged_obs, 1 - alpha, obs, alpha, 0)
+        merged_obs = cv2.addWeighted(
+            merged_obs, 1 - alpha, obs.astype(np.float32), alpha, 0)
+    merged_obs = np.clip(merged_obs, 0, 255).astype(np.uint8)
     return merged_obs
 
-# Run environments for different observation modes and store results
-observations = {mode: run_environment(
-    ENV_ID, mode, SEED, FRAMESKIP, MODIFICATIONS) for mode in OBSERVATION_MODES}
 
-# Save and display images for each observation mode
-for mode, obs in observations.items():
+def save_image(obs, filename):
+    """
+    Save an observation as an image file (PNG).
+    """
+    # Optionally upscale for visibility
+    obs_up = np.repeat(np.repeat(obs, 3, axis=0), 3, axis=1)
+    cv2.imwrite(filename, cv2.cvtColor(obs_up, cv2.COLOR_BGR2RGB),
+                [cv2.IMWRITE_PNG_COMPRESSION, 0])
+    print(f"Image saved as {filename}")
 
-    save_and_display_image(obs, f"{ENV_ID}_{mode}_{MODIFICATIONS[0]}.png")
+
+def main():
+    args = parse_args()
+    # Handle multiple modifications, comma-separated
+    modifs = [m for m in args.modification.split(',') if m]
+    os.makedirs(args.save_dir, exist_ok=True)
+    os.environ['PYTHONHASHSEED'] = str(args.seed)
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    # Run environment
+
+    merged_obs = run_environment(
+        args.game, args.obs_mode, args.seed, args.frameskip, modifs, args.steps, args.action
+    )
+    filename = os.path.join(
+        args.save_dir, f"{args.game}_{args.obs_mode}_{'_'.join(modifs) or 'nomod'}.png"
+    )
+    save_image(merged_obs, filename)
+
+
+if __name__ == "__main__":
+    main()

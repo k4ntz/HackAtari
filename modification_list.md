@@ -120,7 +120,8 @@ The modes are:
 | Command | Effect                                                                               |
 |---------|--------------------------------------------------------------------------------------|
 | stop_random_car       | Stops a random car with a biased probability for a certain time. |
-| stop_all_cars         | Stops all cars on the side of the board. |
+| stop_all_cars_edge    | Stops all cars on the side of the board. |
+| stop_all_cars_tunnel  | Stops all cars on the street, building a tunnel for the player. |
 | align_all_cars        | Align all cars so they move in a line. |
 | all_black_cars        | All cars are black. (also works with white, red, blue and green)|
 
