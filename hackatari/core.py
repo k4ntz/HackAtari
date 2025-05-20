@@ -147,28 +147,16 @@ class HackAtari(OCAtari):
 
     def step(self, *args, **kwargs):
         """
-        Step through the environment, applying modifications and optional Dopamine-style pooling.
-
-        The step logic consists of:
-        - Applying step modifications before each ALE step.
-        - Repeating for (frameskip - 1) steps, accumulating rewards.
-        - On each step, breaking if terminated/truncated.
-        - If dopamine pooling is enabled, saving each observation.
-        - Final step: repeat modification application, collect reward, then run post-detection modifications and fill buffers.
-        - Return processed observation in the required mode ("dqn", "obj", etc). If pooling, pool last two frames by max operation.
-
-        Returns:
-            tuple: (obs, total_reward, terminated, truncated, info)
+        Take a step in the game environment after altering the ram.
         """
         frameskip = self._frameskip
         total_reward = 0.0
         terminated = truncated = False
         if self.dopamine_pooling:
-            last_two_obs = []  # Grayscale 84x84
-            last_two_org = []  # RGB
+            last_two_obs = []
+            last_two_org = []
 
-        # Frame skipping (step through the environment several times per step call)
-        for _ in range(frameskip - 1):
+        for i in range(frameskip-1):
             for func in self.step_modifs:
                 func()
             obs, reward, terminated, truncated, info = self._env.step(
@@ -176,12 +164,12 @@ class HackAtari(OCAtari):
             total_reward += float(reward)
             if terminated or truncated:
                 break
-            if self.dopamine_pooling:
-                last_two_obs.append(cv2.resize(cv2.cvtColor(self.getScreenRGB(
-                ), cv2.COLOR_RGB2GRAY), (84, 84), interpolation=cv2.INTER_AREA))
-                last_two_org.append(self.getScreenRGB())
 
-        # Final step for this overall step()
+        if self.dopamine_pooling:
+            last_two_obs.append(cv2.resize(cv2.cvtColor(self.getScreenRGB(
+            ), cv2.COLOR_RGB2GRAY), (84, 84), interpolation=cv2.INTER_AREA))
+            last_two_org.append(self.getScreenRGB())
+
         for func in self.step_modifs:
             func()
         obs, reward, terminated, truncated, info = self._env.step(
@@ -194,24 +182,23 @@ class HackAtari(OCAtari):
             func()
         self._fill_buffer()
 
-        # Prepare returned obs for appropriate mode
         if self.obs_mode == "dqn":
             obs = np.array(self._state_buffer_dqn)
         elif self.obs_mode == "obj":
             obs = np.array(self._state_buffer_ns)
 
-        # Dopamine-style pooling for last two frames (if enabled)
         if self.dopamine_pooling:
             last_two_obs.append(cv2.resize(cv2.cvtColor(self.getScreenRGB(
             ), cv2.COLOR_RGB2GRAY), (84, 84), interpolation=cv2.INTER_AREA))
             last_two_org.append(self.getScreenRGB())
             merged_obs = np.maximum.reduce(last_two_obs)
             merged_org = np.maximum.reduce(last_two_org)
-            # Update state buffers and output obs
-            if self.create_dqn_stack and self._state_buffer_dqn is not None:
+
+            if self.create_dqn_stack:
                 self._state_buffer_dqn[-1] = merged_obs
-            if self.create_rgb_stack and self._state_buffer_rgb is not None:
+            if self.create_rgb_stack:
                 self._state_buffer_rgb[-1] = merged_org
+
             if self.obs_mode == "dqn":
                 obs[-1] = merged_obs
             else:
