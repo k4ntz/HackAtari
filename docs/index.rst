@@ -1,76 +1,67 @@
-.. HackAtari documentation master file, created by
-   sphinx-quickstart on Fri Jun  9 20:50:33 2023.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 =====================================
-Welcome to HackAtari's documentation!
+Welcome to HackAtari's Documentation!
 =====================================
 
-.. highlight:: python
+.. image:: _static/changeRAM3.png
+   :width: 400
+   :alt: Illustration of HackAtari on the Freeway game with two variations, on the cars colors and speed.
+   :align: center
 
+----
 
-.. container:: twocol
+HackAtari is a powerful wrapper around the OCAtari environments available in Gymnasium.  
+It enables you to play and research altered versions of classic Atari games by modifying the game RAM, creating novel game dynamics and a wide range of variations.
 
-   .. container:: leftside
+Built on top of `OC_Atari <https://github.com/k4ntz/OC_Atari>`_, HackAtari also supports object-centric Reinforcement Learning.  
+OCAtari automatically extracts objects from the game state, either by RAM lookup (fast) or vision processing.
 
-      HackAtari is a wrapper around the OCAtari environments available in gymnasium. 
-      It allows you to play altered versions of the Atari games.
-      It alters the RAM of the game to create novel game dynamics, allowing for a wide range of variations.
-      HackAtari environments also allow for object-centric Reinforcement Learning, as it is built upon `OC_Atari <https://github.com/k4ntz/OC_Atari>`_ .
-      OCAtari automatically extracts the objects that exists in the state, 
-      either via looking up their attribute in the RAM (fast), or using vision processing methods. 
+----
 
-   .. container:: rightside
-
-      |changeram| 
-
-.. |changeram| image:: _static/changeRAM3.png
-  :width: 500
-  :alt: Illustration of HackAtari on the Freeway game with two variations, on the cars colors and speed.
-
-
-Cite our work
+Cite Our Work
 =============
-If you are using HackAtari for your scientific work, please cite us.
+If you use HackAtari for your scientific work, please cite us.
 
-
+----
 
 Requirements
 ============
-This project depends on:
+HackAtari depends on:
 
-- ocatar: https://github.com/k4ntz/OC_Atari
+- OCAtari: https://github.com/k4ntz/OC_Atari
 
-Download and install:
-You can download from the
-`Github <https://github.com/k4ntz/HackAtari>`_ repository or:
+**Installation:**
 
-::
+.. code-block:: bash
 
     pip install hackatari
 
+Or download from the `GitHub repository <https://github.com/k4ntz/HackAtari>`_.
+
+----
+
+Reference
+=============
 
 .. toctree::
-   :hidden:
    :maxdepth: 2
-   :caption: API:
+   :caption: HackAtari Wrapper
 
    hackatari/core.rst
 
+----
+
 .. toctree::
-   :hidden:
-   :maxdepth: 1
-   :caption: Games:
-   :titlesonly:
-   :glob:
+   :maxdepth: 2
+   :caption: HackAtari Modifications
 
-   hackatari/games/*
+   hackatari/modifications.rst
 
+   ----
 
-Indices and tables
-==================
+.. toctree::
+   :maxdepth: 2
+   :caption: Scripts
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   scripts/rem_gui.rst
+   eval/eval.rst
+   eval/run.rst
