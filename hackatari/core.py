@@ -148,6 +148,16 @@ class HackAtari(OCAtari):
     def step(self, *args, **kwargs):
         """
         Take a step in the game environment after altering the ram.
+
+        Args:
+            action (int): Action to take in the environment.
+        Returns:
+            tuple: (obs, reward, truncated, terminated, info)
+                - obs: Environment observation
+                - reward: Sum of all custom rewards (for this one step)
+                - truncated: Boolean if truncated
+                - terminated: Boolean if terminated
+                - info: dict with 'all_rewards' (list of rewards) and 'org_return' (cumulative ALE reward)
         """
         frameskip = self._frameskip
         total_reward = 0.0
