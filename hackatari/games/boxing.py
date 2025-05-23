@@ -198,9 +198,9 @@ class GameModifications:
         :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
         """
         modif_mapping = {
-            "one_armed": self.one_armed,
             "gravity": self.gravity,
             "drunken_boxing": self.drunken_boxing,
+            "one_armed": self.one_armed,
             "color_player_black": self.color_player_black,
             "color_player_white": self.color_player_white,
             "color_player_red": self.color_player_red,

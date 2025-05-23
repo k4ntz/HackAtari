@@ -213,14 +213,14 @@ class GameModifications:
         """
         self.score = 0
         modif_mapping = {
-            "top_pins": self.top_pins,
-            "middle_pins": self.middle_pins,
-            "bottom_pins": self.bottom_pins,
-            "top_bottom_pins": self.top_bottom_pins,
             "shift_player": self.shift_player,
             "horizontal_pins": self.horizontal_pins,
             "small_pins": self.small_pins,
             "moving_pins": self.moving_pins,
+            "top_pins": self.top_pins,
+            "middle_pins": self.middle_pins,
+            "bottom_pins": self.bottom_pins,
+            "top_bottom_pins": self.top_bottom_pins,
 
         }
 
