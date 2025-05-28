@@ -66,7 +66,7 @@ class GameModifications:
         Removes the enemies from the maze, and freezes them in the second faze.
         """
         ram = self.env.get_ram()
-        if ram[0]:
+        if ram[0] and ram[0] != 1:
             for i in range(6):
                 self.env.set_ram(66+i, 0)
         else:
