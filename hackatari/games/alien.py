@@ -1,4 +1,5 @@
 import random
+from ocatari.ram.game_objects import NoObject
 
 class GameModifications:
     """
@@ -59,6 +60,49 @@ class GameModifications:
 
         # ram position 91 tracks amount of eggs collected, 106 eggs required to finish the level
         self.env.set_ram(91, 105)
+    
+    def no_enemies(self):
+        """
+        Removes the enemies from the maze, and freezes them in the second faze.
+        """
+        ram = self.env.get_ram()
+        if ram[0]:
+            for i in range(6):
+                self.env.set_ram(66+i, 0)
+        else:
+            for i in range(3):
+                self.env.set_ram(42+i, 0)
+                self.env.set_ram(49+i, 0)
+
+
+    def aliens_0(self):
+        """
+        Removes all three alien enemies from the maze.
+        """
+        for i in range(3):
+            self.env.set_ram(42+i, 0)
+            self.env.set_ram(49+i, 0)
+
+    def aliens_1(self):
+        """
+        Removes two alien enemies from the maze.
+        """
+        for i in range(2):
+            self.env.set_ram(42+i, 0)
+            self.env.set_ram(49+i, 0)
+
+    def aliens_2(self):
+        """
+        Removes one alien enemy from the maze.
+        """
+        self.env.set_ram(42, 0)
+        self.env.set_ram(49, 0)
+
+    def unlimited_fuel(self):
+        """
+        Always keeps the flamethrowers fuel at max.
+        """
+        self.env.set_ram(116, 255)
 
 
     def _set_active_modifications(self, active_modifs):
@@ -77,6 +121,11 @@ class GameModifications:
         """
         modif_mapping = {
             "last_egg": self.last_egg,
+            "no_enemies": self.no_enemies,
+            "aliens_0": self.aliens_0,
+            "aliens_1": self.aliens_1,
+            "aliens_2": self.aliens_2,
+            "unlimited_fuel": self.unlimited_fuel,
         }
 
         step_modifs = [modif_mapping[name]

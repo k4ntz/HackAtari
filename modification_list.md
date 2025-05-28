@@ -18,6 +18,9 @@ The modes are:
 | Command | Effect                                                                               |
 |---------|--------------------------------------------------------------------------------------|
 | last_egg           | Removes all eggs but one |
+| aliens_0           | Removes all three alien enemies from the maze (also works with 1 and 2). |
+| no_enemies         | Removes the three alien enemies from the maze, and freezes all aliens in the second faze. |
+| unlimited_fuel     | Always keeps the flamethrowers fuel at max. |
 
 ## Amidar:
 | Command | Effect                                                                               |
