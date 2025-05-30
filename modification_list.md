@@ -281,6 +281,8 @@ The modes are:
 | invert_flags     | Change flag color to red (last flag will be blue). |
 | moguls_to_trees  | Replaces all moguls with trees. |
 | moving_flags     | Flags move to the left and right. |
+| random_flags     | Randomizes the horizontal position of the flags. |
+| flag_flurry      | Flags appear in quick succession. The number of flags per run doubles. |
 
 
 ## SpaceInvaders:
