@@ -107,6 +107,24 @@ class GameModifications:
         for i in range(92, 96):
             self.env.set_ram(i, 15)
 
+    def full_igloo(self):
+        """
+        Sets iglo to full at the beginning of the game.
+        """
+        self.env.set_ram(77, 15)
+
+    def igloo14(self):
+        """
+        Sets iglo to full at the beginning of the game.
+        """
+        self.env.set_ram(77, 14)
+
+    def igloo7(self):
+        """
+        Sets iglo to full at the beginning of the game.
+        """
+        self.env.set_ram(77, 7)
+
     def _set_active_modifications(self, active_modifs):
         """
         Specifies which modifications are active.
@@ -136,10 +154,16 @@ class GameModifications:
             "few_enemies": self.few_enemies,
             "many_enemies": self.many_enemies,
         }
+        reset_modifs_mapping = {
+            "full_igloo": self.full_igloo,
+            "igloo-1": self.igloo14,
+            "half_igloo": self.igloo7,
+        }
 
         step_modifs = [modif_mapping[name]
                        for name in self.active_modifications if name in modif_mapping]
-        reset_modifs = []
+        reset_modifs = [reset_modifs_mapping[name]
+                        for name in self.active_modifications if name in reset_modifs_mapping]
         post_detection_modifs = []
 
         return step_modifs, reset_modifs, post_detection_modifs
