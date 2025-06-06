@@ -39,9 +39,11 @@ class GameModifications:
         """
         Disables the thrown coconut in the game.
         """
+        ram = self.env.get_ram()
         for i in range(3):
-            self.env.set_ram(25+i, 255)
-            self.env.set_ram(28+i, 255)
+            if ram[25+i] != 255:
+                self.env.set_ram(25+i, 255)
+                self.env.set_ram(28+i, 255)
         self.env.set_ram(31, 0)
         self.env.set_ram(32, 0)
 
