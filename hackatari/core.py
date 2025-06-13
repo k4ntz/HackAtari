@@ -83,6 +83,13 @@ class HackAtari(OCAtari):
                 f"hackatari.games.{self.game_name.lower()}")
             step_modifs, reset_modifs, post_detection_modifs = modif_module.modif_funcs(
                 self, modifs)
+            active_modifs = set(step_modifs + reset_modifs + post_detection_modifs)
+            if len(active_modifs) != len(modifs):
+                print(
+                    colored(
+                        f"Warning: Some modifications not found in {self.game_name}, requested: {modifs}, found: {active_modifs}"
+                    )
+                )
             self.step_modifs.extend(step_modifs)
             self.reset_modifs.extend(reset_modifs)
             self.post_detection_modifs.extend(post_detection_modifs)
