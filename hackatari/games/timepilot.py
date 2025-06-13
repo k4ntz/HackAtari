@@ -52,6 +52,21 @@ class GameModifications:
         """
         self.env.set_ram(21, 4)
     
+    def enemies_0(self):
+        for i in range(4):
+            self.env.set_ram(37+i, 0)
+    
+    def enemies_1(self):
+        for i in range(3):
+            self.env.set_ram(38+i, 0)
+    
+    def enemies_2(self):
+        for i in range(2):
+            self.env.set_ram(39+i, 0)
+    
+    def enemies_3(self):
+        self.env.set_ram(40, 0)
+    
     def random_orientation(self):
         """
         Randomizes orientation of enemies. They are no longer aligned.
@@ -69,17 +84,26 @@ class GameModifications:
         :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
         """
         modif_mapping = {
-            "level_1": self.level_1,
-            "level_2": self.level_2,
-            "level_3": self.level_3,
-            "level_4": self.level_4,
-            "level_5": self.level_5,
-            "random_orientation": self.random_orientation,
+            "step_modifs":{
+                "enemies_0": self.enemies_0,
+                "enemies_1": self.enemies_1,
+                "enemies_2": self.enemies_2,
+                "enemies_3": self.enemies_3,
+                "random_orientation": self.random_orientation,
+            },
+            "reset_modifs": {
+                "level_1": self.level_1,
+                "level_2": self.level_2,
+                "level_3": self.level_3,
+                "level_4": self.level_4,
+                "level_5": self.level_5,
+            },
         }
-
-        step_modifs = [self.random_orientation] if "random_orientation" in self.active_modifications else []
-        reset_modifs = [modif_mapping[name]
-                       for name in self.active_modifications if name in modif_mapping]
+        
+        step_modifs = [modif_mapping["step_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["step_modifs"]]
+        reset_modifs = [modif_mapping["reset_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["reset_modifs"]]
         post_detection_modifs = []
         return step_modifs, reset_modifs, post_detection_modifs
 

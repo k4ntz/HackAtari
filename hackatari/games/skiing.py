@@ -15,6 +15,7 @@ class GameModifications:
         self.active_flags = 0
         self.reset = True
         self.finish = False
+        self.ram_93 = 50
 
     def modify_ram_invert_flag(self):
         """
@@ -45,19 +46,18 @@ class GameModifications:
         """
         ram = self.env.get_ram()
         if ram[17] != 255: # Check if game is active
-            for i in range(8):
-                if ram[70+i] == 2:
-                    # Checks if there is a flag that has not been randomized
-                    if not ((2**i) & self.active_flags) and not ((2**(i+1)) & self.active_flags):
-                        pos = random.randrange(7, 114)
-                        self.env.set_ram(62+i, pos)
-                        self.active_flags += 2**i
-                    # Checks if flage moved to the next slot
-                    elif (2**(i+1)) & self.active_flags:
-                        self.active_flags -= 2**i
-                # Remove flag from active, if it disappeared
-            if ram[70] != 2 and self.active_flags&1:
-                self.active_flags -= 1
+            if self.reset:
+                for i in range(8):
+                    if ram[70+i] == 2:
+                        self.env.set_ram(62+i, random.randrange(7, 114))
+                self.reset = False
+            
+            if ram[77] == 2 and ram[93] < self.ram_93:
+                self.env.set_ram(69, random.randrange(7, 114))
+                
+            self.ram_93 = ram[93]
+        else:
+            self.reset = True
 
     def flag_flurry(self):
         """
@@ -93,6 +93,8 @@ class GameModifications:
                 self.env.set_ram(77, 2)
                 self.env.set_ram(69, random.randrange(max(7, ram[67]-25), min(ram[67]+25, 114)))
                 self.env.set_ram(85, 0)
+        else:
+            self.reset = True
             
             
 
