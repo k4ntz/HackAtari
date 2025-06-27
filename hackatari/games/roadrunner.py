@@ -11,6 +11,8 @@ class GameModifications:
         """
         self.env = env
         self.active_modifications = set()
+        self.tick = 0
+        self.level = 0
 
     def _set_active_modifications(self, active_modifs):
         """
@@ -19,24 +21,51 @@ class GameModifications:
         :param active_modifs: A list of active modification names.
         """
         self.active_modifications = set(active_modifs)
+    
+    def set_level(self):
+        if self.tick > 1:
+            self.env.set_ram(22, self.level)
+            self.tick = 0
+            self.env.step_modifs.remove(self.set_level)
+        else:
+            self.tick += 1
 
     def level_0(self):
         """
-        Constant fog weather
+        Changes the active level to 0.
         """
-        self.env.set_ram(22, 0)
+        self.level = 0
+        self.env.step_modifs.append(self.set_level)
 
     def level_1(self):
         """
-        Constant fog weather
+        Changes the active level to 1.
         """
-        self.env.set_ram(22, 1)
+        self.level = 1
+        self.env.step_modifs.append(self.set_level)
 
     def level_2(self):
         """
-        Constant fog weather
+        Changes the active level to 2.
         """
-        self.env.set_ram(22, 2)
+        self.level = 2
+        self.env.step_modifs.append(self.set_level)
+    
+    def force_default_coyote(self):
+        """
+        The coyote cannot use the rocket rollerblades or the rocket shipt.
+        """
+        ram = self.env.get_ram()
+        if ram[62]:
+            self.env.set_ram(62, 0)
+
+    def change_coyote(self):
+        """
+        If the coyote falls back too far, it activates the rocket rollerblades.
+        """
+        ram = self.env.get_ram()
+        if ram[19] == 17 and not ram[62]:
+            self.env.set_ram(62, 100)
 
 
     def _fill_modif_lists(self):
@@ -46,12 +75,21 @@ class GameModifications:
         :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
         """
         modif_mapping = {
+            "step_modifs":{
+                "default_coyote": self.force_default_coyote,
+                "change_coyote": self.change_coyote,
+            },
+            "reset_modifs":{
+                "level_0": self.level_0,
+                "level_1": self.level_1,
+                "level_2": self.level_2,
+            }
         }
 
-        step_modifs = [modif_mapping[name]
-                       for name in self.active_modifications if name in modif_mapping]
-        r_mods = {"level_0":self.level_0, "level_1":self.level_1, "level_2":self.level_2}
-        reset_modifs = [r_mods[name] for name in self.active_modifications if name in ["level_0", "level_1", "level_2"]]
+        step_modifs = [modif_mapping["step_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["step_modifs"]]
+        reset_modifs = [modif_mapping["reset_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["reset_modifs"]]
         post_detection_modifs = []
         return step_modifs, reset_modifs, post_detection_modifs
 
