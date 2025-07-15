@@ -16,6 +16,11 @@ class GameModifications:
         """
         self.env = env
         self.active_modifications = set()
+        self.order_cars = list(range(10))
+
+
+    def reset(self):
+        self.order_cars = [random.randint(0, 10) for _ in range(10)]
 
     def stop_random_car(self):
         """
@@ -49,6 +54,12 @@ class GameModifications:
         for i in range(5):
             val = self.env.get_ram()[1] % (i+1)
             self.env.set_ram(42-i, val)
+
+    def vary_car_speeds(self):
+        for i,j in enumerate(range(33, 43)):
+            car = self.order_cars[i]
+            val = self.env.get_ram()[1] % (car+1)
+            self.env.set_ram(j, val)
 
     def stop_all_cars(self):
         """
@@ -160,7 +171,7 @@ class GameModifications:
         """
         Each car drives with speed 2 (default)
         """
-        speed = 2  # default
+        speed = 2 # default
         ram = self.env.get_ram()
         for car_x in range(108, 113):
             x_value = ram[car_x]
@@ -204,11 +215,12 @@ class GameModifications:
             "reverse_car_speed_bottom": self.reverse_car_speed_bottom,
             "reverse_car_speed_top": self.reverse_car_speed_top,
             "disable_cars": self.disable_cars,
+            "vary_car_speeds": self.vary_car_speeds,
         }
 
         step_modifs = [modif_mapping[name]
                        for name in self.active_modifications if name in modif_mapping]
-        reset_modifs = []
+        reset_modifs = [self.reset]
         post_detection_modifs = []
         return step_modifs, reset_modifs, post_detection_modifs
 
