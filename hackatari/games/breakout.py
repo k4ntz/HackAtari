@@ -90,25 +90,33 @@ class GameModifications:
     def color_player_and_ball_green(self):
         self.env.set_ram(62, self.colors[4])
 
-    def color_all_blocks_black(self):
+    def strobo_mode_player_and_ball(self):
+        color = random.randint(0, 255)
+        self.env.set_ram(62, color)
+
+    def color_blocks(self, color):
         for i in range(64, 70):
-            self.env.set_ram(i, self.colors[0])
+            self.env.set_ram(i, color)
+
+    def color_all_blocks_black(self):
+        self.color_blocks(self.colors[0])
 
     def color_all_blocks_white(self):
-        for i in range(64, 70):
-            self.env.set_ram(i, self.colors[1])
+        self.color_blocks(self.colors[1])
 
     def color_all_blocks_red(self):
-        for i in range(64, 70):
-            self.env.set_ram(i, self.colors[2])
+        self.color_blocks(self.colors[2])
 
     def color_all_blocks_blue(self):
-        for i in range(64, 70):
-            self.env.set_ram(i, self.colors[3])
+        self.color_blocks(self.colors[3])
 
     def color_all_blocks_green(self):
+        self.color_blocks(self.colors[4])
+
+    def strobo_mode_blocks(self):
         for i in range(64, 70):
-            self.env.set_ram(i, self.colors[4])
+            color = random.randint(0, 255)
+            self.env.set_ram(i, color)
 
     def _set_active_modifications(self, active_modifs):
         """
@@ -139,6 +147,9 @@ class GameModifications:
             "color_all_blocks_red": self.color_all_blocks_red,
             "color_all_blocks_blue": self.color_all_blocks_blue,
             "color_all_blocks_green": self.color_all_blocks_green,
+            "strobo_mode_blocks": self.strobo_mode_blocks,
+            "strobo_mode_player_and_ball": self.strobo_mode_player_and_ball,
+
         }
 
         step_modifs = [modif_mapping[name]
