@@ -17,6 +17,7 @@ class GameModifications:
         self.strength = 2
         self.timer = 0
         self.colors = [0, 12, 48, 113, 200]
+        self.colors_bricks = [134, 198, 22, 38, 54, 70]
         self.player_and_ball_color = 0  # Black, White, Red, Blue, Green
         self.all_blocks_color = 0  # Black, White, Red, Blue, Green
         self.row_colors = [None] * 6
@@ -94,6 +95,9 @@ class GameModifications:
         color = random.randint(0, 255)
         self.env.set_ram(62, color)
 
+    def strobo_mode_player_and_ball_no_black(self):
+        color = random.randint(1, 255)
+        self.env.set_ram(62, color)
     def color_blocks(self, color):
         for i in range(64, 70):
             self.env.set_ram(i, color)
@@ -118,6 +122,10 @@ class GameModifications:
             color = random.randint(0, 255)
             self.env.set_ram(i, color)
 
+    def strobo_mode_blocks_no_black(self):
+        for i in range(64, 70):
+            color = random.randint(1, 255)
+            self.env.set_ram(i, color)
     def _set_active_modifications(self, active_modifs):
         """
         Specifies which modifications are active.
@@ -149,6 +157,8 @@ class GameModifications:
             "color_all_blocks_green": self.color_all_blocks_green,
             "strobo_mode_blocks": self.strobo_mode_blocks,
             "strobo_mode_player_and_ball": self.strobo_mode_player_and_ball,
+            "strobo_mode_blocks_no_black": self.strobo_mode_blocks_no_black,
+            "strobo_mode_player_and_ball_no_black": self.strobo_mode_player_and_ball_no_black,
 
         }
 
