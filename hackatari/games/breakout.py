@@ -1,5 +1,7 @@
 import random
 
+import numpy as np
+
 
 class GameModifications:
     """
@@ -21,6 +23,7 @@ class GameModifications:
         self.player_and_ball_color = 0  # Black, White, Red, Blue, Green
         self.all_blocks_color = 0  # Black, White, Red, Blue, Green
         self.row_colors = [None] * 6
+        self.already_reset = False
 
     def right_drift(self):
         """
@@ -98,6 +101,7 @@ class GameModifications:
     def strobo_mode_player_and_ball_no_black(self):
         color = random.randint(1, 255)
         self.env.set_ram(62, color)
+
     def color_blocks(self, color):
         for i in range(64, 70):
             self.env.set_ram(i, color)
@@ -126,6 +130,28 @@ class GameModifications:
         for i in range(64, 70):
             color = random.randint(1, 255)
             self.env.set_ram(i, color)
+
+    def sample_new_player_and_ball_color(self):
+        if not self.already_reset:
+            color = random.choice(self.colors_bricks)
+            self.player_and_ball_color = color
+            self.already_reset = True
+        self.env.set_ram(62, self.player_and_ball_color)
+
+    def sample_new_brick_colors(self):
+        if not self.already_reset:
+            colors = self.colors_bricks.copy()
+            np.random.shuffle(colors)
+            for idx, i in enumerate(range(64, 70)):
+                self.row_colors[idx] = colors[idx]
+            self.already_reset = True
+
+        for idx, i in enumerate(range(64, 70)):
+            self.env.set_ram(i, self.row_colors[idx])
+
+    def reset(self):
+        self.already_reset = False
+
     def _set_active_modifications(self, active_modifs):
         """
         Specifies which modifications are active.
@@ -159,12 +185,16 @@ class GameModifications:
             "strobo_mode_player_and_ball": self.strobo_mode_player_and_ball,
             "strobo_mode_blocks_no_black": self.strobo_mode_blocks_no_black,
             "strobo_mode_player_and_ball_no_black": self.strobo_mode_player_and_ball_no_black,
-
+            "sample_new_player_and_ball_color": self.sample_new_player_and_ball_color,
+            "sample_new_brick_colors": self.sample_new_brick_colors,
         }
+        step_modifs = [
+            modif_mapping[name]
+            for name in self.active_modifications
+            if name in modif_mapping
+        ]
+        reset_modifs = [self.reset]
 
-        step_modifs = [modif_mapping[name]
-                       for name in self.active_modifications if name in modif_mapping]
-        reset_modifs = []
         post_detection_modifs = []
         return step_modifs, reset_modifs, post_detection_modifs
 
