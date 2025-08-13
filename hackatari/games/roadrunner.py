@@ -83,6 +83,12 @@ class GameModifications:
                 "level_0": self.level_0,
                 "level_1": self.level_1,
                 "level_2": self.level_2,
+            },
+            "post_detection_modifs": {
+            },
+            "inpainting_modifs": {
+            },
+            "place_above_modifs": {
             }
         }
 
@@ -90,8 +96,14 @@ class GameModifications:
                        for name in self.active_modifications if name in modif_mapping["step_modifs"]]
         reset_modifs = [modif_mapping["reset_modifs"][name]
                        for name in self.active_modifications if name in modif_mapping["reset_modifs"]]
-        post_detection_modifs = []
-        return step_modifs, reset_modifs, post_detection_modifs
+        post_detection_modifs = [modif_mapping["post_detection_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["post_detection_modifs"]]
+        inpainting_modifs = [modif_mapping["inpainting_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["inpainting_modifs"]]
+        place_above_modifs = [modif_mapping["place_above_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["place_above_modifs"]]
+        
+        return step_modifs, reset_modifs, post_detection_modifs, inpainting_modifs, place_above_modifs
 
 
 def modif_funcs(env, active_modifs):

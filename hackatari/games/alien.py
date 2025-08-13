@@ -59,6 +59,55 @@ class GameModifications:
 
         # ram position 91 tracks amount of eggs collected, 106 eggs required to finish the level
         self.env.set_ram(91, 105)
+    
+    def unlimited_fuel(self):
+        """
+        Provides unlimited fuel to the players flamethrower.
+        """
+        self.env.set_ram(116, 255)
+    
+    def unlimited_lives(self):
+        """
+        The player never loses any lives.
+        """
+        self.env.set_ram(64, 3)
+
+    def no_enemies(self):
+        """
+        Removes the enemies from the maze, and freezes them in the second faze.
+        """
+        ram = self.env.get_ram()
+        # Check wether the game is in the maze phase or the second phase.
+        if ram[0]: # second phase
+            for i in range(6):
+                self.env.set_ram(66+i, 0)
+        else: # maze phase
+            for i in range(3):
+                self.env.set_ram(42+i, 0)
+                self.env.set_ram(49+i, 0)
+
+    def no_alien(self):
+        """
+        No alien appears in the maze.
+        """
+        for i in range(3):
+            self.env.set_ram(42+i, 0)
+            self.env.set_ram(49+i, 0)
+    
+    def one_alien(self):
+        """
+        One alien appears in the maze.
+        """
+        for i in range(2):
+            self.env.set_ram(42+i, 0)
+            self.env.set_ram(49+i, 0)
+    
+    def two_alien(self):
+        """
+        Two alien appear in the maze.
+        """
+        self.env.set_ram(42, 0)
+        self.env.set_ram(49, 0)
 
 
     def _set_active_modifications(self, active_modifs):
@@ -76,12 +125,37 @@ class GameModifications:
         :return: List of step modifications.
         """
         modif_mapping = {
-            "last_egg": self.last_egg,
+            "step_modifs": {
+                "last_egg": self.last_egg,
+                "unlimited_fuel": self.unlimited_fuel,
+                "unlimited_lives": self.unlimited_lives,
+                "no_enemies": self.no_enemies,
+                "no_alien": self.no_alien,
+                "one_alien": self.one_alien,
+                "two_alien": self.two_alien,
+            },
+            "reset_modifs": {
+            },
+            "post_detection_modifs": {
+            },
+            "inpainting_modifs": {
+            },
+            "place_above_modifs": {
+            }
         }
 
-        step_modifs = [modif_mapping[name]
-                       for name in self.active_modifications if name in modif_mapping]
-        return step_modifs, [], []
+        step_modifs = [modif_mapping["step_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["step_modifs"]]
+        reset_modifs = [modif_mapping["reset_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["reset_modifs"]]
+        post_detection_modifs = [modif_mapping["post_detection_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["post_detection_modifs"]]
+        inpainting_modifs = [modif_mapping["inpainting_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["inpainting_modifs"]]
+        place_above_modifs = [modif_mapping["place_above_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["place_above_modifs"]]
+        
+        return step_modifs, reset_modifs, post_detection_modifs, inpainting_modifs, place_above_modifs
 
 
 def modif_funcs(env, active_modifs):

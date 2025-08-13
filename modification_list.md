@@ -14,6 +14,17 @@ Use `-m` to select the mode you want to play in. All modes/hacks/changes can be 
 
 The modes are:
 
+## Alien:
+| Command | Effect                                                                               |
+|---------|--------------------------------------------------------------------------------------|
+| last_egg          | Removes all eggs but one. |
+| unlimited_fuel    | Provides unlimited fuel to the players flamethrower. |
+| unlimited_lives   | The player never loses any lives. |
+| no_enemies        | No alien appears in the maze and all aliens in the second phase are frozen. |
+| no_alien          | No alien appears in the maze. |
+| one_alien         | One alien appears in the maze. |
+| two_alien         | Two alien appear in the maze. |
+
 ## Amidar:
 | Command | Effect                                                                               |
 |---------|--------------------------------------------------------------------------------------|
