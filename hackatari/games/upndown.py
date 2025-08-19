@@ -56,12 +56,21 @@ class GameModifications:
                 self.env.set_ram(37+i, 23)
 
     def level_1(self):
+        """
+        Set level to 1.
+        """
         self.env.set_ram(3, 1)
 
     def level_2(self):
+        """
+        Set level to 2.
+        """
         self.env.set_ram(3, 2)
 
     def level_3(self):
+        """
+        Set level to 3.
+        """
         self.env.set_ram(3, 3)
 
     def _set_active_modifications(self, active_modifs):
@@ -82,8 +91,8 @@ class GameModifications:
             "step_modifs": {
                 "no_trucks": self.no_trucks,
                 "reduced_trucks": self.reduced_trucks,
-                "short_game": self.short_game,
                 "more_trucks": self.more_trucks,
+                "short_game": self.short_game,
             },
             "reset_modifs": {
                 "level_1": self.level_1,

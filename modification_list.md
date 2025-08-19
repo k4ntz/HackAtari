@@ -222,10 +222,19 @@ The modes are:
 |---------|--------------------|
 | no_fuel                   | Disables Fuel |
 | red_river                 | Makes River red |
-| linear_river              | Makes the river straight, however objects still spwan at their normal position making them unreachable in the worst case                       | 
+| linear_river              | Makes the river straight, however objects still spwan at their normal position making them unreachable in the worst case|
 | game_color_change01       | Changes game color to color set 01 |
 | game_color_change02       | Changes game color to color set 02 |
 | game_color_change03       | Changes game color to color set 03 |
 | object_color_change01     | Changes object color to color set 01 |
 | object_color_change02     | Changes object color to color set 02 |
 | object_color_change02     | Changes object color to color set 03 |
+
+## UpNDown
+| Command | Effect             |
+|---------|--------------------|
+| no_trucks       | Removes all opposing trucks from the game. |
+| reduced_trucks  | Reduces amount of opposing trucks on screen to one. |
+| more_trucks     | All collectables (not the flags) are turned into trucks. |
+| short_game      | Halves the amount of flags required to clear a level. |
+| level_1         | Set level to 1. (1, 2 or 3) |
