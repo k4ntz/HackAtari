@@ -70,6 +70,10 @@ The modes are:
 | inverse_gravity | Set drift dirtection upwards |
 | color_player_and_ball_black | Set color of player and ball (also works with white, red, blue and green) |
 | color_all_blocks_black | Set color of all blocks (also works with white, red, blue and green)  |
+| strobo_mode_player_and_ball | Player and ball change color randomly every step (also available with the random colors not including black). |
+| strobo_mode_blocks | All blocks change color randomly every step (also available with the random colors not including black). |
+| sample_new_player_and_ball_color | Sample a new color for the player and ball for every game. |
+| sample_new_block_color | Sample a new color for the blocks for every game. |
 
 ## Carnival:
 | Command | Effect                                                                               |
@@ -122,7 +126,10 @@ The modes are:
 | stop_random_car       | Stops a random car with a biased probability for a certain time. |
 | stop_all_cars         | Stops all cars on the side of the board. |
 | align_all_cars        | Align all cars so they move in a line. |
-| all_black_cars        | All cars are black. (also works with white, red, blue and green)|
+| all_black_cars        | All cars are black. (also works with white, red, blue, pink and green)|
+| disable_cars          | Hide and disable all cars. |
+| vary_car_speeds       | Randomly interchange car speeds. |
+
 
 
 ## Frostbite:
@@ -135,6 +142,8 @@ The modes are:
 | no_birds                  | Removes all birds (and fishes?) |
 | few_enemies               | Increase enemies slightly |
 | many_enemies              | Increase enemies to a maximum|
+| ice_inactive              | Ice floes will not give points or contribute to the igloo. |
+        building progress.
 
 
 ## Kangaroo:
@@ -170,6 +179,9 @@ The modes are:
 | lazy_enemy   | Enemy does not move after returning the shot. |
 | up_drift     | Makes the ball drift upwards. (Also works with down, left and right) |
 | hidden_enemy | Makes the enemy invisible for the player (does not work in dqn_default since it is a object detection modification)
+| random_perturbation_enemy | Add random perturbations to enemy movement. |
+| parallel_enemy | In the period where the ball is moving towards the player, the enemy moves in parallel with the player. |
+| parallel_ememy_complete | The enemy always moves in parallel with the player. |
 
 
 ## Seaquest
