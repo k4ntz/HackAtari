@@ -95,8 +95,8 @@ class HackAtari(OCAtari):
                 self.inpainting_modifs.extend(inpainting_modifs)
                 self.place_above_modifs.extend(place_above_modifs)
             except:
-                step_modifs, reset_modifs, post_detection_modifs = modif_module.modif_funcs(
-                    self, modifs)
+                step_modifs, reset_modifs, post_detection_modifs = modif_module.modif_funcs(self, modifs)
+            active_modifs = [m.__name__ for m in step_modifs + reset_modifs + post_detection_modifs]
             if len(active_modifs) < len(modifs):
                 print(
                     colored(
