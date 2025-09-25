@@ -10,6 +10,10 @@ class GameModifications:
     COLORS = [0, 1, 2, 4, 6]
     LEVELS = [0, 1, 2]
     ITEM_ROOMS = [0, 5, 6, 7, 8, 10, 14, 19, 20, 23]
+    ITEMS = [          [1, 0], None, None,
+                None, None, [6, 0], [2, 0], [4, 0],
+            [4, 0], None, [1, 0], None, None, None, [4, 0],
+         None, None, None, None, [4, 0], [1, 4], None, None, [1, 3]]
     INVENTORY_FULL = 249
 
     def __init__(self, env):
@@ -55,6 +59,26 @@ class GameModifications:
         randomized = self.ITEM_ROOMS.copy()
         random.shuffle(randomized)
 
+        new_items = self.ITEMS.copy()
+        for j, i in enumerate(self.ITEM_ROOMS):
+            new_items[i] = self.ITEMS[randomized[j]]
+        self.ITEMS = new_items
+    
+    def change_items(self):
+        """
+        Applies item changes, if items are randomized.
+        """
+        ram = self.env.get_ram()
+        if ram[3] != 1 and ram[49] != 0 and self.ITEMS[ram[3]] is not None:
+            item_type = self.ITEMS[ram[3]][0]
+            if item_type < 3:
+                color = item_type
+            else:
+                color = 4
+            self.env.set_ram(49, self.ITEMS[ram[3]][0])
+            self.env.set_ram(50, color)
+            self.env.set_ram(84, self.ITEMS[ram[3]][1])
+
     def full_inventory(self):
         """
         Adds all items to the player's inventory.
@@ -83,24 +107,42 @@ class GameModifications:
         :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
         """
         modif_mapping = {
-            "random_position_start": self.random_position_start,
-            "set_level_0": lambda: self.set_level(0),
-            "set_level_1": lambda: self.set_level(1),
-            "set_level_2": lambda: self.set_level(2),
-            "randomize_items": self.randomize_items,
-            "full_inventory": self.full_inventory,
-            # "unify_item_color_black": lambda: self.unify_item_color(0),
-            # "unify_item_color_orange": lambda: self.unify_item_color(1),
-            # "unify_item_color_white": lambda: self.unify_item_color(2),
-            # "unify_item_color_yellow": lambda: self.unify_item_color(3),
-            # "unify_item_color_green": lambda: self.unify_item_color(4),
+            "step_modifs": {
+                "randomize_items": self.change_items,
+                # "unify_item_color_black": lambda: self.unify_item_color(0),
+                # "unify_item_color_orange": lambda: self.unify_item_color(1),
+                # "unify_item_color_white": lambda: self.unify_item_color(2),
+                # "unify_item_color_yellow": lambda: self.unify_item_color(3),
+                # "unify_item_color_green": lambda: self.unify_item_color(4),
+            },
+            "reset_modifs": {
+                "set_level_0": lambda: self.set_level(0),
+                "set_level_1": lambda: self.set_level(1),
+                "set_level_2": lambda: self.set_level(2),
+                "random_position_start": self.random_position_start,
+                "randomize_items": self.randomize_items,
+                "full_inventory": self.full_inventory,
+            },
+            "post_detection_modifs": {
+            },
+            "inpainting_modifs": {
+            },
+            "place_above_modifs": {
+            }
         }
 
-        step_modifs = [modif_mapping[name]
-                       for name in self.active_modifications if name in modif_mapping]
-        reset_modifs = []
-        post_detection_modifs = []
-        return step_modifs, reset_modifs, post_detection_modifs
+        step_modifs = [modif_mapping["step_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["step_modifs"]]
+        reset_modifs = [modif_mapping["reset_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["reset_modifs"]]
+        post_detection_modifs = [modif_mapping["post_detection_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["post_detection_modifs"]]
+        inpainting_modifs = [modif_mapping["inpainting_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["inpainting_modifs"]]
+        place_above_modifs = [modif_mapping["place_above_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["place_above_modifs"]]
+        
+        return step_modifs, reset_modifs, post_detection_modifs, inpainting_modifs, place_above_modifs
 
 
 def modif_funcs(env, active_modifs):

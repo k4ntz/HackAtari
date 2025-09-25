@@ -11,6 +11,8 @@ class GameModifications:
         """
         self.env = env
         self.active_modifications = set()
+        self.tick = 0
+        self.level = 0
 
     def _set_active_modifications(self, active_modifs):
         """
@@ -19,37 +21,52 @@ class GameModifications:
         :param active_modifs: A list of active modification names.
         """
         self.active_modifications = set(active_modifs)
+    
+    def set_level(self):
+        if self.tick > 1:
+            self.env.set_ram(22, self.level)
+            self.tick = 0
+            self.env.step_modifs.remove(self.set_level)
+        else:
+            self.tick += 1
 
-    def static_bomber(self):
+    def level_0(self):
         """
-        Stops the bomber at the top from moving
+        Changes the active level to 0.
         """
-        self.env.set_ram(31, 91)
+        self.level = 0
+        self.env.step_modifs.append(self.set_level)
 
-    def static_flyers(self):
+    def level_1(self):
         """
-        Sets the fling enemies at the same position
+        Changes the active level to 1.
+        """
+        self.level = 1
+        self.env.step_modifs.append(self.set_level)
+
+    def level_2(self):
+        """
+        Changes the active level to 2.
+        """
+        self.level = 2
+        self.env.step_modifs.append(self.set_level)
+    
+    def force_default_coyote(self):
+        """
+        The coyote cannot use the rocket rollerblades or the rocket shipt.
         """
         ram = self.env.get_ram()
-        for i in range(74, 77):
-            if ram[i]:
-                self.env.set_ram(i, 91)
-                self.env.set_ram(i-3, 91)
-    
-    def remove_mountains(self):
-        for i in range(42, 69):
-            self.env.set_ram(i, 0)
-    
-    def static_mountains(self):
+        if ram[62]:
+            self.env.set_ram(62, 0)
+
+    def change_coyote(self):
         """
-        Sets the mountains to static.
+        If the coyote falls back too far, it activates the rocket rollerblades.
         """
         ram = self.env.get_ram()
-        for i, el in enumerate([240, 255, 255, 255, 255, 255, 255, 
-                                126, 60, 255, 249, 240, 224, 192, 
-                                128, 0, 0, 0, 255, 255, 255, 254, 
-                                252, 248, 240, 224, 192, 5]):
-            self.env.set_ram(42+i, el)
+        if ram[19] == 17 and not ram[62]:
+            self.env.set_ram(62, 100)
+
 
     def _fill_modif_lists(self):
         """
@@ -58,13 +75,14 @@ class GameModifications:
         :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
         """
         modif_mapping = {
-            "step_modifs": {
-                "static_bomber": self.static_bomber,
-                "static_flyers": self.static_flyers,
-                "remove_mountains": self.remove_mountains,
-                "static_mountains": self.static_mountains,
+            "step_modifs":{
+                "default_coyote": self.force_default_coyote,
+                "change_coyote": self.change_coyote,
             },
-            "reset_modifs": {
+            "reset_modifs":{
+                "level_0": self.level_0,
+                "level_1": self.level_1,
+                "level_2": self.level_2,
             },
             "post_detection_modifs": {
             },

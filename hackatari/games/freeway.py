@@ -198,31 +198,49 @@ class GameModifications:
         :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs lists.
         """
         modif_mapping = {
-            "stop_random_car": self.stop_random_car,
-            "stop_all_cars": self.stop_all_cars,
-            "align_all_cars": self.align_all_cars,
-            "all_black_cars": self.all_black_cars,
-            "all_white_cars": self.all_white_cars,
-            "all_red_cars": self.all_red_cars,
-            "all_green_cars": self.all_green_cars,
-            "all_pink_cars": self.all_pink_cars,
-            "all_blue_cars": self.all_blue_cars,
-            "invisible_mode": self.invisible_mode,
-            "strobo_mode": self.strobo_mode,
-            "phantom_mode": self.phantom_mode,
-            "blinking_mode": self.blinking_mode,
-            "speed_mode": self.speed_mode,
-            "reverse_car_speed_bottom": self.reverse_car_speed_bottom,
-            "reverse_car_speed_top": self.reverse_car_speed_top,
-            "disable_cars": self.disable_cars,
-            "vary_car_speeds": self.vary_car_speeds,
+            "step_modifs": {
+                "stop_random_car": self.stop_random_car,
+                "stop_all_cars": self.stop_all_cars,
+                "align_all_cars": self.align_all_cars,
+                "all_black_cars": self.all_black_cars,
+                "all_white_cars": self.all_white_cars,
+                "all_red_cars": self.all_red_cars,
+                "all_green_cars": self.all_green_cars,
+                "all_pink_cars": self.all_pink_cars,
+                "all_blue_cars": self.all_blue_cars,
+                "invisible_mode": self.invisible_mode,
+                "strobo_mode": self.strobo_mode,
+                "phantom_mode": self.phantom_mode,
+                "blinking_mode": self.blinking_mode,
+                "speed_mode": self.speed_mode,
+                "reverse_car_speed_bottom": self.reverse_car_speed_bottom,
+                "reverse_car_speed_top": self.reverse_car_speed_top,
+                "disable_cars": self.disable_cars,
+                "vary_car_speeds": self.vary_car_speeds,
+            },
+            "reset_modifs": {
+            },
+            "post_detection_modifs": {
+            },
+            "inpainting_modifs": {
+            },
+            "place_above_modifs": {
+            }
         }
 
-        step_modifs = [modif_mapping[name]
-                       for name in self.active_modifications if name in modif_mapping]
-        reset_modifs = [self.reset]
-        post_detection_modifs = []
-        return step_modifs, reset_modifs, post_detection_modifs
+        step_modifs = [modif_mapping["step_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["step_modifs"]]
+        reset_modifs = [modif_mapping["reset_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["reset_modifs"]]
+        reset_modifs += [self.reset]
+        post_detection_modifs = [modif_mapping["post_detection_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["post_detection_modifs"]]
+        inpainting_modifs = [modif_mapping["inpainting_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["inpainting_modifs"]]
+        place_above_modifs = [modif_mapping["place_above_modifs"][name]
+                       for name in self.active_modifications if name in modif_mapping["place_above_modifs"]]
+        
+        return step_modifs, reset_modifs, post_detection_modifs, inpainting_modifs, place_above_modifs
 
 
 def modif_funcs(env, active_modifs):

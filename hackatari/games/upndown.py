@@ -1,3 +1,5 @@
+import random
+
 class GameModifications:
     """
     Encapsulates game modifications for managing active modifications and applying them.
@@ -12,6 +14,65 @@ class GameModifications:
         self.env = env
         self.active_modifications = set()
 
+    def no_trucks(self):
+        """
+        Removes all opposing trucks from the game.
+        """
+        ram = self.env.get_ram()
+        for i in range(3):
+            if ram[37+i] < 8:
+                self.env.set_ram(37+i, 23)
+
+    def reduced_trucks(self):
+        """
+        Reduces amount of opposing trucks on screen to one.
+        """
+        ram = self.env.get_ram()
+        for i in range(3):
+            if ram[37+i] < 8:
+                self.env.set_ram(37+i, 23)
+
+    def more_trucks(self):
+        """
+        All collectables (not the flags) are turned into trucks.
+        """
+        ram = self.env.get_ram()
+        for i in range(3):
+            if 23 < ram[37+i] < 31:
+                self.env.set_ram(37+i, ram[37+i]%8)
+    
+    def short_game(self):
+        """
+        Halves the amount of flags required to clear a level
+        """
+
+        ram = self.env.get_ram()
+        if not ram[4]:
+            self.env.set_ram(4, 225)
+        
+
+        for i in range(3):
+            if 23 < ram[37+i] < 31 and (2**(ram[37+i]%8))& 225:
+                self.env.set_ram(37+i, 23)
+
+    def level_1(self):
+        """
+        Set level to 1.
+        """
+        self.env.set_ram(3, 1)
+
+    def level_2(self):
+        """
+        Set level to 2.
+        """
+        self.env.set_ram(3, 2)
+
+    def level_3(self):
+        """
+        Set level to 3.
+        """
+        self.env.set_ram(3, 3)
+
     def _set_active_modifications(self, active_modifs):
         """
         Specifies which modifications are active.
@@ -20,51 +81,23 @@ class GameModifications:
         """
         self.active_modifications = set(active_modifs)
 
-    def static_bomber(self):
-        """
-        Stops the bomber at the top from moving
-        """
-        self.env.set_ram(31, 91)
-
-    def static_flyers(self):
-        """
-        Sets the fling enemies at the same position
-        """
-        ram = self.env.get_ram()
-        for i in range(74, 77):
-            if ram[i]:
-                self.env.set_ram(i, 91)
-                self.env.set_ram(i-3, 91)
-    
-    def remove_mountains(self):
-        for i in range(42, 69):
-            self.env.set_ram(i, 0)
-    
-    def static_mountains(self):
-        """
-        Sets the mountains to static.
-        """
-        ram = self.env.get_ram()
-        for i, el in enumerate([240, 255, 255, 255, 255, 255, 255, 
-                                126, 60, 255, 249, 240, 224, 192, 
-                                128, 0, 0, 0, 255, 255, 255, 254, 
-                                252, 248, 240, 224, 192, 5]):
-            self.env.set_ram(42+i, el)
-
     def _fill_modif_lists(self):
         """
-        Returns the modification lists (step, reset, and post-detection) with active modifications.
+        Returns the step modification list with active modifications.
 
-        :return: Tuple of step_modifs, reset_modifs, and post_detection_modifs.
+        :return: List of step modifications.
         """
         modif_mapping = {
             "step_modifs": {
-                "static_bomber": self.static_bomber,
-                "static_flyers": self.static_flyers,
-                "remove_mountains": self.remove_mountains,
-                "static_mountains": self.static_mountains,
+                "no_trucks": self.no_trucks,
+                "reduced_trucks": self.reduced_trucks,
+                "more_trucks": self.more_trucks,
+                "short_game": self.short_game,
             },
             "reset_modifs": {
+                "level_1": self.level_1,
+                "level_2": self.level_2,
+                "level_3": self.level_3,
             },
             "post_detection_modifs": {
             },
