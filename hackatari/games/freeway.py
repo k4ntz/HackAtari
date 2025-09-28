@@ -16,6 +16,11 @@ class GameModifications:
         """
         self.env = env
         self.active_modifications = set()
+        self.order_cars = list(range(10))
+
+
+    def reset(self):
+        self.order_cars = [random.randint(0, 10) for _ in range(10)]
 
     def stop_random_car(self):
         """
@@ -50,6 +55,12 @@ class GameModifications:
             val = self.env.get_ram()[1] % (i+1)
             self.env.set_ram(42-i, val)
 
+    def vary_car_speeds(self):
+        for i,j in enumerate(range(33, 43)):
+            car = self.order_cars[i]
+            val = self.env.get_ram()[1] % (car+1)
+            self.env.set_ram(j, val)
+
     def stop_all_cars(self):
         """
         Stops all cars and repositions some to predefined positions.
@@ -60,6 +71,17 @@ class GameModifications:
             self.env.set_ram(new_pos_down, 35)
         for new_pos_down in range(113, 118):
             self.env.set_ram(new_pos_down, 55)
+
+    def disable_cars(self):
+        """
+        Disables all cars by stopping them and setting their positions to out of frame.
+        """
+        for car in range(33, 43):
+            self.env.set_ram(car, 100)
+        for new_pos_down in range(108, 113):
+            self.env.set_ram(new_pos_down, 3)
+        for new_pos_down in range(113, 118):
+            self.env.set_ram(new_pos_down, 3)
 
     def all_black_cars(self):
         """
@@ -95,6 +117,13 @@ class GameModifications:
         """
         for car in range(77, 87):
             self.env.set_ram(car, 145)
+    
+    def all_pink_cars(self):
+        """
+        Colors all cars pink.
+        """
+        for car in range(77, 87):
+            self.env.set_ram(car, 90)
 
     # My modifications
 
@@ -142,7 +171,7 @@ class GameModifications:
         """
         Each car drives with speed 2 (default)
         """
-        speed = 2  # default
+        speed = 2 # default
         ram = self.env.get_ram()
         for car_x in range(108, 113):
             x_value = ram[car_x]
@@ -177,6 +206,7 @@ class GameModifications:
                 "all_white_cars": self.all_white_cars,
                 "all_red_cars": self.all_red_cars,
                 "all_green_cars": self.all_green_cars,
+                "all_pink_cars": self.all_pink_cars,
                 "all_blue_cars": self.all_blue_cars,
                 "invisible_mode": self.invisible_mode,
                 "strobo_mode": self.strobo_mode,
@@ -185,6 +215,8 @@ class GameModifications:
                 "speed_mode": self.speed_mode,
                 "reverse_car_speed_bottom": self.reverse_car_speed_bottom,
                 "reverse_car_speed_top": self.reverse_car_speed_top,
+                "disable_cars": self.disable_cars,
+                "vary_car_speeds": self.vary_car_speeds,
             },
             "reset_modifs": {
             },
@@ -200,6 +232,7 @@ class GameModifications:
                        for name in self.active_modifications if name in modif_mapping["step_modifs"]]
         reset_modifs = [modif_mapping["reset_modifs"][name]
                        for name in self.active_modifications if name in modif_mapping["reset_modifs"]]
+        reset_modifs += [self.reset]
         post_detection_modifs = [modif_mapping["post_detection_modifs"][name]
                        for name in self.active_modifications if name in modif_mapping["post_detection_modifs"]]
         inpainting_modifs = [modif_mapping["inpainting_modifs"][name]
