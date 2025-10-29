@@ -92,8 +92,6 @@ The modes are:
 | missile_speed_large_increase   | The projectiles fired from the players are faster (large increase). |
 
 ## ChopperCommand:
-### Untested due to the update of OCAtari to ns_representations
-
 | Command | Effect                                                                               |
 |---------|--------------------------------------------------------------------------------------|
 | delay_shots           | Puts time delay between shots. |
@@ -101,6 +99,14 @@ The modes are:
 | no_radar              | Removes the radar content. |
 | invisible_player      | Makes the player invisible. |
 | color_black           | Changes the background and enemies' color to black. (also works with white, red, blue and green). |
+
+## Defender:
+
+| Command | Effect                                                                               |
+|---------|--------------------------------------------------------------------------------------|
+| more_bombs     | Increases the amount of smart bombs to 8. |
+| quick_start    | Reduces the game start time to 5 frames. |
+| no_flickering  | Uses ALE inpainting to add the missing sprites in the frame. |
 
 ## DonkeyKong:
 

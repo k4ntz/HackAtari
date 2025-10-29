@@ -88,14 +88,13 @@ class HackAtari(OCAtari):
         try:
             modif_module = importlib.import_module(
                 f"hackatari.games.{self.game_name.lower()}")
-            try:
-                step_modifs, reset_modifs, post_detection_modifs, inpainting_modifs, place_above_modifs = modif_module.modif_funcs(
-                    self, modifs)
+            modif_funcs = modif_module.modif_funcs(self, modifs)
+            if len(modif_funcs) == 5:
+                step_modifs, reset_modifs, post_detection_modifs, inpainting_modifs, place_above_modifs = modif_funcs
                 self.inpainting_modifs.extend(inpainting_modifs)
                 self.place_above_modifs.extend(place_above_modifs)
-            except:
-                step_modifs, reset_modifs, post_detection_modifs = modif_module.modif_funcs(
-                    self, modifs)
+            else:
+                step_modifs, reset_modifs, post_detection_modifs = modif_funcs
 
             self.step_modifs.extend(step_modifs)
             self.reset_modifs.extend(reset_modifs)
