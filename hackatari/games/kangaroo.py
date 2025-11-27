@@ -17,7 +17,6 @@ class GameModifications:
         """
         self.env = env
         self.active_modifications = set()
-        self.floor = 0
         self.level_num = None
         self.already_reset = False
 
@@ -96,6 +95,50 @@ class GameModifications:
         self.disable_coconut()
         self.disable_thrown_coconut()
         self.disable_monkeys()
+    
+    def quick_start(self):
+        """
+        Skips the waiting time at the start of a game.
+        """
+        self.env.set_ram(19, 0)
+        self.env.set_ram(53, 8)
+        self.env.set_ram(54, 0)
+        self.env.set_ram(57, 1)
+    
+    # def no_flickering(self):
+    #     """
+    #     Inserts the missing sprites into the game fram, when the Player is on the same level as a fruit or the child.
+    #     """
+    #     ram = self.env.get_ram()
+    #     patches = []
+    #     # Level 1: Fruit_1 13, 21; Fruit_2 10, 15; Fruit_3 7, 12; Bell 0, 9
+    #     # Level 2: Fruit_1 17, 21; Fruit_2 11, 16; Fruit_3 8, 13; Bell 0, 9
+    #     # Level 3: Fruit_1 14, 21; Fruit_2 11, 16; Fruit_3 7, 12; Bell 0, 9
+    #     if ram[108] == 134:
+    #         if ram[87] == ram[86]:
+    #             y = ram[84:87]
+    #         else:
+    #             y = ram[85:88]
+            
+    #         if ram[114] < 10:
+    #             switch_state = ram[112]
+    #         elif ram[114] < 13 + (1 if ram[36] == 1 else 0):
+    #             switch_state = ram[111]
+    #         elif ram[114] < 16 + (1 if ram[36] else 0):
+    #             switch_state = ram[110]
+    #         else:
+    #             switch_state = ram[109]
+
+    #         if switch_state == 44:
+    #             print("Kangaroo")
+    #         else:
+    #             for i in range(3):
+    #                 if 0 <= ram[114] - y[i] < 6 and not ram[42+i]&128:
+    #                     print("Fruit_" + str(3-i))
+    #             if ram[114] < 10:
+    #                 print("Bell")
+
+    #     return patches
 
     def _set_active_modifications(self, active_modifs):
         """
@@ -126,10 +169,12 @@ class GameModifications:
                 "no_danger": self.no_danger,
             },
             "reset_modifs": {
+                "quick_start": self.quick_start,
             },
             "post_detection_modifs": {
             },
             "inpainting_modifs": {
+                # "no_flickering": self.no_flickering,
             },
             "place_above_modifs": {
             }
