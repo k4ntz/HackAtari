@@ -19,6 +19,10 @@ class GameModifications:
         self.active_modifications = set()
         self.level_num = None
         self.already_reset = False
+        self.kangaroo_sprite = None
+        self.child_sprite = None
+        self.fruit_sprite = None
+        self.bell_sprite = None
 
     def disable_monkeys(self):
         """
@@ -87,7 +91,7 @@ class GameModifications:
         Changes the level to 2.
         """
         self.env.set_ram(36, 2)
-    
+
     def no_danger(self):
         """
         Disables all dangers in the game.
@@ -95,7 +99,7 @@ class GameModifications:
         self.disable_coconut()
         self.disable_thrown_coconut()
         self.disable_monkeys()
-    
+
     def quick_start(self):
         """
         Skips the waiting time at the start of a game.
@@ -104,41 +108,59 @@ class GameModifications:
         self.env.set_ram(53, 8)
         self.env.set_ram(54, 0)
         self.env.set_ram(57, 1)
-    
-    # def no_flickering(self):
-    #     """
-    #     Inserts the missing sprites into the game fram, when the Player is on the same level as a fruit or the child.
-    #     """
-    #     ram = self.env.get_ram()
-    #     patches = []
-    #     # Level 1: Fruit_1 13, 21; Fruit_2 10, 15; Fruit_3 7, 12; Bell 0, 9
-    #     # Level 2: Fruit_1 17, 21; Fruit_2 11, 16; Fruit_3 8, 13; Bell 0, 9
-    #     # Level 3: Fruit_1 14, 21; Fruit_2 11, 16; Fruit_3 7, 12; Bell 0, 9
-    #     if ram[108] == 134:
-    #         if ram[87] == ram[86]:
-    #             y = ram[84:87]
-    #         else:
-    #             y = ram[85:88]
-            
-    #         if ram[114] < 10:
-    #             switch_state = ram[112]
-    #         elif ram[114] < 13 + (1 if ram[36] == 1 else 0):
-    #             switch_state = ram[111]
-    #         elif ram[114] < 16 + (1 if ram[36] else 0):
-    #             switch_state = ram[110]
-    #         else:
-    #             switch_state = ram[109]
 
-    #         if switch_state == 44:
-    #             print("Kangaroo")
-    #         else:
-    #             for i in range(3):
-    #                 if 0 <= ram[114] - y[i] < 6 and not ram[42+i]&128:
-    #                     print("Fruit_" + str(3-i))
-    #             if ram[114] < 10:
-    #                 print("Bell")
+    def no_flickering(self):
+        """
+        Inserts the missing sprites into the game fram, when the Player is on the same level as a fruit or the child.
+        """
+        ram = self.env.get_ram()
+        patches = []
+        # Level 1: Fruit_1 13, 21; Fruit_2 10, 15; Fruit_3 7, 12; Bell 0, 9
+        # Level 2: Fruit_1 17, 21; Fruit_2 11, 16; Fruit_3 8, 13; Bell 0, 9
+        # Level 3: Fruit_1 14, 21; Fruit_2 11, 16; Fruit_3 7, 12; Bell 0, 9
+        if ram[108] == 134:
+            if ram[87] == ram[86]:
+                y = ram[84:87]
+            else:
+                y = ram[85:88]
 
-    #     return patches
+            screen = self.env.ale.getScreenRGB()
+            kx, ky, kw, kh = self.env.objects[0].xywh
+            if ram[65]:
+                if self.kangaroo_sprite is not None:
+                    krgb = self.env.objects[0].rgb
+                    h, w = np.shape(self.kangaroo_sprite)[:2]
+                    patch = np.where(self.kangaroo_sprite == krgb, self.kangaroo_sprite, screen[ky:ky+h, kx:kx+w]).astype(np.uint8)
+                    patches.append((ky, kx, h, w, patch))
+                for i in range(3):
+                    if 0 <= ram[114] - y[i] < 6 and not ram[42+i] & 128:
+                        fx, fy, fw, fh = self.env.objects[10+i].xywh
+                        self.fruit_sprite = screen[fy:fy+fh, fx:fx+fw]
+                if ram[114] < 10:
+                    bx, by, bw, bh = self.env.objects[13].xywh
+                    self.bell_sprite = screen[by:by+bh, bx:bx+bw]
+                if ram[114] < 7:
+                    cx, cy, cw, ch = self.env.objects[1].xywh
+                    self.child_sprite = screen[cy:cy+ch, cx:cx+cw]
+            else:
+                self.kangaroo_sprite = screen[ky:ky+kh, kx:kx+kw]
+                for i in range(3):
+                    if 0 <= ram[114] - y[i] < 6 and not ram[42+i] & 128 and self.fruit_sprite is not None:
+                        fx, fy, fw, fh = self.env.objects[10+i].xywh
+                        frgb = self.env.objects[10+i].rgb
+                        patch = np.where(self.fruit_sprite == frgb, self.fruit_sprite, screen[fy:fy+fh, fx:fx+fw]).astype(np.uint8)
+                        patches.append((fy, fx, fh, fw, patch))
+                if ram[114] < 10 and self.bell_sprite is not None:
+                    bx, by, bw, bh = self.env.objects[13].xywh
+                    brgb = self.env.objects[13].rgb
+                    patch = np.where(self.bell_sprite == brgb, self.bell_sprite, screen[by:by+bh, bx:bx+bw]).astype(np.uint8)
+                    patches.append((by, bx, bh, bw, patch))
+                if ram[114] < 7 and self.child_sprite is not None:
+                    cx, cy, cw, ch = self.env.objects[1].xywh
+                    crgb = self.env.objects[1].rgb
+                    patch = np.where(self.child_sprite == crgb, self.child_sprite, screen[cy:cy+ch, cx:cx+cw]).astype(np.uint8)
+                    patches.append((cy, cx, ch, cw, patch))
+        return patches
 
     def _set_active_modifications(self, active_modifs):
         """
@@ -174,7 +196,7 @@ class GameModifications:
             "post_detection_modifs": {
             },
             "inpainting_modifs": {
-                # "no_flickering": self.no_flickering,
+                "no_flickering": self.no_flickering,
             },
             "place_above_modifs": {
             }
@@ -183,14 +205,14 @@ class GameModifications:
         step_modifs = [modif_mapping["step_modifs"][name]
                        for name in self.active_modifications if name in modif_mapping["step_modifs"]]
         reset_modifs = [modif_mapping["reset_modifs"][name]
-                       for name in self.active_modifications if name in modif_mapping["reset_modifs"]]
+                        for name in self.active_modifications if name in modif_mapping["reset_modifs"]]
         post_detection_modifs = [modif_mapping["post_detection_modifs"][name]
-                       for name in self.active_modifications if name in modif_mapping["post_detection_modifs"]]
+                                 for name in self.active_modifications if name in modif_mapping["post_detection_modifs"]]
         inpainting_modifs = [modif_mapping["inpainting_modifs"][name]
-                       for name in self.active_modifications if name in modif_mapping["inpainting_modifs"]]
+                             for name in self.active_modifications if name in modif_mapping["inpainting_modifs"]]
         place_above_modifs = [modif_mapping["place_above_modifs"][name]
-                       for name in self.active_modifications if name in modif_mapping["place_above_modifs"]]
-        
+                              for name in self.active_modifications if name in modif_mapping["place_above_modifs"]]
+
         return step_modifs, reset_modifs, post_detection_modifs, inpainting_modifs, place_above_modifs
 
     def _set_kangaroo_position(self, pos_x, pos_y):
