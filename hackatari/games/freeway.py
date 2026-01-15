@@ -96,7 +96,44 @@ class GameModifications:
         for car in range(77, 87):
             self.env.set_ram(car, 145)
 
-    # My modifications
+    def stop_top_2(self):
+        """
+        Stops the top 2 cars.
+        """
+        for car_pos in range(41, 43):
+            self.env.set_ram(car_pos, 100)
+
+    def stop_bottom_2(self):
+        """
+        Stops the bottom 2 cars.
+        """
+        for car_pos in range(33, 35):
+            self.env.set_ram(car_pos, 100)
+
+    def stop_top_4(self):
+        """
+        Stops the top 4 cars.
+        """
+        for car_pos in range(39, 43):
+            self.env.set_ram(car_pos, 100)
+
+    def stop_bottom_4(self):
+        """
+        Stops the bottom 4 cars.
+        """
+        for car_pos in range(33, 37):
+            self.env.set_ram(car_pos, 100)
+
+    def stop_nearest_5(self):
+        """
+        Stops the 4 cars nearest to the player.
+        """
+        if self.env.get_ram()[14] < 95:
+            for car_pos in range(33, 38):
+                self.env.set_ram(car_pos, 100)
+        else:
+            for car_pos in range(38, 43):
+                self.env.set_ram(car_pos, 100)
 
     def invisible_mode(self):
         """
@@ -172,6 +209,11 @@ class GameModifications:
             "step_modifs": {
                 "stop_random_car": self.stop_random_car,
                 "stop_all_cars": self.stop_all_cars,
+                "stop_top_2": self.stop_top_2,
+                "stop_bottom_2": self.stop_bottom_2,
+                "stop_top_4": self.stop_top_4,
+                "stop_bottom_4": self.stop_bottom_4,
+                "stop_nearest_5": self.stop_nearest_5,
                 "align_all_cars": self.align_all_cars,
                 "all_black_cars": self.all_black_cars,
                 "all_white_cars": self.all_white_cars,
@@ -199,14 +241,14 @@ class GameModifications:
         step_modifs = [modif_mapping["step_modifs"][name]
                        for name in self.active_modifications if name in modif_mapping["step_modifs"]]
         reset_modifs = [modif_mapping["reset_modifs"][name]
-                       for name in self.active_modifications if name in modif_mapping["reset_modifs"]]
+                        for name in self.active_modifications if name in modif_mapping["reset_modifs"]]
         post_detection_modifs = [modif_mapping["post_detection_modifs"][name]
-                       for name in self.active_modifications if name in modif_mapping["post_detection_modifs"]]
+                                 for name in self.active_modifications if name in modif_mapping["post_detection_modifs"]]
         inpainting_modifs = [modif_mapping["inpainting_modifs"][name]
-                       for name in self.active_modifications if name in modif_mapping["inpainting_modifs"]]
+                             for name in self.active_modifications if name in modif_mapping["inpainting_modifs"]]
         place_above_modifs = [modif_mapping["place_above_modifs"][name]
-                       for name in self.active_modifications if name in modif_mapping["place_above_modifs"]]
-        
+                              for name in self.active_modifications if name in modif_mapping["place_above_modifs"]]
+
         return step_modifs, reset_modifs, post_detection_modifs, inpainting_modifs, place_above_modifs
 
 
