@@ -39,10 +39,10 @@ class GameModifications:
         Randomly assigns enemy types, instead of following the standardized pattern.
         """
         ram = self.env.get_ram()
-        types = [32, 64, 80]
+        enemy_types = [32, 64, 80]
         for i in range(4):
             if ram[79 + i] and ram[79 + i] < 81:
-                enemy = random.choice(types)
+                enemy = random.choice(enemy_types)
                 self.env.set_ram(79 + i, enemy)
                 if enemy < 80:
                     if ram[75 + i] == 2:

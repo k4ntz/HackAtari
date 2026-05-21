@@ -36,7 +36,7 @@ class GameModifications:
     
     def shift_player(self):
         """
-        Shifts the player to the left.
+        Shifts the player to the right.
         """
         ram = self.env.get_ram()
         all_down = True

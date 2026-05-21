@@ -17,6 +17,7 @@ class GameModifications:
         self.gravity_level = 3
         self.player_color = 0  # Black, Red, Blue, Green
         self.enemy_color = 0  # White, Red, Blue, Green
+        self.timer = 0
         self.once = 0
         self.colors = [0, 12, 48, 113, 200]
 
@@ -32,10 +33,10 @@ class GameModifications:
         """
         curr_player_pos = self.env.get_ram()[34]
         if curr_player_pos < 87:
-            if not self.env.timer % self.gravity_level:
+            if not self.timer % self.gravity_level:
                 curr_player_pos += 1
                 self.env.set_ram(34, curr_player_pos)
-        self.env.timer += 1
+        self.timer += 1
 
     def offensive(self):
         """

@@ -69,7 +69,6 @@ class GameModifications:
         self.disable_shield_left()
         self.disable_shield_middle()
         self.disable_shield_right()
-        # self.env.set_ram(16, 0) # not going down
         for i in range(80, 83):
             self.env.set_ram(i, 0)
         for i in range(83, 85):
@@ -93,9 +92,6 @@ class GameModifications:
                 "relocate_shields_slight_left": self.relocate_shields_slight_left,
                 "relocate_shields_off_by_one": self.shift_shields_one,
                 "relocate_shields_right": self.relocate_shields_right,
-                # "curved_shots_weak": self.curved_shots_weak,
-                # "curved_shots_medium": self.curved_shots_medium,
-                # "curved_shots_strong": self.curved_shots_strong,
                 "controlable_missile": self.controlable_missile,
                 "no_danger": self.no_danger,
                 "relocate_shields_off_by_three": self.shift_shields_three,

@@ -167,10 +167,10 @@ class GameModifications:
         """
         modif_mapping = {
             "step_modifs": {
-                "more_bombs": self.more_bombs,
                 "no_flickering": self.no_flickering_step,
             },
             "reset_modifs": {
+                "more_bombs": self.more_bombs,
                 "no_flickering": self.no_flickering_reset,
                 "quick_start": self.quick_start,
             },

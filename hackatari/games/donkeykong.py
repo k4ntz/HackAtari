@@ -36,69 +36,11 @@ class GameModifications:
         """
         self.env.set_ram(25, 255)
 
-    def double_barrel(self):
-        """
-        Removes barrels from the game.
-        """
-        ram = self.env.get_ram()
-        if ram[36]:
-            if ram[25] > 0:
-                if self.BARREL_TRIGGER:
-                    self.BARREL_TRIGGER-=1
-                else:
-                    self.env.set_ram(25, ram[25]-1)
-                    self.BARREL_TRIGGER = 30
-            else:
-                self.env.set_ram(25, ram[25]+1)
-                self.BARREL_TRIGGER = 30
-
-            pairs = [(i, j) for i, k in enumerate(ram[0:4]) for j, l in enumerate(ram[0:4]) if k and i < j and (-10 < k - l < 10)]
-            for t in pairs:
-                x, y = ram[65+t[0]], ram[t[0]]
-                x2, y2 = ram[65+t[1]], ram[t[1]]
-                # print(65+t[0], 65+t[1], x, x2)
-                self.env.set_ram(ram[65+t[0]], x2)
-                self.env.set_ram(ram[t[0]], y2)
-                self.env.set_ram(ram[65+t[1]], x)
-                self.env.set_ram(ram[t[1]], y)
-
-
     def unlimited_time(self):
         """
         Provides unlimited time for the player.
         """
         self.env.set_ram(36, 70)
-
-    def change_level_0(self):
-        """
-        Changes the level to level 0.
-        """
-        self._change_level(0)
-
-    def change_level_1(self):
-        """
-        Changes the level to level 1.
-        """
-        self._change_level(1)
-
-    def change_level_2(self):
-        """
-        Changes the level to level 2.
-        """
-        self._change_level(2)
-
-    def _change_level(self, level):
-        """
-        Internal method to change the level based on the specified level.
-
-        :param level: Level number to change to.
-        """
-        if self.env.get_ram()[16] == 1:
-            for i, el in enumerate(self.INIT_RAM):
-                if i not in [35, 36]:  # lives & scores
-                    self.env.set_ram(i, el)
-            if self.random_start:
-                self._randomize_pos()
 
     def random_start_step(self):
         """
@@ -152,11 +94,7 @@ class GameModifications:
         modif_mapping = {
             "step_modifs": {
                 "no_barrel": self.no_barrel,
-                "double_barrel": self.double_barrel,
                 "unlimited_time": self.unlimited_time,
-                # "change_level_0": self.change_level_0,
-                # "change_level_1": self.change_level_1,
-                # "change_level_2": self.change_level_2,
                 "random_start": self.random_start_step,
             },
             "reset_modifs": {

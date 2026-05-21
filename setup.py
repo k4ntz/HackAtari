@@ -14,9 +14,7 @@ setup(
     author="Quentin Delfosse, Jannis Blüml",
     author_email="quentin.delfosse@cs.tu-darmstadt.de",
     packages=find_packages(),
-    # package_data={'': extra_files},
     include_package_data=True,
-    # package_dir={'':'src'},
     url="https://github.com/k4ntz/HAckAtari",
     description="Extended Atari Learning Environments",
     long_description=long_description,
@@ -25,6 +23,3 @@ setup(
         "ocatari",
     ],
 )
-
-# print("Please install gymnasium atari dependencies, using:\n",
-#       "pip install gymnasium[atari, accept-rom-license]")

@@ -172,12 +172,6 @@ class GameModifications:
                 self.score += 50
                 overright_score(self.env, self.score)
             self._last11 = ram[11]
-            
-
-            
-        # for i in range(6):
-        #     obj_type = ram[32 + i]
-        #     if obj_type == 10:
 
     def _set_active_modifications(self, active_modifs):
         """

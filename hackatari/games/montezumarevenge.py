@@ -6,15 +6,6 @@ class GameModifications:
     Encapsulates game modifications for managing active modifications and applying them.
     """
 
-    # Black (Invisible), Orange (Ruby), White (Sword), Yellow (Key), Green (Snake)
-    COLORS = [0, 1, 2, 4, 6]
-    LEVELS = [0, 1, 2]
-    ITEM_ROOMS = [0, 5, 6, 7, 8, 10, 14, 19, 20, 23]
-    ITEMS = [          [1, 0], None, None,
-                None, None, [6, 0], [2, 0], [4, 0],
-            [4, 0], None, [1, 0], None, None, None, [4, 0],
-         None, None, None, None, [4, 0], [1, 4], None, None, [1, 3]]
-    INVENTORY_FULL = 249
 
     def __init__(self, env):
         """
@@ -28,6 +19,15 @@ class GameModifications:
         self.dead = False
         self.poses = [(77, 235), (88, 192), (128, 192),
                       (133, 148), (33, 148), (22, 192)]
+        # Black (Invisible), Orange (Ruby), White (Sword), Yellow (Key), Green (Snake)
+        self.COLORS = [0, 1, 2, 4, 6]
+        self.LEVELS = [0, 1, 2]
+        self.ITEM_ROOMS = [0, 5, 6, 7, 8, 10, 14, 19, 20, 23]
+        self.ITEMS = [          [1, 0], None, None,
+                    None, None, [6, 0], [2, 0], [4, 0],
+                [4, 0], None, [1, 0], None, None, None, [4, 0],
+            None, None, None, None, [4, 0], [1, 4], None, None, [1, 3]]
+        self.INVENTORY_FULL = 249
 
     def random_position_start(self):
         """
@@ -85,13 +85,6 @@ class GameModifications:
         """
         self.env.set_ram(65, self.INVENTORY_FULL)
 
-    def unify_item_color(self, color_index):
-        """
-        Sets all items to a specified color.
-        """
-        if color_index in range(len(self.COLORS)):
-            self.env.set_ram(50, self.COLORS[color_index])
-
     def _set_active_modifications(self, active_modifs):
         """
         Specifies which modifications are active.
@@ -109,11 +102,6 @@ class GameModifications:
         modif_mapping = {
             "step_modifs": {
                 "randomize_items": self.change_items,
-                # "unify_item_color_black": lambda: self.unify_item_color(0),
-                # "unify_item_color_orange": lambda: self.unify_item_color(1),
-                # "unify_item_color_white": lambda: self.unify_item_color(2),
-                # "unify_item_color_yellow": lambda: self.unify_item_color(3),
-                # "unify_item_color_green": lambda: self.unify_item_color(4),
             },
             "reset_modifs": {
                 "set_level_0": lambda: self.set_level(0),

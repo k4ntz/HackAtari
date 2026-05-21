@@ -16,6 +16,7 @@ class GameModifications:
         """
         self.env = env
         self.active_modifications = set()
+        self.clock_counter = 0
 
     def stop_random_car(self):
         """
@@ -149,8 +150,6 @@ class GameModifications:
         for car in range(77, 87):
             color = random.randint(0, 255)
             self.env.set_ram(car, color)
-
-    clock_counter = 0
 
     def phantom_mode(self):
         """

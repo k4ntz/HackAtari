@@ -14,22 +14,6 @@ class GameModifications:
         self.env = env
         self.active_modifications = set()
 
-    def delay_shots(self):
-        """
-        Puts time delay between shots.
-        """
-        if not hasattr(self, "shot_count"):
-            self.shot_count = 100
-
-        if self.shot_count == 100 and (self.env._get_action() == 1 or self.env._get_action() >= 10):
-            self.shot_count = 0
-        elif 25 < self.shot_count < 100:
-            for ram_n in [49, 52, 55, 58, 61, 64]:
-                self.env.set_ram(ram_n, 0)
-            self.env.set_ram(45, 0)
-        if self.shot_count < 100:
-            self.shot_count += 1
-
     def no_enemies(self):
         """
         Removes all enemies from the game.
@@ -95,7 +79,6 @@ class GameModifications:
         """
         modif_mapping = {
             "step_modifs": {
-                "delay_shots": self.delay_shots,
                 "no_enemies": self.no_enemies,
                 "no_radar": self.no_radar,
                 "invisible_player": self.invisible_player,

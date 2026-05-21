@@ -14,42 +14,6 @@ class GameModifications:
         self.env = env
         self.active_modifications = set()
 
-    def recolor_ice_black(self):
-        """
-        Adjusts the ice floes to black.
-        """
-        self.env.set_ram(43, self.COLORS[0])
-        self.env.set_ram(44, self.COLORS[0])
-        self.env.set_ram(45, self.COLORS[0])
-        self.env.set_ram(46, self.COLORS[0])
-
-    def recolor_ice_red(self):
-        """
-        Adjusts the ice floes to red.
-        """
-        self.env.set_ram(43, self.COLORS[1])
-        self.env.set_ram(44, self.COLORS[1])
-        self.env.set_ram(45, self.COLORS[1])
-        self.env.set_ram(46, self.COLORS[1])
-
-    def recolor_ice_blue(self):
-        """
-        Adjusts the ice floes to blue.
-        """
-        self.env.set_ram(43, self.COLORS[2])
-        self.env.set_ram(44, self.COLORS[2])
-        self.env.set_ram(45, self.COLORS[2])
-        self.env.set_ram(46, self.COLORS[2])
-
-    def recolor_ice_green(self):
-        """
-        Adjusts the ice floes to green.
-        """
-        self.env.set_ram(43, self.COLORS[3])
-        self.env.set_ram(44, self.COLORS[3])
-        self.env.set_ram(45, self.COLORS[3])
-        self.env.set_ram(46, self.COLORS[3])
-
     def ui_color_black(self):
         """
         Adjusts the UI to black.
@@ -113,13 +77,13 @@ class GameModifications:
         """
         self.env.set_ram(77, 15)
 
-    def igloo14(self):
+    def one_remaining_igloo(self):
         """
         Sets iglo to full at the beginning of the game.
         """
         self.env.set_ram(77, 14)
 
-    def igloo7(self):
+    def half_igloo(self):
         """
         Sets iglo to full at the beginning of the game.
         """
@@ -141,11 +105,6 @@ class GameModifications:
         """
         modif_mapping = {
             "step_modifs": {
-                # are game breaking
-                # "recolor_ice_black": self.recolor_ice_black,
-                # "recolor_ice_red": self.recolor_ice_red,
-                # "recolor_ice_blue": self.recolor_ice_blue,
-                # "recolor_ice_green": self.recolor_ice_green,
                 "ui_color_red": self.ui_color_red,
                 "ui_color_black": self.ui_color_black,
                 "reposition_floes_easy": self.reposition_floes_easy,
@@ -157,8 +116,8 @@ class GameModifications:
             },
             "reset_modifs": {
                 "full_igloo": self.full_igloo,
-                "igloo-1": self.igloo14,
-                "half_igloo": self.igloo7,
+                "one_remaining_igloo": self.one_remaining_igloo,
+                "half_igloo": self.half_igloo,
             },
             "post_detection_modifs": {
             },
@@ -166,8 +125,6 @@ class GameModifications:
             },
             "place_above_modifs": {
             }
-        }
-        reset_modifs_mapping = {
         }
 
         step_modifs = [modif_mapping["step_modifs"][name]

@@ -53,7 +53,7 @@ class GameModifications:
     
     def force_default_coyote(self):
         """
-        The coyote cannot use the rocket rollerblades or the rocket shipt.
+        The coyote cannot use the rocket rollerblades or the rocket ship.
         """
         ram = self.env.get_ram()
         if ram[62]:

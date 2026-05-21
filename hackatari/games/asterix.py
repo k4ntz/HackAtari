@@ -73,8 +73,8 @@ class GameModifications:
                 "set_consumable_1": self.set_consumable_1,
                 "set_consumable_2": self.set_consumable_2,
                 "unlimited_lives": self.unlimited_lives,
-                "even_lines_free": self.even_lines_free,
                 "odd_lines_free": self.odd_lines_free,
+                "even_lines_free": self.even_lines_free,
             },
             "reset_modifs": {
             },

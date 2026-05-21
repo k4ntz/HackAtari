@@ -62,14 +62,6 @@ class GameModifications:
             self.env.set_ram(9, 83)
             self.env.set_ram(15, 67)
 
-    def edible_ghosts(self):
-        """
-        Ensures all ghosts remain edible indefinitely.
-        """
-        for i in range(1, 5):
-            self.env.set_ram(i, 130)
-        self.env.set_ram(116, 255)
-
     def set_level_0(self):
         """
         Sets the game level to 0.
@@ -208,11 +200,6 @@ class GameModifications:
         for i in range(59, 101):
             self.env.set_ram(i, 0)
         self.timer = 1
-        # mini man stuff
-        # if LINE is not None:
-        #     global COL, COL_POS, LINE_POS
-        #     self.env.set_ram(10, COL_POS[COL])
-        #     self.env.set_ram(16, LINE_POS[LINE])
         self.env.set_ram(0, 0)
         self.env.set_ram(19, 0)
         self.env.set_ram(117, 0)
@@ -263,7 +250,6 @@ class GameModifications:
         modif_mapping = {
             "step_modifs": {
                 "static_ghosts": self.static_ghosts,
-                # "edible_ghosts": self.edible_ghosts,
                 "set_level_0": self.set_level_0,
                 "set_level_1": self.set_level_1,
                 "set_level_2": self.set_level_2,

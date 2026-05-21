@@ -23,11 +23,14 @@ def reward_function_old(self) -> float:
 def reward_function(self) -> float:
     global REWARD
     ram = self.get_ram()
+    # encourage downwards orientation
     orientation = -abs(8-ram[15])*0.5
+    # encourage speed, but less than orientation
     speed = ram[14]*.01
     score = ram[107]
     reward = orientation+speed
 
+    # large reward for running through flag goals
     if score != REWARD:
         reward += 100000
 

@@ -55,6 +55,9 @@ class GameModifications:
             self._ram20 = 0
 
     def one_missile(self):
+        """
+        Reduces the number of missiles an enemy can shoot to one.
+        """
         changed = False
         for i in range(37, 47):
             if changed:

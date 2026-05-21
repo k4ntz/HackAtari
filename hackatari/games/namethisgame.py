@@ -86,11 +86,11 @@ class GameModifications:
                 "unlimited_oxygen": self.unlimited_oxygen,
                 "unlimited_lives": self.unlimited_lives,
                 "double_wave_length": self.double_wave_length,
-                "quick_start": self.quick_start,
                 "octopus_start": self.octopus_start,
-                "octopus_rest": self.octopus_rest,
+                "octopus_reset": self.octopus_rest,
             },
             "reset_modifs": {
+                "quick_start": self.quick_start,
             },
             "post_detection_modifs": {
             },

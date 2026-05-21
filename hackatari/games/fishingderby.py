@@ -42,8 +42,8 @@ class GameModifications:
         """
         current_x_position = self.env.get_ram()[75]
         if current_x_position < 120:
-            self.env.set_ram(75, current_x_position + 5)
-        elif current_x_position > 120:
+            self.env.set_ram(75, current_x_position + 1)
+        elif current_x_position >= 120:
             self.env.set_ram(75, 1)
 
     def fish_on_player_side(self):
@@ -53,34 +53,6 @@ class GameModifications:
         for i in range(6):
             if self.env.get_ram()[69 + i] > 86:
                 self.env.set_ram(69 + i, 44)
-
-    # def swap_fish_sides(self):
-
-    def fished_on_each_sides1(self):
-        """
-        Swap fish sides, the fish that were on the player side are now on the enemy's 
-        one and vice versa.
-        """
-        for i in range(6):
-            if i % 2 == 1:
-                if self.env.get_ram()[69 + i] > 86:
-                    self.env.set_ram(69 + i, 44)
-            else:
-                if self.env.get_ram()[69+i] < 70:
-                    self.env.set_ram(69+i, 116)
-
-    def fished_on_each_sides2(self):
-        """
-        Swap fish sides, the fish that were on the player side are now on the enemy's 
-        one and vice versa.
-        """
-        for i in range(6):
-            if i % 2 == 0:
-                if self.env.get_ram()[69 + i] > 86:
-                    self.env.set_ram(69 + i, 44)
-            else:
-                if self.env.get_ram()[69+i] < 70:
-                    self.env.set_ram(69+i, 116)
 
     def fish_in_middle(self):
         """

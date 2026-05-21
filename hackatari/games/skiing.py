@@ -43,47 +43,11 @@ class GameModifications:
         ram = self.env.get_ram()
         for i in range(8):
             if ram[70+i] == 5:
-                # mogul_height = ram[90+i]
                 self.env.set_ram(30+i, 60)
                 self.env.set_ram(38+i, 133)
                 self.env.set_ram(46+i, 126)
-                # self.env.set_ram(62+i, 79) #y pos
                 self.env.set_ram(70+i, 85)
                 self.env.set_ram(78+i, 6)
-                # self.env.set_ram(90+i, mogul_height+23)
-
-    # def wall_inpaintings(self):
-    #     """
-    #     Generates inpainting data for walls.
-    #     """
-    #     background_color = np.array((80, 0, 132))
-    #     wall_rgb = np.stack((wall,) * 3, axis=-1)
-    #     w, h = wall.shape[1], wall.shape[0]
-    #     ladder_poses = [(0, 0)]
-    #     return [(y, x, h, w, wall_rgb) for x, y in ladder_poses]
-
-    # def wall_updates(self):
-    #     """
-    #     Updates the wall rendering based on flag positions.
-    #     """
-    #     ram = self.env.get_ram()
-    #     wall = self.env.env.ale._inpaintings[0][-1]
-    #     w, h = wall.shape[1], wall.shape[0]
-    #     flags = []
-    #     for i in range(8):
-    #         if ram[70 + i] == 2:  # Flag
-    #             x, y = (ram[62 + i], 182 - ram[86 + i])
-    #             height = 75 - ram[90 + i]
-    #             if not (y > 177 or y < 27 or (y in [27, 28] and height < 16)):
-    #                 flags.append((x, y))
-    #     self.env.env.ale._env.inpaintings = [
-    #         (y, x, h, w, wall) for x, y in flags]
-
-    # def wall_updates_reset(self):
-    #     """
-    #     Resets the wall inpainting modifications.
-    #     """
-    #     self.env.env.ale.place_above = []
 
     def _set_active_modifications(self, active_modifs):
         """
@@ -98,12 +62,10 @@ class GameModifications:
         modif_mapping = {
             "step_modifs": {
                 "invert_flags": self.modify_ram_invert_flag,
-                #    "walls": self.wall_updates,
                 "moguls_to_trees": self.moguls_to_trees,
                 "moving_flags": self.moving_flags,
             },
             "reset_modifs": {
-                "walls": self.wall_updates_reset
             },
             "post_detection_modifs": {
             },

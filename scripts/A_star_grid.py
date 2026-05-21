@@ -5,7 +5,6 @@ import pygame
 
 # Define the Cell class
 
-
 class Cell:
     def __init__(self):
         # Parent cell's row index
@@ -224,7 +223,7 @@ def main():
         [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
     ]
 
-    env = HackAtari("MsPacman", ["mini_maze_man20"], "", "", render_mode="human",
+    env = HackAtari("MsPacman", ["maze_man"], "", "", render_mode="human",
                     mode="ram", hud=True, render_oc_overlay=True, frameskip=1)
     pygame.init()
     obs, _ = env.reset()
