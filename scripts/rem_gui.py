@@ -4,7 +4,7 @@ from ocatari.core import OCAtari, UPSCALE_FACTOR
 from tqdm import tqdm
 import cv2
 import os
-from utils import HackAtariArgumentParser
+from hackatari.utils import HackAtariArgumentParser
 
 # from hackatari.utils import load_color_swaps
 from hackatari.core import HackAtari
@@ -25,14 +25,17 @@ RAM_CELL_HEIGHT = 45
 
 def save_image(obs, filename):
     """Displays and saves an observation as an image."""
-    obs = np.repeat(np.repeat(obs, 3, axis=0), 3, axis=1)  # Upsample for better visibility
+    obs = np.repeat(np.repeat(obs, 3, axis=0), 3,
+                    axis=1)  # Upsample for better visibility
     os.makedirs("screenshots", exist_ok=True)
     i = 1
     while os.path.exists(f"screenshots/{filename}"):
         filename = filename.replace(".png", f"_{i}.png")
         i += 1
-    cv2.imwrite(f"screenshots/{filename}", cv2.cvtColor(obs, cv2.COLOR_BGR2RGB), [cv2.IMWRITE_PNG_COMPRESSION, 0])
+    cv2.imwrite(f"screenshots/{filename}", cv2.cvtColor(obs,
+                cv2.COLOR_BGR2RGB), [cv2.IMWRITE_PNG_COMPRESSION, 0])
     print(f"Image saved as screenshots/{filename}")
+
 
 def merge_last_observations(obss):
     """Merges the last 3 observations with progressive transparenct to create a single image and a movement illusion."""
@@ -41,6 +44,7 @@ def merge_last_observations(obss):
     for alpha, obs in zip(alphas, obss[-3:]):
         merged_obs += alpha * obs
     return merged_obs.astype(np.uint8)
+
 
 class Renderer:
     window: pygame.Surface
@@ -178,20 +182,21 @@ class Renderer:
                         statepkl = self.env._ale.cloneState()
                         with open(f"state_{self.env.game_name}.pkl", "wb") as f:
                             pkl.dump(statepkl, f)
-                            print(f"State saved in state_{self.env.game_name}.pkl.")
+                            print(
+                                f"State saved in state_{self.env.game_name}.pkl.")
 
                 if event.key == pygame.K_r:  # 'R': reset
                     self.env.reset()
-                
+
                 if event.key == pygame.K_i:  # 'I': save image
                     if self.paused:
                         image = merge_last_observations(self.obss)
                         save_image(image, f"image_{self.env.game_name}.png")
-                        print(f"Image saved in image_{self.env.game_name}.png.")
+                        print(
+                            f"Image saved in image_{self.env.game_name}.png.")
 
                 elif event.key == pygame.K_ESCAPE and self.active_cell_idx is not None:
                     self._unselect_active_cell()
-                
 
                 elif [
                     x for x in self.keys2actions.keys() if event.key in x
@@ -394,7 +399,8 @@ class Renderer:
 
 if __name__ == "__main__":
 
-    parser = HackAtariArgumentParser(description="HackAtari remgui.py Argument Setter")
+    parser = HackAtariArgumentParser(
+        description="HackAtari remgui.py Argument Setter")
 
     parser.add_argument(
         "-g", "--game", type=str, default="Seaquest", help="Game to be run"

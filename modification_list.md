@@ -59,6 +59,7 @@ The modes are:
 | unlimited_gas           | Do not decrease the gas |
 | no_police               | Do not spawn police |
 | only_police             | Directly spawn police |
+| two_police_cars         | Replaces 2 banks with police cars, robbed banks give 50 points |
 | random_city             | Start in a random city |
 | revisit_city            | Allows player to revisit previous cities |
 
@@ -205,9 +206,9 @@ The modes are:
 
 | Command | Effect                                  |
 |---------|-----------------------------------------|
-| set_kangaroo_position_floor1  | Set the starting floor (0, 1, or 2)     |
+| set_kangaroo_position_floor1  | Set the starting floor (1, or 2) |
 | randomize_kangaroo_position   | Random starting floor |
-| disable_monkeys               | Disable monkeys in the game             |
+| disable_monkeys               | Disable monkeys in the game |
 | disable_coconut               | Disable the falling coconut in the game |
 | disable_thrown_coconut        | Disable the throwing coconut in the game |
 | no_danger                     | Disables all hazards in the game (monkeys and coconuts) |
@@ -252,7 +253,6 @@ The modes are:
 | unlimited_lives    | Player has an unlimited amounts of lives. |
 | double_wave_length | Doubles the amount of time it takes to get into the next phase. |
 | quick_start        | Skips the intro. |
-
 
 ## Pong
 

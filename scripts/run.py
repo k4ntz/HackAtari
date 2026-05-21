@@ -2,7 +2,7 @@ from hackatari import HackAtari, HumanPlayable
 import numpy as np
 import cv2
 import pygame
-from utils import HackAtariArgumentParser
+from hackatari.utils import HackAtariArgumentParser
 from ocatari.utils import load_agent
 
 

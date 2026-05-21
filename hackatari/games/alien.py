@@ -1,4 +1,5 @@
 import random
+from ocatari.ram.game_objects import NoObject
 
 class GameModifications:
     """
@@ -77,11 +78,10 @@ class GameModifications:
         Removes the enemies from the maze, and freezes them in the second faze.
         """
         ram = self.env.get_ram()
-        # Check wether the game is in the maze phase or the second phase.
-        if ram[0]: # second phase
+        if ram[0] and ram[0] != 1:
             for i in range(6):
                 self.env.set_ram(66+i, 0)
-        else: # maze phase
+        else:
             for i in range(3):
                 self.env.set_ram(42+i, 0)
                 self.env.set_ram(49+i, 0)

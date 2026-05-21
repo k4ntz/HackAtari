@@ -17,6 +17,7 @@ class GameModifications:
         """
         self.env = env
         self.active_modifications = set()
+        self.floor = 0
         self.level_num = None
         self.already_reset = False
         self.kangaroo_sprite = None
@@ -42,9 +43,13 @@ class GameModifications:
         """
         Disables the thrown coconut in the game.
         """
-        self.env.set_ram(25, 255)
-        self.env.set_ram(28, 255)
+        ram = self.env.get_ram()
+        for i in range(3):
+            if ram[25+i] != 255:
+                self.env.set_ram(25+i, 255)
+                self.env.set_ram(28+i, 255)
         self.env.set_ram(31, 0)
+        self.env.set_ram(32, 0)
 
     def unlimited_time(self):
         """
