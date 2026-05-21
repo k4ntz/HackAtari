@@ -153,6 +153,7 @@ The modes are:
 | shark_speed_mode          | Increses the shark speed |
 | fish_on_player_side       | All fish are on the player's side |
 | fish_in_middle            | All fish are in the middle |
+| swap_fish_sides | Swap fish sides, the fish that were on the player side are now on the enemy's one and vice versa. |
 
 ## Freeway:
 

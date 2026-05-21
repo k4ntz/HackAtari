@@ -64,6 +64,19 @@ class GameModifications:
                     self.env.set_ram(69 + i, 86)
                 elif self.env.get_ram()[69 + i] > 86:
                     self.env.set_ram(69 + i, 70)
+    
+    def swap_fish_sides(self):
+        """
+        Swap fish sides, the fish that were on the player side are now on the enemy's 
+        one and vice versa.
+        """
+        for i in range(6):
+            if i % 2 == 0:
+                if self.env.get_ram()[69 + i] > 86:
+                    self.env.set_ram(69 + i, 44)
+            else:
+                if self.env.get_ram()[69+i] < 70:
+                    self.env.set_ram(69+i, 116)
 
     def _set_active_modifications(self, active_modifs):
         """
@@ -87,6 +100,7 @@ class GameModifications:
                 "shark_speed_mode": self.shark_speed_mode,
                 "fish_on_player_side": self.fish_on_player_side,
                 "fish_in_middle": self.fish_in_middle,
+                "swap_fish_sides": self.swap_fish_sides,
             },
             "reset_modifs": {
             },

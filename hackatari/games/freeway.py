@@ -218,7 +218,8 @@ class GameModifications:
         modif_mapping = {
             "step_modifs": {
                 "stop_random_car": self.stop_random_car,
-                "stop_all_cars": self.stop_all_cars,
+                "stop_all_cars_tunnel": self.stop_all_cars,
+                "stop_all_cars_edge": self.stop_all_cars_edge,
                 "stop_top_2": self.stop_top_2,
                 "stop_bottom_2": self.stop_bottom_2,
                 "stop_top_4": self.stop_top_4,
