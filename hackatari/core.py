@@ -82,8 +82,9 @@ class HackAtari(OCAtari):
         self.ale = self.env.unwrapped.ale
         # Initialize modifications and environment settings
         self.step_modifs, self.reset_modifs, self.post_detection_modifs = [], [], []
+        self.lives = self.ale.lives()
         self.inpainting_modifs, self.place_above_modifs = [], []
-
+        
         # Load modification functions dynamically
         try:
             modif_module = importlib.import_module(
@@ -204,6 +205,12 @@ class HackAtari(OCAtari):
             func()
         obs, reward, terminated, truncated, info = self._env.step(
             *args, **kwargs)
+
+        lives = self.ale.lives()
+        if 0 < lives < self.lives:
+            for func in self.reset_modifs:
+                func()
+        self.lives = lives
         for func in self.step_modifs:
             func()
         total_reward += float(reward)
