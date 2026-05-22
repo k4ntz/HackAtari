@@ -149,7 +149,7 @@ class GameModifications:
         for idx, i in enumerate(range(64, 70)):
             self.env.set_ram(i, self.row_colors[idx])
 
-    def reset(self):
+    def sample_reset(self):
         self.already_reset = False
 
     def _set_active_modifications(self, active_modifs):
@@ -190,6 +190,8 @@ class GameModifications:
                 "sample_new_brick_colors": self.sample_new_brick_colors,
             },
             "reset_modifs": {
+                "sample_new_player_and_ball_color": self.sample_reset,
+                "sample_new_brick_colors": self.sample_reset,
             },
             "post_detection_modifs": {
             },
@@ -202,7 +204,6 @@ class GameModifications:
                        for name in self.active_modifications if name in modif_mapping["step_modifs"]]
         reset_modifs = [modif_mapping["reset_modifs"][name]
                        for name in self.active_modifications if name in modif_mapping["reset_modifs"]]
-        reset_modifs += [self.reset]
         post_detection_modifs = [modif_mapping["post_detection_modifs"][name]
                        for name in self.active_modifications if name in modif_mapping["post_detection_modifs"]]
         inpainting_modifs = [modif_mapping["inpainting_modifs"][name]

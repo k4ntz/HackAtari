@@ -19,7 +19,7 @@ class GameModifications:
         self.order_cars = list(range(10))
 
 
-    def reset(self):
+    def reset_order(self):
         self.order_cars = [random.randint(0, 10) for _ in range(10)]
 
     def stop_random_car(self):
@@ -244,23 +244,23 @@ class GameModifications:
                 "stop_bottom_4": self.stop_bottom_4,
                 "stop_nearest_5": self.stop_nearest_5,
                 "align_all_cars": self.align_all_cars,
+                "disable_cars": self.disable_cars,
+                "speed_mode": self.speed_mode,
+                "vary_car_speeds": self.vary_car_speeds,
+                "reverse_car_speed_bottom": self.reverse_car_speed_bottom,
+                "reverse_car_speed_top": self.reverse_car_speed_top,
                 "all_black_cars": self.all_black_cars,
                 "all_white_cars": self.all_white_cars,
                 "all_red_cars": self.all_red_cars,
                 "all_green_cars": self.all_green_cars,
-                "all_pink_cars": self.all_pink_cars,
                 "all_blue_cars": self.all_blue_cars,
                 "invisible_mode": self.invisible_mode,
                 "strobo_mode": self.strobo_mode,
                 "phantom_mode": self.phantom_mode,
                 "blinking_mode": self.blinking_mode,
-                "speed_mode": self.speed_mode,
-                "reverse_car_speed_bottom": self.reverse_car_speed_bottom,
-                "reverse_car_speed_top": self.reverse_car_speed_top,
-                "disable_cars": self.disable_cars,
-                "vary_car_speeds": self.vary_car_speeds,
             },
             "reset_modifs": {
+                "vary_car_speeds": self.reset_order,
             },
             "post_detection_modifs": {
             },

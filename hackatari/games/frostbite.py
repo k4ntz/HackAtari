@@ -179,8 +179,6 @@ class GameModifications:
             "place_above_modifs": {
             }
         }
-        reset_modifs_mapping = {
-        }
 
         step_modifs = [modif_mapping["step_modifs"][name]
                        for name in self.active_modifications if name in modif_mapping["step_modifs"]]

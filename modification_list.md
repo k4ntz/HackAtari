@@ -143,9 +143,9 @@ The modes are:
 | stop_random_car       | Stops a random car with a biased probability for a certain time. |
 | stop_all_cars         | Stops all cars on the side of the board. |
 | align_all_cars        | Align all cars so they move in a line. |
-| all_black_cars        | All cars are black. (also works with white, red, blue, pink and green)|
 | disable_cars          | Hide and disable all cars. |
 | vary_car_speeds       | Randomly interchange car speeds. |
+| all_black_cars        | All cars are black. (also works with white, red, blue, and green)|
 
 
 
@@ -197,8 +197,8 @@ The modes are:
 | up_drift     | Makes the ball drift upwards. (Also works with down, left and right) |
 | hidden_enemy | Makes the enemy invisible for the player (does not work in dqn_default since it is a object detection modification)
 | random_perturbation_enemy | Add random perturbations to enemy movement. |
-| parallel_enemy | In the period where the ball is moving towards the player, the enemy moves in parallel with the player. |
-| parallel_ememy_complete | The enemy always moves in parallel with the player. |
+| parallel_ememy | The enemy always moves in parallel with the player. |
+| parallel_enemy_after_hit | In the period where the ball is moving towards the player, the enemy moves in parallel with the player. |
 
 
 ## Seaquest

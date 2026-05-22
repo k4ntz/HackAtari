@@ -130,8 +130,8 @@ class GameModifications():
                 "down_drift": self.down_drift,
                 "left_drift": self.left_drift,
                 "right_drift": self.right_drift,
-                "parallel_enemy_complete": self.parallel_enemy,
-                "parallel_enemy": self.parallel_enemy_after_hit,
+                "parallel_enemy": self.parallel_enemy,
+                "parallel_enemy_after_hit": self.parallel_enemy_after_hit,
                 "random_perturbation_enemy": self.random_perturbation_enemy,
             },
             "reset_modifs": {
@@ -143,8 +143,8 @@ class GameModifications():
                 "down_drift": self.down_drift,
                 "left_drift": self.left_drift,
                 "right_drift": self.right_drift,
-                "parallel_enemy_complete": self.parallel_enemy,
-                "parallel_enemy": self.parallel_enemy_after_hit,
+                "parallel_enemy": self.parallel_enemy,
+                "parallel_enemy_after_hit": self.parallel_enemy_after_hit,
                 "random_perturbation_enemy": self.random_perturbation_enemy,
             },
             "inpainting_modifs": {
