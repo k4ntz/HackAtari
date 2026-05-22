@@ -67,8 +67,6 @@ class GameModifications:
         if ram[17] != 255: # Check if game is active
             # Initialize the additional flags
             if self.reset:
-                # self.env.set_ram(70, 2)
-                # self.env.set_ram(62, random.randrange(max(7, ram[64]-25), min(ram[64]+25, 114)))
                 for i in range(8):
                     if ram[70+i] == 2 and i < 6:
                         self.env.set_ram(30+i+2, 160)
@@ -94,9 +92,7 @@ class GameModifications:
                 self.env.set_ram(69, random.randrange(max(7, ram[67]-25), min(ram[67]+25, 114)))
                 self.env.set_ram(85, 0)
         else:
-            self.reset = True
-            
-            
+            self.reset = True       
 
     def moguls_to_trees(self):
         """
@@ -126,6 +122,7 @@ class GameModifications:
                 "invert_flags": self.modify_ram_invert_flag,
                 "moguls_to_trees": self.moguls_to_trees,
                 "moving_flags": self.moving_flags,
+                "flag_flurry": self.flag_flurry,
             },
             "reset_modifs": {
             },

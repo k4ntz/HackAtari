@@ -1,4 +1,3 @@
-
 from hackatari import HackAtari, HumanPlayable
 import numpy as np
 import cv2
@@ -17,6 +16,11 @@ from stable_baselines3.common.atari_wrappers import (
 import rliable.metrics as rlm
 
 import time
+
+"""
+Script to evaluate an agent in a (modified) Atari environment.
+"""
+
 
 # Get the current time in a human-readable format
 current_time = time.strftime("%Y-%m-%d-%H-%M", time.localtime())

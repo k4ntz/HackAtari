@@ -207,7 +207,7 @@ The modes are:
 
 | Command | Effect                                  |
 |---------|-----------------------------------------|
-| set_kangaroo_position_floor1  | Set the starting floor (1, or 2) |
+| set_kangaroo_position_floor1  | Set the starting floor (also works with 2) |
 | randomize_kangaroo_position   | Random starting floor |
 | disable_monkeys               | Disable monkeys in the game |
 | disable_coconut               | Disable the falling coconut in the game |

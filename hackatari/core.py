@@ -1,18 +1,3 @@
-"""
-core.py
-
-This module extends the OCAtari framework to provide HackAtari, an object-centric
-Atari Learning Environment with support for custom modifications, reward functions,
-and human playability. It includes:
-
-- HackAtari: Main environment class with modifiable step/reset logic and reward functions.
-- HumanPlayable: Subclass for human-interactive play using pygame.
-- _available_modifications: Utility to list available modifications for a game.
-
-Dependencies:
-- numpy, pygame, importlib, sys, warnings, cv2, termcolor (optional), ocatari.core
-"""
-
 import numpy as np
 import pygame
 import importlib
@@ -32,6 +17,21 @@ from hackatari.ale_mods import (
     ALEInpainting,
     assert_colorswaps,
 )
+
+"""
+core.py
+
+This module extends the OCAtari framework to provide HackAtari, an object-centric
+Atari Learning Environment with support for custom modifications, reward functions,
+and human playability. It includes:
+
+- HackAtari: Main environment class with modifiable step/reset logic and reward functions.
+- HumanPlayable: Subclass for human-interactive play using pygame.
+- _available_modifications: Utility to list available modifications for a game.
+
+Dependencies:
+- numpy, pygame, importlib, sys, warnings, cv2, termcolor (optional), ocatari.core
+"""
 
 # Suppress unnecessary warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)

@@ -5,6 +5,11 @@ import pygame
 from hackatari.utils import HackAtariArgumentParser
 from ocatari.utils import load_agent
 
+"""
+Script for running a (modified) Atari environment that can be played by an agent or a human.
+Allows command-line configuration for environment, observation mode, modifications, steps, etc.
+"""
+
 
 def save_upsampled(rgb_arrays, k=4, l=4):
     """Upsamples and saves a screenshot."""
