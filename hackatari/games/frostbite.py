@@ -89,6 +89,17 @@ class GameModifications:
         """
         self.env.set_ram(77, 7)
 
+    def ice_inactive(self):
+        """
+        Sets the ice floes to inactive. This means while the player can still
+        walk on them, they will not give points or contribute to the igloo
+        building progress.
+        """
+        self.env.set_ram(43, 152)
+        self.env.set_ram(44, 152)
+        self.env.set_ram(45, 152)
+        self.env.set_ram(46, 152)
+
     def _set_active_modifications(self, active_modifs):
         """
         Specifies which modifications are active.
@@ -113,6 +124,7 @@ class GameModifications:
                 "no_birds": self.no_birds,
                 "few_enemies": self.few_enemies,
                 "many_enemies": self.many_enemies,
+                "ice_inactive": self.ice_inactive,
             },
             "reset_modifs": {
                 "full_igloo": self.full_igloo,

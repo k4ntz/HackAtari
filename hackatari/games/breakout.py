@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 
 class GameModifications:
@@ -17,9 +18,11 @@ class GameModifications:
         self.strength = 2
         self.timer = 0
         self.colors = [0, 12, 48, 113, 200]
+        self.colors_bricks = [134, 198, 22, 38, 54, 70]
         self.player_and_ball_color = 0  # Black, White, Red, Blue, Green
         self.all_blocks_color = 0  # Black, White, Red, Blue, Green
         self.row_colors = [None] * 6
+        self.already_reset = False
 
     def right_drift(self):
         """
@@ -90,25 +93,63 @@ class GameModifications:
     def color_player_and_ball_green(self):
         self.env.set_ram(62, self.colors[4])
 
-    def color_all_blocks_black(self):
+    def strobo_mode_player_and_ball(self):
+        color = random.randint(0, 255)
+        self.env.set_ram(62, color)
+
+    def strobo_mode_player_and_ball_no_black(self):
+        color = random.randint(1, 255)
+        self.env.set_ram(62, color)
+
+    def color_blocks(self, color):
         for i in range(64, 70):
-            self.env.set_ram(i, self.colors[0])
+            self.env.set_ram(i, color)
+
+    def color_all_blocks_black(self):
+        self.color_blocks(self.colors[0])
 
     def color_all_blocks_white(self):
-        for i in range(64, 70):
-            self.env.set_ram(i, self.colors[1])
+        self.color_blocks(self.colors[1])
 
     def color_all_blocks_red(self):
-        for i in range(64, 70):
-            self.env.set_ram(i, self.colors[2])
+        self.color_blocks(self.colors[2])
 
     def color_all_blocks_blue(self):
-        for i in range(64, 70):
-            self.env.set_ram(i, self.colors[3])
+        self.color_blocks(self.colors[3])
 
     def color_all_blocks_green(self):
+        self.color_blocks(self.colors[4])
+
+    def strobo_mode_blocks(self):
         for i in range(64, 70):
-            self.env.set_ram(i, self.colors[4])
+            color = random.randint(0, 255)
+            self.env.set_ram(i, color)
+
+    def strobo_mode_blocks_no_black(self):
+        for i in range(64, 70):
+            color = random.randint(1, 255)
+            self.env.set_ram(i, color)
+
+    def sample_new_player_and_ball_color(self):
+        if not self.already_reset:
+            color = random.choice(self.colors_bricks)
+            self.player_and_ball_color = color
+            self.already_reset = True
+        self.env.set_ram(62, self.player_and_ball_color)
+
+    def sample_new_brick_colors(self):
+        if not self.already_reset:
+            colors = self.colors_bricks.copy()
+            np.random.shuffle(colors)
+            for idx, i in enumerate(range(64, 70)):
+                self.row_colors[idx] = colors[idx]
+            self.already_reset = True
+
+        for idx, i in enumerate(range(64, 70)):
+            self.env.set_ram(i, self.row_colors[idx])
+
+    def sample_reset(self):
+        self.already_reset = False
 
     def _set_active_modifications(self, active_modifs):
         """
@@ -140,8 +181,16 @@ class GameModifications:
                 "color_all_blocks_red": self.color_all_blocks_red,
                 "color_all_blocks_blue": self.color_all_blocks_blue,
                 "color_all_blocks_green": self.color_all_blocks_green,
+                "strobo_mode_blocks": self.strobo_mode_blocks,
+                "strobo_mode_player_and_ball": self.strobo_mode_player_and_ball,
+                "strobo_mode_blocks_no_black": self.strobo_mode_blocks_no_black,
+                "strobo_mode_player_and_ball_no_black": self.strobo_mode_player_and_ball_no_black,
+                "sample_new_player_and_ball_color": self.sample_new_player_and_ball_color,
+                "sample_new_brick_colors": self.sample_new_brick_colors,
             },
             "reset_modifs": {
+                "sample_new_player_and_ball_color": self.sample_reset,
+                "sample_new_brick_colors": self.sample_reset,
             },
             "post_detection_modifs": {
             },
@@ -150,7 +199,6 @@ class GameModifications:
             "place_above_modifs": {
             }
         }
-
         step_modifs = [modif_mapping["step_modifs"][name]
                        for name in self.active_modifications if name in modif_mapping["step_modifs"]]
         reset_modifs = [modif_mapping["reset_modifs"][name]

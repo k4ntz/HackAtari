@@ -17,13 +17,13 @@ The modes are:
 ## Alien:
 | Command | Effect                                                                               |
 |---------|--------------------------------------------------------------------------------------|
-| last_egg          | Removes all eggs but one. |
-| unlimited_fuel    | Provides unlimited fuel to the players flamethrower. |
-| unlimited_lives   | The player never loses any lives. |
-| no_enemies        | No alien appears in the maze and all aliens in the second phase are frozen. |
-| no_alien          | No alien appears in the maze. |
-| one_alien         | One alien appears in the maze. |
-| two_alien         | Two alien appear in the maze. |
+| last_egg          | Removes all eggs but one |
+| unlimited_fuel    | Provides unlimited fuel to the players flamethrower |
+| unlimited_lives   | The player never loses any lives |
+| no_enemies        | No alien appears in the maze and all aliens in the second phase are frozen |
+| no_alien          | No alien appears in the maze |
+| one_alien         | One alien appears in the maze |
+| two_alien         | Two alien appear in the maze |
 
 ## Amidar:
 | Command | Effect                                                                               |
@@ -95,31 +95,35 @@ The modes are:
 | inverse_gravity | Set drift dirtection upwards |
 | color_player_and_ball_black | Set color of player and ball (also works with white, red, blue and green) |
 | color_all_blocks_black | Set color of all blocks (also works with white, red, blue and green)  |
+| strobo_mode_player_and_ball | Player and ball change color randomly every step (also available with the random colors not including black) |
+| strobo_mode_blocks | All blocks change color randomly every step (also available with the random colors not including black) |
+| sample_new_player_and_ball_color | Sample a new color for the player and ball for every game |
+| sample_new_block_color | Sample a new color for the blocks for every game |
 
 ## Carnival:
 | Command | Effect                                                                               |
 |---------|--------------------------------------------------------------------------------------|
-| no_flying_ducks                | Ducks in the last row disappear instead of turning into flying ducks. |
-| unlimited_ammo                 | Ammunition doesn't decrease. |
-| missile_speed_small_increase   | The projectiles fired from the players are faster (slow increase). |
-| missile_speed_medium_increase  | The projectiles fired from the players are faster (medium increase). |
-| missile_speed_large_increase   | The projectiles fired from the players are faster (large increase). |
+| no_flying_ducks                | Ducks in the last row disappear instead of turning into flying ducks |
+| unlimited_ammo                 | Ammunition doesn't decrease |
+| missile_speed_small_increase   | The projectiles fired from the players are faster (slow increase) |
+| missile_speed_medium_increase  | The projectiles fired from the players are faster (medium increase) |
+| missile_speed_large_increase   | The projectiles fired from the players are faster (large increase) |
 
 ## ChopperCommand:
 | Command | Effect                                                                               |
 |---------|--------------------------------------------------------------------------------------|
-| no_enemies            | Removes all enemies from the game. |
-| no_radar              | Removes the radar content. |
-| invisible_player      | Makes the player invisible. |
-| color_black           | Changes the background and enemies' color to black. (also works with white, red, blue and green). |
+| no_enemies            | Removes all enemies from the game |
+| no_radar              | Removes the radar content |
+| invisible_player      | Makes the player invisible |
+| color_black           | Changes the background and enemies' color to black. (also works with white, red, blue and green) |
 
 ## Defender:
 
 | Command | Effect                                                                               |
 |---------|--------------------------------------------------------------------------------------|
-| more_bombs     | Increases the amount of smart bombs to 8. |
-| quick_start    | Reduces the game start time to 5 frames. |
-| no_flickering  | Uses ALE inpainting to add the missing sprites in the frame. |
+| more_bombs     | Increases the amount of smart bombs to 8 |
+| quick_start    | Reduces the game start time to 5 frames |
+| no_flickering  | Uses ALE inpainting to add the missing sprites in the frame |
 
 ## DemonAttack:
 
@@ -132,9 +136,9 @@ The modes are:
 
 | Command | Effect                                                                               |
 |---------|--------------------------------------------------------------------------------------|
-| no_barrel           | Removes barrels from the game. |
-| unlimited_time      | Provides unlimited time for the player. |
-| random_start        | Randomly choose between 10 possible starting positions. |
+| no_barrel           | Removes barrels from the game |
+| unlimited_time      | Provides unlimited time for the player |
+| random_start        | Randomly choose between 10 possible starting positions |
 
 ## DoubleDunk:
 
@@ -153,55 +157,61 @@ The modes are:
 | shark_speed_mode          | Increses the shark speed |
 | fish_on_player_side       | All fish are on the player's side |
 | fish_in_middle            | All fish are in the middle |
-| swap_fish_sides | Swap fish sides, the fish that were on the player side are now on the enemy's one and vice versa. |
+| swap_fish_sides | Swap fish sides, the fish that were on the player side are now on the enemy's one and vice versa |
 
 ## Freeway:
 
 | Command | Effect                                                                               |
 |---------|--------------------------------------------------------------------------------------|
-| align_all_cars            | Align all cars so they move in a line. |
-| stop_random_car           | Stops a random car with a biased probability for a certain time. |
-| stop_all_cars_edge        | Stops all cars on the side of the board. |
-| stop_all_cars_tunnel      | Stops all cars on the street, building a tunnel for the player. |
-| stop_top_2                | Stops the top 2 cars. |
-| stop_bottom_2             | Stops the bottom 2 cars. |
-| stop_top_4                | Stops the top 4 cars. |
-| stop_bottom_4             | Stops the bottom 4 cars. |
-| stop_nearest_5            | Stops the 4 cars nearest to the player. |
-| invisible_mode            | Makes the cars invisible. |
-| strobo_mode               | Each car changes color randomly every timestep. |
-| phantom_mode              | Each car changes color from black to invisible approximately every second. |
-| blinking_mode             | Each car changes color randomly approximately every second. |
-| speed_mode                | Increases the speed of all cars. |
-| reverse_car_speed_bottom  | Reverses the speed order of the cars on the bottom road (the fastest becomes the slowest and vice versa). |
-| reverse_car_speed_top     | Reverses the speed order of the cars on the top road (the fastest becomes the slowest and vice versa). |
+| align_all_cars            | Align all cars so they move in a line |
+| stop_random_car           | Stops a random car with a biased probability for a certain time |
+| stop_all_cars_edge        | Stops all cars on the side of the board |
+| stop_all_cars_tunnel      | Stops all cars on the street, building a tunnel for the player |
+| stop_top_2                | Stops the top 2 cars |
+| stop_bottom_2             | Stops the bottom 2 cars |
+| stop_top_4                | Stops the top 4 cars |
+| stop_bottom_4             | Stops the bottom 4 cars |
+| stop_nearest_5            | Stops the 4 cars nearest to the player |
+| invisible_mode            | Makes the cars invisible |
+| strobo_mode               | Each car changes color randomly every timestep |
+| phantom_mode              | Each car changes color from black to invisible approximately every second |
+| blinking_mode             | Each car changes color randomly approximately every second |
+| speed_mode                | Increases the speed of all cars |
+| reverse_car_speed_bottom  | Reverses the speed order of the cars on the bottom road (the fastest becomes the slowest and vice versa) |
+| reverse_car_speed_top     | Reverses the speed order of the cars on the top road (the fastest becomes the slowest and vice versa) |
 | all_black_cars            | All cars are black. (also works with white, red, blue and green)|
+| disable_cars              | Hide and disable all cars |
+| vary_car_speeds           | Randomly interchange car speeds |
+
+
 
 ## Frostbite:
 
 | Command | Effect                                                                               |
 |---------|--------------------------------------------------------------------------------------|
-| reposition_floes_easy     | Make ice shelves static (easy mode). |
-| reposition_floes_medium   | Make ice shelves static (medium mode). |
-| reposition_floes_hard     | Make ice shelves static (hard mode).|
+| reposition_floes_easy     | Make ice shelves static (easy mode) |
+| reposition_floes_medium   | Make ice shelves static (medium mode) |
+| reposition_floes_hard     | Make ice shelves static (hard mode) |
 | no_birds                  | Removes all birds (and fishes?) |
 | few_enemies               | Increase enemies slightly |
 | many_enemies              | Increase enemies to a maximum |
 | half_igloo                | Igloo is halfway built at the start of the game |
 | full_igloo                | Igloo is fully built at the start of the game |
 | one_remaining_igloo       | Igloo has all but one block at the start of the game |
-| ui_color_black            | Sets ui color to black. (also works with red). |
+| ui_color_black            | Sets ui color to black. (also works with red) |
+| ice_inactive              | Ice floes will not give points or contribute to the igloo building progress |
+        
 
 
 ## Jamesbond:
 
 | Command | Effect                                                                               |
 |---------|--------------------------------------------------------------------------------------|
-| constant_jump     | Makes the player character jump constantly. |
-| straight_shots    | The player shots go straight up, instead of diagonal. |
-| fast_backward     | Increases the reversing speed. |
-| mobile_player     | Makes the player character jump constantly and increases the reversing speed. |
-| unlimited_lives   | Player has an unlimited amounts of lives. |
+| constant_jump     | Makes the player character jump constantly |
+| straight_shots    | The player shots go straight up, instead of diagonal |
+| fast_backward     | Increases the reversing speed |
+| mobile_player     | Makes the player character jump constantly and increases the reversing speed |
+| unlimited_lives   | Player has an unlimited amounts of lives |
 
 ## Kangaroo:
 
@@ -222,18 +232,18 @@ The modes are:
 
 | Command | Effect                                  |
 |---------|-----------------------------------------|
-| no_damage         | Player does not take damage. |
-| unlimited_time    | Provides unlimited time to clear the level. |
-| unlimited_lives   | Player has an unlimited amounts of lives. |
+| no_damage         | Player does not take damage |
+| unlimited_time    | Provides unlimited time to clear the level |
+| unlimited_lives   | Player has an unlimited amounts of lives |
 
 ## MontezumaRevenge:
 
 | Command | Effect                                  |
 |---------|-----------------------------------------|
-| random_position_start     | Sets a random starting position for the player. |
+| random_position_start     | Sets a random starting position for the player |
 | set_level_0               | Sets the game to a specified level. (0, 1 or 2) |
-| randomize_items           | Randomizes which items are found in which rooms. |
-| full_inventory            | Adds all items to the player's inventory. |
+| randomize_items           | Randomizes which items are found in which rooms |
+| full_inventory            | Adds all items to the player's inventory |
 
 
 ## MsPacman
@@ -243,57 +253,60 @@ The modes are:
 | caged_ghosts       | Caged ghosts, ghosts will not leave the middle |
 | disable_orange     | Disable the orange ghost (also works with red, cyan, pink) |
 | set_level_0        | Set level to 0. (0, 1 or 2) |
-| end_game           | Simulates an almost done game, with 15 pills remaining in the level. |
-| maze_man           | Changes the game to a maze solving task. Only one pill will spawn at a time. After the player collects it, a new pill will spawn. The game is won when the player has collected 20 pills. |
+| end_game           | Simulates an almost done game, with 15 pills remaining in the level |
+| maze_man           | Changes the game to a maze solving task. Only one pill will spawn at a time. After the player collects it, a new pill will spawn. The game is won when the player has collected 20 pills |
 
 ## NameThisGame
 
 | Command                 | Effect                                                            |
 |-------------------------|-------------------------------------------------------------------|
-| unlimited_oxygen   | Provides the player with an unlimited supply of oxygen. |
-| unlimited_lives    | Player has an unlimited amounts of lives. |
-| double_wave_length | Doubles the amount of time it takes to get into the next phase. |
-| quick_start        | Skips the intro. |
+| unlimited_oxygen   | Provides the player with an unlimited supply of oxygen |
+| unlimited_lives    | Player has an unlimited amounts of lives |
+| double_wave_length | Doubles the amount of time it takes to get into the next phase |
+| quick_start        | Skips the intro |
 
 ## Pong
 
 | Command                 | Effect                                                            |
 |-------------------------|-------------------------------------------------------------------|
-| lazy_enemy   | Enemy does not move after returning the shot. |
+| lazy_enemy   | Enemy does not move after returning the shot |
 | up_drift     | Makes the ball drift upwards. (Also works with down, left and right) |
 | hidden_enemy | Makes the enemy invisible for the player (does not work in dqn_default since it is a object detection modification) |
+| random_perturbation_enemy | Add random perturbations to enemy movement |
+| parallel_ememy | The enemy always moves in parallel with the player |
+| parallel_enemy_after_hit | In the period where the ball is moving towards the player, the enemy moves in parallel with the player |
 
 ## Riverraid
 
 | Command                 | Effect                                                            |
 |-------------------------|-------------------------------------------------------------------|
-| no_fuel                 | Removes the fuel deposits from the game. |
-| red_river               | Turns the river red. |
-| linear_river            | Makes the river straight, however objects still spwan at their normal position making them unreachable in the worst case. |
-| game_color_change01     | Turns all elements of the game to another colorset (also works with 02, 03). |
-| object_color_change01   | Turns all objects in the game to another colorset (also works with 02, 03). |
-| exploding_fuels         | Shooting the fuel deposits will now provides -80 points (instead of 20). |
-| restricted_firing       | The player is only able to shoot in critical situation, facing a bridge or in a corridor. |
-| unlimited_lives         | Player has an unlimited amounts of lives. |
+| no_fuel                 | Removes the fuel deposits from the game |
+| red_river               | Turns the river red |
+| linear_river            | Makes the river straight, however objects still spwan at their normal position making them unreachable in the worst case |
+| game_color_change01     | Turns all elements of the game to another colorset (also works with 02, 03) |
+| object_color_change01   | Turns all objects in the game to another colorset (also works with 02, 03) |
+| exploding_fuels         | Shooting the fuel deposits will now provides -80 points (instead of 20) |
+| restricted_firing       | The player is only able to shoot in critical situation, facing a bridge or in a corridor |
+| unlimited_lives         | Player has an unlimited amounts of lives |
 
 ## RoadRunner
 
 | Command                 | Effect                                                            |
 |-------------------------|-------------------------------------------------------------------|
-| default_coyote          | Prohibits the coyote from using the rocket rollerblades or rocket ship. |
-| change_coyote           | Activates rocket rollerblades if coyote falls back too far. |
+| default_coyote          | Prohibits the coyote from using the rocket rollerblades or rocket ship |
+| change_coyote           | Activates rocket rollerblades if coyote falls back too far |
 
 ## Robotank
 
 | Command                 | Effect                                                            |
 |-------------------------|-------------------------------------------------------------------|
-| fog           | Weather condition is always set to fog. |
-| snow          | Weather condition is always set to snow. |
-| rain          | Weather condition is always set to rain. |
-| no_radar      | Disables the radar. |
-| tread_damage  | Tread sensor is damaged. |
-| canon_damage  | Canon is damaged. |
-| vision_damage | Vision sensor is damaged. |
+| fog           | Weather condition is always set to fog |
+| snow          | Weather condition is always set to snow |
+| rain          | Weather condition is always set to rain |
+| no_radar      | Disables the radar |
+| tread_damage  | Tread sensor is damaged |
+| canon_damage  | Canon is damaged |
+| vision_damage | Vision sensor is damaged |
 
 ## Seaquest
 
@@ -310,11 +323,11 @@ The modes are:
 
 | Command | Effect                           |
 |---------|----------------------------------|
-| invert_flags     | Change flag color to red (last flag will be blue). |
-| moguls_to_trees  | Replaces all moguls with trees. |
-| moving_flags     | Flags move to the left and right. |
-| random_flags     | Randomizes the horizontal position of the flags. |
-| flag_flurry      | Flags appear in quick succession. The number of flags per run doubles. |
+| invert_flags     | Change flag color to red (last flag will be blue) |
+| moguls_to_trees  | Replaces all moguls with trees |
+| moving_flags     | Flags move to the left and right |
+| random_flags     | Randomizes the horizontal position of the flags |
+| flag_flurry      | Flags appear in quick succession. The number of flags per run doubles |
 
 ## SpaceInvaders:
 
@@ -325,7 +338,7 @@ The modes are:
 | relocate_shields_off_by_one  | Set shields off by one pixel  |
 | relocate_shields_right       | Set shields to new position right of the original  |
 | controlable_missile          | The missible trajectory follows the user control of the ship  |
-| no_danger                    | Stops enemies from fireing missiles. Also removes the shields. |
+| no_danger                    | Stops enemies from fireing missiles. Also removes the shields |
 
 ## StarGunner:
 
@@ -333,8 +346,8 @@ The modes are:
 |------------|-------------------------------------------------------------------|
 | static_bomber     | Stops the bomber at the top from moving.  |
 | static_flyers     | Stops the flying enemies in place.  |
-| remove_mountains  | Removes the mountains from the game. |
-| static_mountains  | The mountains stay the same, even if the player moves. |
+| remove_mountains  | Removes the mountains from the game |
+| static_mountains  | The mountains stay the same, even if the player moves |
 
 ## Tennis
 
@@ -350,30 +363,30 @@ The modes are:
 
 | Command | Effect             |
 |---------|--------------------|
-| level_1               | Changes the level to level 1 (also works with 2, 3, 4, 5). |
-| random_orientation    | Randomizes orientation of enemies. They are no longer aligned. |
+| level_1               | Changes the level to level 1 (also works with 2, 3, 4, 5) |
+| random_orientation    | Randomizes orientation of enemies. They are no longer aligned |
 
 ## UpNDown
 
 | Command | Effect             |
 |---------|--------------------|
-| no_trucks       | Removes all opposing trucks from the game. |
-| reduced_trucks  | Reduces amount of opposing trucks on screen to one. |
-| more_trucks     | All collectables (not the flags) are turned into trucks. |
-| short_game      | Halves the amount of flags required to clear a level. |
+| no_trucks       | Removes all opposing trucks from the game |
+| reduced_trucks  | Reduces amount of opposing trucks on screen to one |
+| more_trucks     | All collectables (not the flags) are turned into trucks |
+| short_game      | Halves the amount of flags required to clear a level |
 | level_1         | Sets the level to 1. (also works with 2 or 3) |
 
 ## Venture
 
 | Command | Effect             |
 |---------|--------------------|
-| random_enemy_colors   | Changes the color of all enemies to a random color. |
-| enemy_color_black     | Changes the color of all enemies to black (also works with white, red, blue, green). |
+| random_enemy_colors   | Changes the color of all enemies to a random color |
+| enemy_color_black     | Changes the color of all enemies to black (also works with white, red, blue, green) |
 
 ## YarsRevenge
 
 | Command | Effect             |
 |---------|--------------------|
-| disable_enemy_movement    | Disables enemy movement. |
-| disable_block_movement    | Stops blocks in place. |
-| static                    | Disables enemy movement and stops blocks in place. |
+| disable_enemy_movement    | Disables enemy movement |
+| disable_block_movement    | Stops blocks in place |
+| static                    | Disables enemy movement and stops blocks in place |

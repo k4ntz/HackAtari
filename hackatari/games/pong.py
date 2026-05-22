@@ -1,3 +1,4 @@
+import numpy as np
 from ocatari.ram.game_objects import NoObject
 
 
@@ -17,7 +18,29 @@ class GameModifications():
         self.strength = 6
         self.timer = 0
         self.last_enemy_y_pos = 127
+        self.last_player_y_pos = 127
         self.ball_previous_x_pos = 130
+        self.ball_previous_y_pos = 60
+
+    def parallel_enemy(self):
+        ram = self.env.get_ram()
+        player_pos = ram[60]
+        self.env.set_ram(21, player_pos)
+
+    def parallel_enemy_after_hit(self):
+        ram = self.env.get_ram()
+        if 0 < ram[11] < 5:
+            self.env.set_ram(21, 127)
+            self.env.set_ram(49, 130)
+        if self.ball_previous_x_pos < ram[49]:
+            player_pos = ram[60]
+            self.env.set_ram(21, player_pos)
+
+    def random_perturbation_enemy(self):
+        ram = self.env.get_ram()
+        enemy_pos = ram[21]
+        perturbation = np.random.randint(-5, 6)
+        self.env.set_ram(21, min(max(0,perturbation+enemy_pos),250))
 
     def lazy_enemy(self):
         """
@@ -34,6 +57,7 @@ class GameModifications():
             tmp = ram[21]
         self.ball_previous_x_pos = ram[49]
         self.last_enemy_y_pos = tmp
+
 
     def hidden_enemy(self):
         """
@@ -106,6 +130,9 @@ class GameModifications():
                 "down_drift": self.down_drift,
                 "left_drift": self.left_drift,
                 "right_drift": self.right_drift,
+                "parallel_enemy": self.parallel_enemy,
+                "parallel_enemy_after_hit": self.parallel_enemy_after_hit,
+                "random_perturbation_enemy": self.random_perturbation_enemy,
             },
             "reset_modifs": {
             },
@@ -116,6 +143,9 @@ class GameModifications():
                 "down_drift": self.down_drift,
                 "left_drift": self.left_drift,
                 "right_drift": self.right_drift,
+                "parallel_enemy": self.parallel_enemy,
+                "parallel_enemy_after_hit": self.parallel_enemy_after_hit,
+                "random_perturbation_enemy": self.random_perturbation_enemy,
             },
             "inpainting_modifs": {
             },
